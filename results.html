@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>정사각형 속 넓이의 극한 퀴즈 · 전체 순위표</title>
+<title>수학 퀴즈 순위표</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
@@ -80,6 +80,13 @@
   .btn:active{ transform: scale(0.97); }
   .btn.ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line); }
 
+  .quiz-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+  .quiz-tab{
+    font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:999px;
+    border:1.5px solid var(--line); background:transparent; color:var(--ink-soft);
+  }
+  .quiz-tab.active{ background:var(--d); border-color:var(--d); color:#fff; }
+
   table.results{ width:100%; border-collapse:collapse; font-size:14px; }
   table.results th, table.results td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--line-soft); }
   table.results th{ color:var(--ink-faint); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; }
@@ -102,12 +109,13 @@
 <body>
 <div class="wrap">
   <header class="page">
-    <div class="eyebrow">고2 수학 · 도형과 극한</div>
+    <div class="eyebrow">고2 수학</div>
     <h1 class="title">전체 순위표</h1>
-    <p class="subtitle">정사각형 속 넓이의 극한 퀴즈 · <a href="./quiz.html">← 퀴즈 풀러 가기</a></p>
+    <p class="subtitle">동의하고 제출한 학생들의 퀴즈 결과예요</p>
   </header>
 
   <div class="card">
+    <div class="quiz-tabs" id="quiz-tabs"></div>
     <div class="toolbar">
       <span class="updated-at" id="updated-at"></span>
       <button class="btn ghost" id="refresh-btn" type="button">새로고침</button>
@@ -136,6 +144,16 @@
 
   var AUTO_REFRESH_MS = 20000;
 
+  var allResults = [];
+  var activeQuizId = 'all';
+  (function initFromQuery(){
+    try {
+      var params = new URLSearchParams(location.search);
+      var q = params.get('quiz');
+      if (q) activeQuizId = q;
+    } catch(e){}
+  })();
+
   function backendConfigured(){
     return !!SCRIPT_URL && SCRIPT_URL.indexOf('PASTE_YOUR_') !== 0;
   }
@@ -162,17 +180,59 @@
     table.style.display = 'none';
   }
 
-  function renderResults(results){
+  function quizzesPresent(){
+    var seen = {};
+    var list = [];
+    allResults.forEach(function(r){
+      var id = r.quizId || '(미지정)';
+      if (seen[id]) return;
+      seen[id] = true;
+      list.push({ id: id, label: r.quizLabel || id });
+    });
+    return list;
+  }
+
+  function renderTabs(){
+    var wrap = document.getElementById('quiz-tabs');
+    var quizzes = quizzesPresent();
+    if (quizzes.length <= 1){
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'flex';
+    if (activeQuizId !== 'all' && !quizzes.some(function(q){ return q.id === activeQuizId; })){
+      activeQuizId = 'all';
+    }
+    var html = '<button type="button" class="quiz-tab' + (activeQuizId === 'all' ? ' active' : '') + '" data-quiz="all">전체</button>';
+    quizzes.forEach(function(q){
+      html += '<button type="button" class="quiz-tab' + (activeQuizId === q.id ? ' active' : '') + '" data-quiz="' + escapeHtml(q.id) + '">' + escapeHtml(q.label) + '</button>';
+    });
+    wrap.innerHTML = html;
+    Array.prototype.slice.call(wrap.querySelectorAll('.quiz-tab')).forEach(function(btn){
+      btn.addEventListener('click', function(){
+        activeQuizId = btn.dataset.quiz;
+        renderTabs();
+        renderTable();
+      });
+    });
+  }
+
+  function renderTable(){
     var note = document.getElementById('state-note');
     var table = document.getElementById('results-table');
     var tbody = document.getElementById('results-tbody');
 
-    if (!results || !results.length){
-      setNote('아직 제출된 결과가 없어요.');
+    var filtered = activeQuizId === 'all'
+      ? allResults
+      : allResults.filter(function(r){ return (r.quizId || '(미지정)') === activeQuizId; });
+
+    if (!filtered.length){
+      setNote(allResults.length ? '이 퀴즈에는 아직 제출된 결과가 없어요.' : '아직 제출된 결과가 없어요.');
       return;
     }
 
-    var sorted = results.slice().sort(function(a, b){ return (b.points || 0) - (a.points || 0); });
+    var sorted = filtered.slice().sort(function(a, b){ return (b.points || 0) - (a.points || 0); });
 
     var html = '';
     sorted.forEach(function(r, i){
@@ -203,7 +263,9 @@
     fetch(SCRIPT_URL, { method: 'GET' })
       .then(function(res){ return res.json(); })
       .then(function(data){
-        renderResults(data && data.results);
+        allResults = (data && data.results) || [];
+        renderTabs();
+        renderTable();
         updateTimestamp();
       })
       .catch(function(){
