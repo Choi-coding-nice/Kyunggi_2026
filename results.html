@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>정사각형 속 넓이의 극한 퀴즈 · 전체 순위표</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #EEF2F6;
+    --paper-alt: #E3E9F1;
+    --card: #FBFCFE;
+    --ink: #1C2541;
+    --ink-soft: #56637E;
+    --ink-faint: #8A93A8;
+    --line: rgba(28,37,65,0.20);
+    --line-soft: rgba(28,37,65,0.10);
+    --d: #1D6FA5; --d-bg: #E2EEF6;
+    --f: #B23A48; --f-bg: #F7E4E6;
+    --ok: #1F7A63; --ok-bg: #E4F2ED;
+    --bad: #B23A48; --bad-bg: #F7E4E6;
+    --shadow: 0 1px 2px rgba(28,37,65,0.06), 0 8px 24px -12px rgba(28,37,65,0.18);
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #10142A; --paper-alt: #171D3A; --card: #1B2140;
+      --ink: #E9EDF8; --ink-soft: #AEB8D2; --ink-faint: #7C87A6;
+      --line: rgba(233,237,248,0.20); --line-soft: rgba(233,237,248,0.09);
+      --d: #6FB6EA; --d-bg: #16283C;
+      --f: #E8828C; --f-bg: #3A1D22;
+      --ok: #4CC9A7; --ok-bg: #16332C;
+      --bad: #E8828C; --bad-bg: #3A1D22;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #10142A; --paper-alt: #171D3A; --card: #1B2140;
+    --ink: #E9EDF8; --ink-soft: #AEB8D2; --ink-faint: #7C87A6;
+    --line: rgba(233,237,248,0.20); --line-soft: rgba(233,237,248,0.09);
+    --d: #6FB6EA; --d-bg: #16283C;
+    --f: #E8828C; --f-bg: #3A1D22;
+    --ok: #4CC9A7; --ok-bg: #16332C;
+    --bad: #E8828C; --bad-bg: #3A1D22;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; padding:0; }
+  body{
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    background:
+      linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0/100% 42px,
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0/42px 100%,
+      var(--paper);
+    color: var(--ink);
+    font-family:'Noto Sans KR','Malgun Gothic',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width: 640px; margin:0 auto; padding: 26px 18px 60px; }
+  header.page{ text-align:center; margin-bottom: 18px; }
+  .eyebrow{ font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; }
+  h1.title{ font-family:'Gowun Batang',serif; font-weight:700; font-size:clamp(20px,3.4vw,26px); margin:6px 0 4px; text-wrap:balance; }
+  .subtitle{ color:var(--ink-soft); font-size:14px; margin:0; }
+  .subtitle a{ color:var(--d); }
+
+  .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 20px 22px; }
+
+  .toolbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .updated-at{ font-size:12px; color:var(--ink-faint); }
+  button{ font-family:'Noto Sans KR',sans-serif; cursor:pointer; }
+  .btn{
+    font-weight:700; font-size:13.5px; padding:8px 16px; border-radius:999px;
+    border:none; background:var(--d); color:#fff; transition: opacity .12s ease, transform .12s ease;
+  }
+  .btn:hover{ opacity:0.9; }
+  .btn:active{ transform: scale(0.97); }
+  .btn.ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line); }
+
+  table.results{ width:100%; border-collapse:collapse; font-size:14px; }
+  table.results th, table.results td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--line-soft); }
+  table.results th{ color:var(--ink-faint); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; }
+  table.results td.num{ font-family:'STIX Two Text',serif; font-variant-numeric:tabular-nums; }
+  table.results tr:first-child td{ font-weight:700; color:var(--f); }
+  table.results tr:nth-child(2) td{ font-weight:600; }
+
+  .state-note{ text-align:center; color:var(--ink-faint); font-size:13.5px; padding: 28px 0; }
+  .state-note.bad{ color:var(--bad); }
+  .state-note code{ background:var(--paper-alt); padding:1px 6px; border-radius:6px; font-size:12.5px; }
+
+  footer.note{ text-align:center; color:var(--ink-faint); font-size:12px; margin-top: 22px; }
+
+  @media (max-width: 480px){
+    table.results{ font-size:12.5px; }
+    table.results th, table.results td{ padding:7px 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <div class="eyebrow">고2 수학 · 도형과 극한</div>
+    <h1 class="title">전체 순위표</h1>
+    <p class="subtitle">정사각형 속 넓이의 극한 퀴즈 · <a href="./quiz.html">← 퀴즈 풀러 가기</a></p>
+  </header>
+
+  <div class="card">
+    <div class="toolbar">
+      <span class="updated-at" id="updated-at"></span>
+      <button class="btn ghost" id="refresh-btn" type="button">새로고침</button>
+    </div>
+    <div id="results-wrap">
+      <div class="state-note" id="state-note">불러오는 중...</div>
+      <table class="results" id="results-table" style="display:none;">
+        <thead>
+          <tr><th>순위</th><th>이름</th><th>포인트</th><th>정답</th><th>제출 시각</th></tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="note">동의하고 제출한 학생의 결과만 표시돼요 · 20초마다 자동으로 새로고침돼요</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* Must match the SCRIPT_URL pasted into quiz.html — same Apps Script
+     Web App deployment, this page just calls its doGet instead of doPost. */
+  var SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+  var AUTO_REFRESH_MS = 20000;
+
+  function backendConfigured(){
+    return !!SCRIPT_URL && SCRIPT_URL.indexOf('PASTE_YOUR_') !== 0;
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  function formatTime(iso){
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    } catch(e){ return String(iso); }
+  }
+
+  function setNote(text, isError){
+    var note = document.getElementById('state-note');
+    var table = document.getElementById('results-table');
+    note.textContent = text;
+    note.className = 'state-note' + (isError ? ' bad' : '');
+    note.style.display = 'block';
+    table.style.display = 'none';
+  }
+
+  function renderResults(results){
+    var note = document.getElementById('state-note');
+    var table = document.getElementById('results-table');
+    var tbody = document.getElementById('results-tbody');
+
+    if (!results || !results.length){
+      setNote('아직 제출된 결과가 없어요.');
+      return;
+    }
+
+    var sorted = results.slice().sort(function(a, b){ return (b.points || 0) - (a.points || 0); });
+
+    var html = '';
+    sorted.forEach(function(r, i){
+      html += '<tr>' +
+        '<td class="num">' + (i + 1) + '</td>' +
+        '<td>' + escapeHtml(r.name) + '</td>' +
+        '<td class="num">' + (r.points == null ? '—' : r.points) + '</td>' +
+        '<td class="num">' + escapeHtml(r.score) + ' / ' + escapeHtml(r.total) + '</td>' +
+        '<td>' + formatTime(r.submittedAt) + '</td>' +
+        '</tr>';
+    });
+    tbody.innerHTML = html;
+    note.style.display = 'none';
+    table.style.display = 'table';
+  }
+
+  function updateTimestamp(){
+    var el = document.getElementById('updated-at');
+    var now = new Date();
+    el.textContent = '마지막 업데이트: ' + now.toLocaleTimeString('ko-KR');
+  }
+
+  function fetchResults(){
+    if (!backendConfigured()){
+      setNote('아직 순위표 주소가 설정되지 않았어요. quiz.html과 results.html의 SCRIPT_URL을 확인해주세요.', true);
+      return;
+    }
+    fetch(SCRIPT_URL, { method: 'GET' })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        renderResults(data && data.results);
+        updateTimestamp();
+      })
+      .catch(function(){
+        setNote('결과를 불러오지 못했어요. 잠시 후 새로고침을 눌러 다시 시도해주세요.', true);
+      });
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', fetchResults);
+
+  fetchResults();
+  setInterval(fetchResults, AUTO_REFRESH_MS);
+})();
+</script>
+</body>
+</html>
