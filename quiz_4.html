@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>정사각형 속 넓이의 극한 퀴즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #EEF2F6;
+    --paper-alt: #E3E9F1;
+    --card: #FBFCFE;
+    --ink: #1C2541;
+    --ink-soft: #56637E;
+    --ink-faint: #8A93A8;
+    --line: rgba(28,37,65,0.20);
+    --line-soft: rgba(28,37,65,0.10);
+
+    --a: #1F7A63; --a-bg: #E4F2ED;
+    --b: #A9720F; --b-bg: #F5EBD8;
+    --c: #6A4C93; --c-bg: #ECE6F5;
+    --d: #1D6FA5; --d-bg: #E2EEF6;
+    --f: #B23A48; --f-bg: #F7E4E6;
+
+    --ok: #1F7A63; --ok-bg: #E4F2ED;
+    --bad: #B23A48; --bad-bg: #F7E4E6;
+
+    --shadow: 0 1px 2px rgba(28,37,65,0.06), 0 8px 24px -12px rgba(28,37,65,0.18);
+    --radius: 16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper: #10142A; --paper-alt: #171D3A; --card: #1B2140;
+      --ink: #E9EDF8; --ink-soft: #AEB8D2; --ink-faint: #7C87A6;
+      --line: rgba(233,237,248,0.20); --line-soft: rgba(233,237,248,0.09);
+      --a: #4CC9A7; --a-bg: #16332C;
+      --b: #E3B45B; --b-bg: #3A2E14;
+      --c: #B79BE0; --c-bg: #2C2447;
+      --d: #6FB6EA; --d-bg: #16283C;
+      --f: #E8828C; --f-bg: #3A1D22;
+      --ok: #4CC9A7; --ok-bg: #16332C;
+      --bad: #E8828C; --bad-bg: #3A1D22;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper: #10142A; --paper-alt: #171D3A; --card: #1B2140;
+    --ink: #E9EDF8; --ink-soft: #AEB8D2; --ink-faint: #7C87A6;
+    --line: rgba(233,237,248,0.20); --line-soft: rgba(233,237,248,0.09);
+    --a: #4CC9A7; --a-bg: #16332C;
+    --b: #E3B45B; --b-bg: #3A2E14;
+    --c: #B79BE0; --c-bg: #2C2447;
+    --d: #6FB6EA; --d-bg: #16283C;
+    --f: #E8828C; --f-bg: #3A1D22;
+    --ok: #4CC9A7; --ok-bg: #16332C;
+    --bad: #E8828C; --bad-bg: #3A1D22;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);
+  }
+
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; padding:0; }
+  body{
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    background:
+      linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0/100% 42px,
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0/42px 100%,
+      var(--paper);
+    color: var(--ink);
+    font-family:'Noto Sans KR','Malgun Gothic',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .math{ font-family:'STIX Two Text','Noto Sans KR',serif; font-style:italic; font-variant-numeric:tabular-nums; }
+  em.v{ font-family:'STIX Two Text',serif; font-style:italic; }
+  sup, sub{ font-size:0.72em; }
+
+  .wrap{ max-width: 760px; margin:0 auto; padding: 26px 18px 60px; }
+
+  header.page{ text-align:center; margin-bottom: 18px; }
+  .eyebrow{ font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; }
+  h1.title{ font-family:'Gowun Batang',serif; font-weight:700; font-size:clamp(20px,3.4vw,26px); margin:6px 0 4px; text-wrap:balance; }
+  .subtitle{ color:var(--ink-soft); font-size:14px; margin:0; }
+
+  .progress{ display:flex; gap:6px; margin: 22px 0 4px; }
+  .progress .seg{ flex:1; height:6px; border-radius:4px; background:var(--paper-alt); overflow:hidden; }
+  .progress .seg i{ display:block; height:100%; width:0%; background:var(--d); border-radius:4px; transition:width .35s ease; }
+  .progress .seg.done i{ width:100%; background:var(--ok); }
+  .progress .seg.current i{ width:100%; }
+  .progress-label{ text-align:center; font-size:12px; color:var(--ink-faint); margin-bottom: 10px; }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 22px 24px; }
+
+  /* start screen */
+  #screen-start .card{ text-align:center; }
+  .diagram{ margin: 4px auto 10px; }
+  .diagram svg{ display:block; margin:0 auto; max-width:100%; height:auto; }
+  #quiz-diagram{ text-align:center; margin-bottom:8px; padding-bottom:10px; border-bottom:1px dashed var(--line); }
+  .name-row{ display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap; }
+  input.name-input{
+    font-family:'Noto Sans KR',sans-serif; font-size:15px; padding:10px 14px;
+    border-radius:10px; border:1.5px solid var(--line); background:var(--paper-alt); color:var(--ink);
+    min-width: 220px;
+  }
+  input.name-input:focus{ outline:none; border-color:var(--d); }
+
+  .consent-row{ display:flex; align-items:flex-start; gap:8px; justify-content:center; margin-top:14px; text-align:left; max-width:420px; margin-left:auto; margin-right:auto; }
+  .consent-row input[type="checkbox"]{ margin-top:3px; flex:none; width:16px; height:16px; accent-color:var(--d); }
+  .consent-row label{ font-size:13px; color:var(--ink-soft); line-height:1.55; }
+  .consent-note{ font-size:11.5px; color:var(--ink-faint); margin-top:6px; }
+
+  button{ font-family:'Noto Sans KR',sans-serif; cursor:pointer; }
+  .btn{
+    font-weight:700; font-size:14.5px; padding:10px 20px; border-radius:999px;
+    border:none; background:var(--ink); color:var(--paper); transition: transform .12s ease, opacity .12s ease;
+  }
+  .btn:hover{ opacity:0.9; }
+  .btn:active{ transform: scale(0.97); }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
+  .btn.ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line); }
+  .btn.accent{ background:var(--d); }
+  a.btn{ display:inline-block; text-decoration:none; }
+
+  /* step */
+  .step{ display:none; }
+  .step.active{ display:block; }
+  .step-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .step-eyebrow{ font-size:12px; font-weight:700; letter-spacing:0.06em; color:var(--accent); text-transform:uppercase; margin-bottom:0; }
+  .step-timer{
+    font-family:'STIX Two Text',serif; font-variant-numeric:tabular-nums; font-size:13px; font-weight:600;
+    color: var(--accent); background: var(--paper-alt); padding:3px 10px; border-radius:999px; flex:none;
+    transition: color .3s ease;
+  }
+  .step-timer.timer-late{ color: var(--ink-faint); }
+  .step h2{ font-family:'Gowun Batang',serif; font-size:19px; margin:0 0 12px; }
+  .explain{ background: var(--bg,var(--paper-alt)); border-radius:12px; padding:12px 14px; font-size:14px; line-height:1.65; margin-bottom:14px; }
+  .explain .math{ font-size:14.5px; }
+  .callout{
+    border:1px dashed var(--line); border-radius:12px; padding:10px 13px; font-size:12.8px;
+    color:var(--ink-soft); margin: 12px 0 4px; line-height:1.6;
+  }
+
+  .question{ font-size:15px; font-weight:600; margin: 14px 0 12px; line-height:1.6; }
+
+  .options{ display:flex; flex-direction:column; gap:9px; margin-bottom: 10px; }
+  .opt{
+    text-align:left; font-size:14px; padding:11px 14px; border-radius:12px;
+    border:1.5px solid var(--line); background:var(--card); color:var(--ink);
+  }
+  .opt:hover{ border-color: var(--accent); }
+  .opt.selected{ border-color: var(--accent); background: var(--bg,var(--paper-alt)); }
+  .opt.correct{ border-color: var(--ok); background: var(--ok-bg); color: var(--ok); font-weight:700; }
+  .opt.wrong{ border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }
+  .opt:disabled{ cursor:default; }
+
+  .numeric-row{ display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  input.numeric-input{
+    font-family:'STIX Two Text',serif; font-size:16px; width:120px; padding:9px 12px;
+    border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink);
+    text-align:center;
+  }
+  input.numeric-input:focus{ outline:none; border-color:var(--accent); }
+  input.numeric-input.correct{ border-color:var(--ok); background:var(--ok-bg); }
+  input.numeric-input.wrong{ border-color:var(--bad); background:var(--bad-bg); }
+
+  .feedback{ font-size:13.6px; line-height:1.6; border-radius:12px; padding:11px 14px; margin: 8px 0 14px; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.ok{ background:var(--ok-bg); color:var(--ok); }
+  .feedback.no{ background:var(--bad-bg); color:var(--bad); }
+
+  .step-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top: 6px; flex-wrap:wrap; }
+
+  /* final */
+  #screen-final .card{ text-align:center; }
+  .score-badge{
+    font-family:'Gowun Batang',serif; font-weight:700; font-size:22px; color:var(--f);
+    background:var(--f-bg); border-radius:999px; padding:8px 22px; display:inline-block; margin: 10px 0 14px;
+  }
+  .score-badge .num{ font-size:28px; }
+  .score-breakdown{ font-size:13px; color:var(--ink-faint); margin: -6px 0 14px; }
+  .final-msg{ font-size:14.5px; color:var(--ink-soft); margin-bottom: 16px; line-height:1.6; }
+  .kset-recap{ font-size:15px; margin: 6px 0 18px; }
+  .kset-recap .math{ font-size:15.5px; }
+
+  .submit-status{ font-size:13px; margin: 10px 0 4px; min-height:18px; }
+  .submit-status.ok{ color:var(--ok); }
+  .submit-status.bad{ color:var(--bad); }
+  .submit-status.pending{ color:var(--ink-faint); }
+
+  .leaderboard-row{ margin: 14px 0 6px; }
+
+  .copy-box{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
+  input.copy-input{
+    font-family:'STIX Two Text',serif; font-size:14px; padding:9px 12px; width: 300px; max-width: 100%;
+    border-radius:10px; border:1.5px solid var(--line); background:var(--paper-alt); color:var(--ink);
+    text-align:center;
+  }
+  .copy-status{ font-size:13px; color:var(--ok); margin-top:8px; min-height:18px; }
+
+  .final-actions{ display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+
+  footer.note{ text-align:center; color:var(--ink-faint); font-size:12px; margin-top: 26px; }
+
+  @media (max-width: 480px){
+    .name-row{ flex-direction:column; align-items:stretch; }
+    input.name-input{ min-width:0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page">
+    <div class="eyebrow">고2 수학 · 도형과 극한</div>
+    <h1 class="title">정사각형 속 넓이의 극한, 한 단계씩 풀어보자</h1>
+    <p class="subtitle">좌표를 직접 세워 교점 R을 구하고, 삼각형 CPR의 넓이의 극한값을 계산해보세요</p>
+  </header>
+
+  <div class="progress" id="progress"></div>
+  <div class="progress-label" id="progress-label"></div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="card">
+      <span class="eyebrow" style="color:var(--d);">문제</span>
+      <p style="font-size:13.6px; color:var(--ink-soft); line-height:1.75; text-align:left; margin: 12px 0 4px;">
+        그림과 같이 한 변의 길이가 1인 정사각형 ABCD가 있다.
+        <span class="math">0 &lt; <em class="v">t</em> &lt; 1</span>인 실수 <em class="v">t</em>에 대하여 선분 CD 위에 점 P를
+        <span class="math"><span style="text-decoration:overline;">CP</span> = <em class="v">t</em></span>가 되도록 잡고,
+        선분 AD 위에 점 Q를 <span class="math"><span style="text-decoration:overline;">DQ</span> = <em class="v">t</em>/2</span>가 되도록 잡을 때,
+        선분 BP와 선분 CQ의 교점을 R이라 하자. 삼각형 CPR의 넓이를 <span class="math"><em class="v">S</em>(<em class="v">t</em>)</span>라 하자.
+      </p>
+      <div class="diagram">
+        <svg viewBox="0 0 240 240" width="200" height="200" role="img" aria-label="정사각형 ABCD와 점 P, Q, R, 삼각형 CPR">
+          <polygon points="220,110 220,220 193.7,124.5" fill="var(--f-bg)" stroke="var(--f)" stroke-width="1.5"/>
+          <path d="M20,20 L220,20 L220,220 L20,220 Z" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="20" y1="220" x2="220" y2="110" stroke="var(--ink-soft)" stroke-width="1.5"/>
+          <line x1="220" y1="220" x2="165" y2="20" stroke="var(--ink-soft)" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="3" fill="var(--ink)"/>
+          <circle cx="220" cy="20" r="3" fill="var(--ink)"/>
+          <circle cx="20" cy="220" r="3" fill="var(--ink)"/>
+          <circle cx="220" cy="220" r="3" fill="var(--ink)"/>
+          <circle cx="220" cy="110" r="3" fill="var(--ink)"/>
+          <circle cx="165" cy="20" r="3" fill="var(--ink)"/>
+          <circle cx="193.7" cy="124.5" r="3" fill="var(--f)"/>
+          <text x="7" y="15" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">A</text>
+          <text x="226" y="15" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">D</text>
+          <text x="5" y="235" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">B</text>
+          <text x="226" y="235" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">C</text>
+          <text x="227" y="106" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">P</text>
+          <text x="160" y="14" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">Q</text>
+          <text x="169" y="120" font-size="14" fill="var(--f)" font-family="'STIX Two Text',serif" font-style="italic">R</text>
+          <text x="227" y="168" font-size="12" fill="var(--ink-soft)" font-family="'STIX Two Text',serif" font-style="italic">t</text>
+          <text x="184" y="12" font-size="12" fill="var(--ink-soft)" font-family="'STIX Two Text',serif" font-style="italic">t/2</text>
+        </svg>
+      </div>
+      <span class="lim math">
+        lim<sub><em class="v">t</em>→0+</sub>
+        <span style="display:inline-block; vertical-align:middle; text-align:center; margin:0 4px;">
+          <span style="display:block; border-bottom:1.4px solid var(--ink); padding-bottom:2px;"><em class="v">S</em>(<em class="v">t</em>)</span>
+          <span style="display:block; padding-top:2px;"><em class="v">t</em><sup>3</sup></span>
+        </span>
+        의 값은?
+      </span>
+      <p style="font-size:13px; color:var(--ink-faint); margin: 4px 0 4px;">7단계 이하로 나눠서, 힌트를 따라가며 직접 계산해봅시다.</p>
+      <div class="name-row">
+        <input type="text" class="name-input" id="name-input" placeholder="이름을 입력하세요" maxlength="20" />
+        <button class="btn accent" id="start-btn">시작하기</button>
+      </div>
+      <div class="consent-row">
+        <input type="checkbox" id="consent-checkbox" checked />
+        <label for="consent-checkbox">이름과 점수를 반 전체가 볼 수 있는 <b>공개 순위표</b>에 기록하는 것에 동의해요</label>
+      </div>
+      <p class="consent-note">체크를 해제해도 퀴즈는 똑같이 풀 수 있어요. 다만 그 경우 순위표에는 기록되지 않아요.</p>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="card">
+      <div id="quiz-diagram">
+        <svg viewBox="0 0 240 240" width="140" height="140" role="img" aria-label="정사각형 ABCD와 점 P, Q, R, 삼각형 CPR">
+          <polygon points="220,110 220,220 193.7,124.5" fill="var(--f-bg)" stroke="var(--f)" stroke-width="1.5"/>
+          <path d="M20,20 L220,20 L220,220 L20,220 Z" fill="none" stroke="var(--ink)" stroke-width="2"/>
+          <line x1="20" y1="220" x2="220" y2="110" stroke="var(--ink-soft)" stroke-width="1.5"/>
+          <line x1="220" y1="220" x2="165" y2="20" stroke="var(--ink-soft)" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="3" fill="var(--ink)"/>
+          <circle cx="220" cy="20" r="3" fill="var(--ink)"/>
+          <circle cx="20" cy="220" r="3" fill="var(--ink)"/>
+          <circle cx="220" cy="220" r="3" fill="var(--ink)"/>
+          <circle cx="220" cy="110" r="3" fill="var(--ink)"/>
+          <circle cx="165" cy="20" r="3" fill="var(--ink)"/>
+          <circle cx="193.7" cy="124.5" r="3" fill="var(--f)"/>
+          <text x="7" y="15" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">A</text>
+          <text x="226" y="15" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">D</text>
+          <text x="5" y="235" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">B</text>
+          <text x="226" y="235" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">C</text>
+          <text x="227" y="106" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">P</text>
+          <text x="160" y="14" font-size="14" fill="var(--ink)" font-family="'STIX Two Text',serif" font-style="italic">Q</text>
+          <text x="169" y="120" font-size="14" fill="var(--f)" font-family="'STIX Two Text',serif" font-style="italic">R</text>
+          <text x="227" y="168" font-size="12" fill="var(--ink-soft)" font-family="'STIX Two Text',serif" font-style="italic">t</text>
+          <text x="184" y="12" font-size="12" fill="var(--ink-soft)" font-family="'STIX Two Text',serif" font-style="italic">t/2</text>
+        </svg>
+      </div>
+      <!-- steps injected by JS from STEP_DEFS -->
+      <div id="steps-root"></div>
+    </div>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div class="screen" id="screen-final">
+    <div class="card">
+      <span class="eyebrow" style="color:var(--f);">결과</span>
+      <div class="score-badge"><span id="score-text">-</span></div>
+      <div class="score-breakdown" id="score-breakdown"></div>
+      <div class="final-msg" id="final-msg"></div>
+      <div class="kset-recap">
+        <span class="math">lim<sub><em class="v">t</em>→0+</sub> <em class="v">S</em>(<em class="v">t</em>) / <em class="v">t</em><sup>3</sup></span> = <span class="math">1/4</span>
+      </div>
+
+      <div id="submit-status" class="submit-status"></div>
+      <button class="btn ghost" id="retry-submit-btn" type="button" style="display:none;">순위표에 다시 제출하기</button>
+
+      <div class="leaderboard-row">
+        <a class="btn accent" id="leaderboard-link" href="./results.html" target="_blank" rel="noopener">전체 순위표 보기</a>
+      </div>
+
+      <div class="copy-box">
+        <input type="text" id="copy-text" class="copy-input" readonly />
+        <button class="btn ghost" id="copy-btn">결과 텍스트로 복사하기</button>
+      </div>
+      <div id="copy-status" class="copy-status"></div>
+
+      <div class="final-actions">
+        <button class="btn ghost" id="restart-btn" type="button">처음으로</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="note">직접 계산하며 채워보는 풀이 퀴즈 · 동의한 경우 결과가 자동으로 순위표에 기록돼요</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- leaderboard backend ----------------
+     Paste the Google Apps Script Web App URL here once (see the deployment
+     guide the teacher was given). Leave it empty to disable auto-submit —
+     the quiz still works, it just won't try to reach a backend. */
+  var SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+  function backendConfigured(){
+    return !!SCRIPT_URL && SCRIPT_URL.indexOf('PASTE_YOUR_') !== 0;
+  }
+
+  /* ---------------- step definitions ---------------- */
+  var STEPS = [
+    {
+      accent: 'a',
+      eyebrow: '1단계 · 7단계 중',
+      title: '좌표를 세워보자',
+      explain: 'B를 원점에, 변 BC를 x축 위에 놓으면 한 변의 길이가 1인 정사각형이므로 A(0,1), B(0,0), C(1,0), D(1,1)로 나타낼 수 있어요. 점 P는 선분 CD 위에서 <span class="math"><span style="text-decoration:overline;">CP</span> = <em class="v">t</em></span>가 되도록 잡은 점이고, CD는 C(1,0)에서 D(1,1)로 이어지는 수직선분이에요.',
+      type: 'mc',
+      question: '점 P의 좌표는?',
+      options: [
+        'P(t, 1)',
+        'P(1−t, 1)',
+        'P(1, t)',
+        'P(1, 1−t)'
+      ],
+      correctIndex: 2,
+      feedbackOk: '맞아요! C(1,0)에서 D 방향(위쪽)으로 t만큼 이동하므로 P(1, t)예요.',
+      hint: 'C(1,0)에서 y좌표만 t만큼 늘려보세요.'
+    },
+    {
+      accent: 'b',
+      eyebrow: '2단계 · 7단계 중',
+      title: 'Q의 좌표도 구해보자',
+      explain: '같은 방법으로, 점 Q는 선분 AD 위에서 <span class="math"><span style="text-decoration:overline;">DQ</span> = <em class="v">t</em>/2</span>가 되도록 잡은 점이에요. AD는 A(0,1)에서 D(1,1)로 이어지는 수평선분이에요.',
+      type: 'mc',
+      question: '점 Q의 좌표는?',
+      options: [
+        'Q(t/2, 1)',
+        'Q(1 − t/2, 1)',
+        'Q(1, 1 − t/2)',
+        'Q(1 − t/2, 0)'
+      ],
+      correctIndex: 1,
+      feedbackOk: '맞아요! D(1,1)에서 A 방향(왼쪽)으로 t/2만큼 이동하므로 Q(1 − t/2, 1)이에요.',
+      hint: 'D(1,1)에서 x좌표만 t/2만큼 줄여보세요.'
+    },
+    {
+      accent: 'c',
+      eyebrow: '3단계 · 7단계 중',
+      title: '직선 BP의 방정식은?',
+      explain: '직선 BP는 두 점 B(0,0), P(1,t)를 지나요. 기울기는 <span class="math">(<em class="v">t</em>−0)/(1−0) = <em class="v">t</em></span> 이고, 원점을 지나는 직선이에요.',
+      type: 'mc',
+      question: '직선 BP의 방정식은?',
+      options: [
+        'y = (1/t)x',
+        'y = x + t',
+        'x = ty',
+        'y = tx'
+      ],
+      correctIndex: 3,
+      feedbackOk: '맞아요! 기울기가 t이고 원점을 지나므로 y = tx예요.',
+      hint: '두 점 (0,0), (1,t)를 지나는 직선의 기울기는 t/1 = t예요.'
+    },
+    {
+      accent: 'c',
+      eyebrow: '4단계 · 7단계 중',
+      title: '직선 CQ의 방정식은?',
+      explain: '직선 CQ는 두 점 C(1,0), Q(1−t/2, 1)을 지나요. 기울기는 <span class="math">(1−0) / ((1−<em class="v">t</em>/2)−1) = 1/(−<em class="v">t</em>/2) = −2/<em class="v">t</em></span> 예요.',
+      type: 'mc',
+      question: '점 C(1,0)을 지나고 기울기가 −2/t인 직선 CQ의 방정식은?',
+      options: [
+        'y = −(2/t)(x−1)',
+        'y = −(2/t)(x+1)',
+        'y = (2/t)(x−1)',
+        'y = −(t/2)(x−1)'
+      ],
+      correctIndex: 0,
+      feedbackOk: '맞아요! y − 0 = −(2/t)(x−1) 이므로 y = −(2/t)(x−1) 이에요.',
+      hint: 'y − y₁ = m(x − x₁) 꼴에 C(1,0)을 대입해보세요.'
+    },
+    {
+      accent: 'd',
+      eyebrow: '5단계 · 7단계 중',
+      title: '교점 R의 x좌표는?',
+      explain: '두 직선 <span class="math"><em class="v">y</em> = <em class="v">tx</em></span>와 <span class="math"><em class="v">y</em> = −(2/<em class="v">t</em>)(<em class="v">x</em>−1)</span>이 만나는 점의 x좌표를 구해봐요. <span class="math"><em class="v">tx</em> = −(2/<em class="v">t</em>)(<em class="v">x</em>−1)</span>의 양변에 t를 곱하면 <span class="math"><em class="v">t</em><sup>2</sup><em class="v">x</em> = −2(<em class="v">x</em>−1) = −2<em class="v">x</em>+2</span>, 즉 <span class="math">(<em class="v">t</em><sup>2</sup>+2)<em class="v">x</em> = 2</span>가 돼요.',
+      type: 'mc',
+      question: '교점 R의 x좌표는?',
+      options: [
+        't²/(t²+2)',
+        '2/(t²−2)',
+        '2/(t²+2)',
+        '1/(t²+2)'
+      ],
+      correctIndex: 2,
+      feedbackOk: '맞아요! (t²+2)x = 2 이므로 x = 2/(t²+2)예요. (y좌표는 y=tx에 대입하면 2t/(t²+2)가 돼요.)',
+      hint: '(t²+2)x = 2 를 x에 대해 풀어보세요.'
+    },
+    {
+      accent: 'd',
+      eyebrow: '6단계 · 7단계 중',
+      title: '넓이 S(t)를 구해보자',
+      explain: 'R의 x좌표가 2/(t²+2)이므로, C(1,0)에서 R까지의 수평거리(높이)는 <span class="math">1 − 2/(<em class="v">t</em><sup>2</sup>+2) = <em class="v">t</em><sup>2</sup>/(<em class="v">t</em><sup>2</sup>+2)</span> 예요. 밑변 <span class="math"><span style="text-decoration:overline;">CP</span> = <em class="v">t</em></span>이므로, <span class="math"><em class="v">S</em>(<em class="v">t</em>) = (1/2) × 밑변 × 높이</span>로 넓이를 구할 수 있어요.',
+      type: 'mc',
+      question: 'S(t)는?',
+      options: [
+        't²/(t²+2)',
+        't³/(2(t²+2))',
+        '2t³/(t²+2)',
+        't³/(t²+2)'
+      ],
+      correctIndex: 1,
+      feedbackOk: '맞아요! S(t) = (1/2) × t × t²/(t²+2) = t³/(2(t²+2)) 예요.',
+      hint: '넓이 = (1/2) × 밑변 × 높이 = (1/2) × t × t²/(t²+2)'
+    },
+    {
+      accent: 'f',
+      eyebrow: '7단계 · 7단계 중',
+      title: '최종 정답',
+      explain: '이제 <span class="math"><em class="v">S</em>(<em class="v">t</em>)/<em class="v">t</em><sup>3</sup> = 1 / ( 2(<em class="v">t</em><sup>2</sup>+2) )</span> 이고, t→0+ 이면 t²+2 → 2가 돼요.',
+      type: 'num',
+      question: '극한값 lim(t→0+) S(t)/t³ 을 기약분수 1/n 꼴로 나타낼 때, n의 값은?',
+      answer: 4,
+      feedbackOk: '정답이에요! lim(t→0+) S(t)/t³ = 1/(2×2) = 1/4 이므로 n = 4예요.',
+      hint: 't→0이면 t²+2 → 2가 되므로, 2×2를 계산해보세요.'
+    }
+  ];
+
+  var firstTryCorrect = STEPS.map(function(){ return null; });
+  var curStep = 0;
+  var studentName = '';
+  var currentEntry = null;
+
+  /* ---------------- scoring: accuracy + speed ---------------- */
+  var FIRST_TRY_BASE = 100;   // points for solving it yourself, first try
+  var RETRY_BASE = 50;        // points for solving it after a wrong guess
+  var SPEED_BONUS_MAX = 50;   // extra points for a fast first-try answer
+  var SPEED_BONUS_WINDOW = 30; // seconds over which the speed bonus fades to 0
+  var MAX_POINTS = STEPS.length * (FIRST_TRY_BASE + SPEED_BONUS_MAX);
+
+  var stepPoints = STEPS.map(function(){ return 0; });
+  var stepElapsed = STEPS.map(function(){ return null; });
+  var stepStartedAt = STEPS.map(function(){ return null; });
+  var timerInterval = null;
+
+  function pointsForCorrect(elapsedSec, isFirstTry){
+    if (!isFirstTry) return RETRY_BASE;
+    var bonus = Math.max(0, Math.round(SPEED_BONUS_MAX * (1 - elapsedSec / SPEED_BONUS_WINDOW)));
+    return FIRST_TRY_BASE + bonus;
+  }
+
+  function formatClock(sec){
+    sec = Math.max(0, Math.floor(sec));
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function runningPoints(){
+    return stepPoints.reduce(function(a,b){ return a+b; }, 0);
+  }
+
+  function stopTimer(){
+    if (timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+  }
+
+  function startTimer(idx){
+    stopTimer();
+    if (!stepStartedAt[idx]) stepStartedAt[idx] = Date.now();
+    var el = stepEls[idx].querySelector('[data-role="timer"]');
+    function tick(){
+      var elapsed = (Date.now() - stepStartedAt[idx]) / 1000;
+      el.textContent = '⏱ ' + formatClock(elapsed);
+      el.classList.toggle('timer-late', elapsed > SPEED_BONUS_WINDOW);
+    }
+    tick();
+    timerInterval = setInterval(tick, 500);
+  }
+
+  /* ---------------- render steps ---------------- */
+  var stepsRoot = document.getElementById('steps-root');
+  STEPS.forEach(function(step, idx){
+    var div = document.createElement('div');
+    div.className = 'step';
+    div.dataset.index = idx;
+    div.style.setProperty('--accent', 'var(--' + step.accent + ')');
+
+    var html = '';
+    html += '<div class="step-head">';
+    html += '<div class="step-eyebrow" style="color:var(--' + step.accent + ');">' + step.eyebrow + '</div>';
+    html += '<div class="step-timer" data-role="timer" style="--accent:var(--' + step.accent + ');">⏱ 0:00</div>';
+    html += '</div>';
+    html += '<h2>' + step.title + '</h2>';
+    html += '<div class="explain" style="background:var(--' + step.accent + '-bg);">' + step.explain + '</div>';
+    html += '<div class="question">' + step.question + '</div>';
+
+    if (step.type === 'mc'){
+      html += '<div class="options" data-role="options">';
+      step.options.forEach(function(opt, oi){
+        html += '<button class="opt" data-oi="' + oi + '" style="--accent:var(--' + step.accent + ');">' + opt + '</button>';
+      });
+      html += '</div>';
+    } else {
+      html += '<div class="numeric-row">';
+      html += '<input type="text" inputmode="numeric" class="numeric-input" data-role="numeric-input" style="--accent:var(--' + step.accent + ');" placeholder="?" />';
+      html += '<button class="btn accent" data-role="check-btn">확인</button>';
+      html += '</div>';
+    }
+
+    html += '<div class="feedback" data-role="feedback"></div>';
+    html += '<div class="callout" data-role="callout" style="display:none;"></div>';
+    html += '<div class="step-actions">';
+    html += '<button class="btn ghost" data-role="hint-btn">힌트 보기</button>';
+    html += '<button class="btn ghost" data-role="skip-btn" style="display:none;">정답 보고 다음으로</button>';
+    html += '<button class="btn accent" data-role="next-btn" style="display:none;">다음 단계</button>';
+    html += '</div>';
+
+    div.innerHTML = html;
+    stepsRoot.appendChild(div);
+  });
+
+  var stepEls = Array.prototype.slice.call(stepsRoot.querySelectorAll('.step'));
+
+  function renderProgress(){
+    var bar = document.getElementById('progress');
+    var label = document.getElementById('progress-label');
+    var quizActive = document.getElementById('screen-quiz').classList.contains('active');
+    var finalActive = document.getElementById('screen-final').classList.contains('active');
+    var startActive = document.getElementById('screen-start').classList.contains('active');
+    bar.style.visibility = startActive ? 'hidden' : 'visible';
+    bar.innerHTML = '';
+    STEPS.forEach(function(step, i){
+      var seg = document.createElement('div');
+      seg.className = 'seg';
+      if (finalActive || i < curStep) seg.className += ' done';
+      else if (i === curStep && quizActive) seg.className += ' current';
+      var inner = document.createElement('i');
+      seg.appendChild(inner);
+      bar.appendChild(seg);
+    });
+    if (quizActive){
+      label.textContent = (curStep+1) + ' / ' + STEPS.length + ' 단계 · 현재 ' + runningPoints() + '점';
+    } else if (finalActive){
+      label.textContent = '모든 단계 완료';
+    } else {
+      label.textContent = '';
+    }
+  }
+
+  function showScreen(id){
+    ['screen-start','screen-quiz','screen-final'].forEach(function(sid){
+      document.getElementById(sid).classList.toggle('active', sid === id);
+    });
+    if (id !== 'screen-quiz') stopTimer();
+    renderProgress();
+  }
+
+  function showStep(i){
+    curStep = i;
+    stepEls.forEach(function(el, idx){ el.classList.toggle('active', idx === i); });
+    startTimer(i);
+    renderProgress();
+  }
+
+  function wireStep(idx){
+    var step = STEPS[idx];
+    var el = stepEls[idx];
+    var feedbackEl = el.querySelector('[data-role="feedback"]');
+    var nextBtn = el.querySelector('[data-role="next-btn"]');
+    var hintBtn = el.querySelector('[data-role="hint-btn"]');
+    var skipBtn = el.querySelector('[data-role="skip-btn"]');
+    var calloutEl = el.querySelector('[data-role="callout"]');
+    var answered = false;
+    var attempted = false;
+
+    function unlockSkip(){
+      skipBtn.style.display = 'inline-block';
+    }
+
+    hintBtn.addEventListener('click', function(){
+      feedbackEl.className = 'feedback show';
+      feedbackEl.style.background = 'var(--paper-alt)';
+      feedbackEl.style.color = 'var(--ink-soft)';
+      feedbackEl.textContent = '힌트: ' + step.hint;
+      unlockSkip();
+    });
+
+    function finishStepUI(){
+      if (step.calloutAfter){
+        calloutEl.style.display = 'block';
+        calloutEl.textContent = step.calloutAfter;
+      }
+      nextBtn.style.display = 'inline-block';
+      hintBtn.style.display = 'none';
+      skipBtn.style.display = 'none';
+      renderProgress();
+    }
+
+    function onCorrect(){
+      if (!answered){
+        var isFirstTry = !attempted;
+        firstTryCorrect[idx] = isFirstTry;
+        answered = true;
+        stopTimer();
+        var elapsed = (Date.now() - stepStartedAt[idx]) / 1000;
+        stepElapsed[idx] = elapsed;
+        stepPoints[idx] = pointsForCorrect(elapsed, isFirstTry);
+      }
+      feedbackEl.className = 'feedback show ok';
+      feedbackEl.textContent = step.feedbackOk + ' (+' + stepPoints[idx] + '점)';
+      finishStepUI();
+    }
+    function onWrong(){
+      attempted = true;
+      feedbackEl.className = 'feedback show no';
+      feedbackEl.textContent = '다시 한번 생각해볼까요? 계속 헷갈리면 "정답 보고 다음으로"를 눌러도 괜찮아요.';
+      unlockSkip();
+    }
+    function onReveal(){
+      if (answered) return;
+      answered = true;
+      stopTimer();
+      firstTryCorrect[idx] = false;
+      stepElapsed[idx] = (Date.now() - stepStartedAt[idx]) / 1000;
+      stepPoints[idx] = 0;
+      feedbackEl.className = 'feedback show ok';
+      feedbackEl.textContent = (step.revealText ? step.revealText() : step.feedbackOk) + ' (0점 처리)';
+      finishStepUI();
+    }
+
+    function stripLeadPraise(text){
+      return text.replace(/^[^.!?]*[!.?]\s*/, '');
+    }
+
+    if (step.type === 'mc'){
+      var optBtns = Array.prototype.slice.call(el.querySelectorAll('.opt'));
+      step.revealText = function(){ return '정답은 초록색으로 표시된 보기예요. ' + stripLeadPraise(step.feedbackOk); };
+      optBtns.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if (answered) return;
+          var oi = parseInt(btn.dataset.oi, 10);
+          if (oi === step.correctIndex){
+            optBtns.forEach(function(b, bi){
+              b.disabled = true;
+              if (bi === step.correctIndex) b.classList.add('correct');
+            });
+            onCorrect();
+          } else {
+            btn.classList.add('wrong');
+            btn.disabled = true;
+            onWrong();
+          }
+        });
+      });
+      skipBtn.addEventListener('click', function(){
+        if (answered) return;
+        optBtns.forEach(function(b, bi){
+          b.disabled = true;
+          if (bi === step.correctIndex) b.classList.add('correct');
+        });
+        onReveal();
+      });
+    } else {
+      var input = el.querySelector('[data-role="numeric-input"]');
+      var checkBtn = el.querySelector('[data-role="check-btn"]');
+      step.revealText = function(){ return '정답은 ' + step.answer + '이에요. ' + stripLeadPraise(step.feedbackOk); };
+      function check(){
+        if (answered) return;
+        var raw = (input.value || '').trim();
+        var val = parseFloat(raw);
+        if (raw !== '' && !isNaN(val) && Math.abs(val - step.answer) < 1e-9){
+          input.classList.remove('wrong');
+          input.classList.add('correct');
+          input.disabled = true;
+          checkBtn.disabled = true;
+          onCorrect();
+        } else {
+          input.classList.add('wrong');
+          onWrong();
+        }
+      }
+      checkBtn.addEventListener('click', check);
+      input.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });
+      input.addEventListener('input', function(){ input.classList.remove('wrong'); });
+      skipBtn.addEventListener('click', function(){
+        if (answered) return;
+        input.value = step.answer;
+        input.classList.remove('wrong');
+        input.classList.add('correct');
+        input.disabled = true;
+        checkBtn.disabled = true;
+        onReveal();
+      });
+    }
+
+    nextBtn.addEventListener('click', function(){
+      if (idx + 1 < STEPS.length){
+        showStep(idx + 1);
+      } else {
+        finishQuiz();
+      }
+    });
+  }
+
+  STEPS.forEach(function(_, idx){ wireStep(idx); });
+
+  document.getElementById('start-btn').addEventListener('click', function(){
+    var nameInput = document.getElementById('name-input');
+    var name = (nameInput.value || '').trim();
+    if (!name){
+      nameInput.style.borderColor = 'var(--bad)';
+      nameInput.placeholder = '이름을 입력해주세요';
+      nameInput.focus();
+      return;
+    }
+    studentName = name;
+    showScreen('screen-quiz');
+    showStep(0);
+  });
+
+  function uid(){
+    return 'r-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+  }
+
+  function setSubmitStatus(text, kind){
+    var el = document.getElementById('submit-status');
+    el.textContent = text;
+    el.className = 'submit-status' + (kind ? ' ' + kind : '');
+  }
+
+  // Fire-and-forget POST to the Apps Script backend. We use mode:'no-cors'
+  // with a text/plain body so the browser treats this as a "simple
+  // request" and never needs to preflight it — Apps Script web apps don't
+  // reliably answer CORS preflights. The trade-off is that we can't read
+  // the response or know for certain it was written, so the messaging
+  // below stays honest ("제출을 시도했어요") rather than claiming success.
+  function submitToLeaderboard(entry){
+    if (!backendConfigured()){
+      setSubmitStatus('아직 순위표 저장이 설정되지 않았어요. 결과 복사하기로 선생님께 전달해주세요.', 'bad');
+      document.getElementById('retry-submit-btn').style.display = 'none';
+      return;
+    }
+    setSubmitStatus('순위표에 제출하는 중...', 'pending');
+    document.getElementById('retry-submit-btn').style.display = 'none';
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(entry)
+    }).then(function(){
+      setSubmitStatus('제출을 시도했어요. 잠시 후 순위표에서 확인해보세요.', 'ok');
+    }).catch(function(){
+      setSubmitStatus('인터넷 연결 문제로 제출하지 못했어요.', 'bad');
+      document.getElementById('retry-submit-btn').style.display = 'inline-block';
+    });
+  }
+
+  function finishQuiz(){
+    var correctCount = firstTryCorrect.filter(function(v){ return v === true; }).length;
+    var solvedCount = stepPoints.filter(function(p){ return p > 0; }).length;
+    var total = STEPS.length;
+    var totalPoints = runningPoints();
+    var answeredElapsed = stepElapsed.filter(function(v){ return v !== null; });
+    var avgSec = answeredElapsed.length
+      ? answeredElapsed.reduce(function(a,b){ return a+b; }, 0) / answeredElapsed.length
+      : 0;
+
+    var pct = totalPoints / MAX_POINTS;
+    var msg;
+    if (pct >= 0.85) msg = '정확하고 빠르네요! 두 직선의 방정식을 세워 교점을 구하는 과정을 확실히 이해하고 있어요.';
+    else if (pct >= 0.6) msg = '전체 흐름을 잘 따라왔어요. 헷갈렸던 단계는 힌트를 다시 읽어보면 좋아요.';
+    else msg = '천천히 다시 훑어보면 금방 이해될 거예요. 직선 BP, CQ의 방정식을 세우는 부분을 다시 짚어보세요.';
+
+    document.getElementById('score-text').innerHTML = '<span class="num">' + totalPoints + '</span>점';
+    document.getElementById('score-breakdown').textContent =
+      '정답 ' + solvedCount + '/' + total + ' (한 번에 맞힌 문제 ' + correctCount + '개) · 평균 ' + formatClock(avgSec) + '/문제 · ' + MAX_POINTS + '점 만점';
+    document.getElementById('final-msg').textContent = msg;
+
+    var entry = {
+      id: uid(),
+      name: studentName || '이름 없음',
+      score: correctCount,
+      total: total,
+      points: totalPoints,
+      submittedAt: new Date().toISOString()
+    };
+    currentEntry = entry;
+    document.getElementById('copy-text').value = entry.name + ' | ' + entry.points + '점 (정답 ' + entry.score + '/' + entry.total + ')';
+
+    showScreen('screen-final');
+
+    var consentChecked = document.getElementById('consent-checkbox').checked;
+    if (consentChecked){
+      submitToLeaderboard(entry);
+    } else {
+      setSubmitStatus('순위표에는 기록하지 않았어요. (동의 체크가 해제되어 있었어요)', 'pending');
+    }
+  }
+
+  document.getElementById('retry-submit-btn').addEventListener('click', function(){
+    if (currentEntry) submitToLeaderboard(currentEntry);
+  });
+
+  function setCopyStatus(text, isError){
+    var el = document.getElementById('copy-status');
+    el.textContent = text;
+    el.style.color = isError ? 'var(--bad)' : 'var(--ok)';
+  }
+
+  document.getElementById('copy-btn').addEventListener('click', function(){
+    var input = document.getElementById('copy-text');
+    var text = input.value;
+    function fallbackSelect(){
+      input.focus();
+      input.select();
+      try {
+        var ok = document.execCommand && document.execCommand('copy');
+        setCopyStatus(ok ? '복사됐어요!' : '아래 칸의 글자를 직접 선택해서 복사해주세요.', !ok);
+      } catch(e){
+        setCopyStatus('아래 칸의 글자를 직접 선택해서 복사해주세요.', true);
+      }
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        setCopyStatus('복사됐어요!');
+      }).catch(fallbackSelect);
+    } else {
+      fallbackSelect();
+    }
+  });
+
+  // "처음으로": reset back to the start screen. A full page reload is the
+  // simplest reliable way to reset every bit of quiz state (per-step
+  // closures, disabled inputs, timers, classes) without hand-tracking each
+  // one individually.
+  document.getElementById('restart-btn').addEventListener('click', function(){
+    location.reload();
+  });
+
+  showScreen('screen-start');
+})();
+</script>
+</body>
+</html>
