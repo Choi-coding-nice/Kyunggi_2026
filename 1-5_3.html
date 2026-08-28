@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-<script id="state-data" type="application/json">{"results": [], "googleFormTemplate": ""}</script>
 <style>
   :root{
     --paper: #EEF2F6;
@@ -98,8 +97,6 @@
 
   /* start screen */
   #screen-start .card{ text-align:center; }
-  #screen-start .fn{ font-size:15px; margin: 14px 0 6px; }
-  #screen-start .lim{ display:block; margin: 6px auto 14px; font-size:16px; }
   .diagram{ margin: 4px auto 10px; }
   .diagram svg{ display:block; margin:0 auto; max-width:100%; height:auto; }
   #quiz-diagram{ text-align:center; margin-bottom:8px; padding-bottom:10px; border-bottom:1px dashed var(--line); }
@@ -111,6 +108,11 @@
   }
   input.name-input:focus{ outline:none; border-color:var(--d); }
 
+  .consent-row{ display:flex; align-items:flex-start; gap:8px; justify-content:center; margin-top:14px; text-align:left; max-width:420px; margin-left:auto; margin-right:auto; }
+  .consent-row input[type="checkbox"]{ margin-top:3px; flex:none; width:16px; height:16px; accent-color:var(--d); }
+  .consent-row label{ font-size:13px; color:var(--ink-soft); line-height:1.55; }
+  .consent-note{ font-size:11.5px; color:var(--ink-faint); margin-top:6px; }
+
   button{ font-family:'Noto Sans KR',sans-serif; cursor:pointer; }
   .btn{
     font-weight:700; font-size:14.5px; padding:10px 20px; border-radius:999px;
@@ -121,6 +123,7 @@
   .btn:disabled{ opacity:0.45; cursor:not-allowed; }
   .btn.ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line); }
   .btn.accent{ background:var(--d); }
+  a.btn{ display:inline-block; text-decoration:none; }
 
   /* step */
   .step{ display:none; }
@@ -182,6 +185,14 @@
   .final-msg{ font-size:14.5px; color:var(--ink-soft); margin-bottom: 16px; line-height:1.6; }
   .kset-recap{ font-size:15px; margin: 6px 0 18px; }
   .kset-recap .math{ font-size:15.5px; }
+
+  .submit-status{ font-size:13px; margin: 10px 0 4px; min-height:18px; }
+  .submit-status.ok{ color:var(--ok); }
+  .submit-status.bad{ color:var(--bad); }
+  .submit-status.pending{ color:var(--ink-faint); }
+
+  .leaderboard-row{ margin: 14px 0 6px; }
+
   .copy-box{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
   input.copy-input{
     font-family:'STIX Two Text',serif; font-size:14px; padding:9px 12px; width: 300px; max-width: 100%;
@@ -190,28 +201,7 @@
   }
   .copy-status{ font-size:13px; color:var(--ok); margin-top:8px; min-height:18px; }
 
-  .teacher-toggle{
-    display:block; margin: 26px auto 0; background:none; border:none; color:var(--ink-faint);
-    font-size:12.5px; text-decoration:underline; text-underline-offset:3px;
-  }
-  #teacher-panel{ display:none; margin-top:16px; text-align:left; }
-  #teacher-panel.show{ display:block; }
-
-  #teacher-setup-panel{ display:none; text-align:left; margin-top:14px; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px; }
-  #teacher-setup-panel.show{ display:block; }
-  #teacher-setup-panel p{ font-size:13px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px; }
-  #teacher-setup-panel ol{ font-size:13px; color:var(--ink-soft); line-height:1.7; margin:0 0 14px; padding-left:20px; }
-  #teacher-setup-panel ol li{ margin-bottom:4px; }
-  #teacher-setup-panel code{ background:var(--paper-alt); padding:1px 6px; border-radius:6px; font-size:12.5px; }
-  #teacher-setup-panel .name-row{ justify-content:flex-start; margin-top:4px; }
-  .teacher-note{ font-size:12px !important; color:var(--ink-faint) !important; margin-top:10px !important; }
-  .t-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
-  .t-header h3{ font-family:'Gowun Batang',serif; font-size:15px; margin:0; }
-  table.results{ width:100%; border-collapse:collapse; font-size:13px; }
-  table.results th, table.results td{ text-align:left; padding:7px 8px; border-bottom:1px solid var(--line-soft); }
-  table.results th{ color:var(--ink-faint); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; }
-  table.results td.num{ font-family:'STIX Two Text',serif; font-variant-numeric:tabular-nums; }
-  .empty-note{ color:var(--ink-faint); font-size:13px; text-align:center; padding: 14px 0; }
+  .final-actions{ display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
 
   footer.note{ text-align:center; color:var(--ink-faint); font-size:12px; margin-top: 26px; }
 
@@ -280,23 +270,11 @@
         <input type="text" class="name-input" id="name-input" placeholder="이름을 입력하세요" maxlength="20" />
         <button class="btn accent" id="start-btn">시작하기</button>
       </div>
-    </div>
-
-    <button class="teacher-toggle" id="teacher-setup-toggle" type="button">선생님이신가요? · 구글 설문지 자동 제출 설정</button>
-    <div id="teacher-setup-panel">
-      <p>학생이 퀴즈를 마치면 "이름 · 점수"가 자동으로 채워진 구글 설문지가 열리게 하려면, 아주 간단한 설문지를 딱 한 번만 만들어두시면 돼요.</p>
-      <ol>
-        <li><a href="https://forms.google.com" target="_blank" rel="noopener">forms.google.com</a>에서 새 설문지를 만들고, 단답형 질문 2개를 추가하세요 (예: "이름", "점수").</li>
-        <li>이름 질문 답에는 정확히 <code>PLACEHOLDER_NAME</code>, 점수 질문 답에는 정확히 <code>PLACEHOLDER_SCORE</code>라고 입력하세요.</li>
-        <li>오른쪽 위 <b>⋮ 더보기</b> 메뉴 → <b>미리 채워진 링크 받기</b>를 누르고, 방금 입력한 값 그대로 <b>링크 받기</b>를 눌러 URL을 복사하세요.</li>
-        <li>그 URL 전체를 아래 칸에 붙여넣고 저장하세요.</li>
-      </ol>
-      <div class="name-row">
-        <input type="text" class="name-input" id="form-template-input" placeholder="구글 설문지 링크를 붙여넣으세요" style="min-width:280px;" />
-        <button class="btn accent" id="form-template-save">저장</button>
+      <div class="consent-row">
+        <input type="checkbox" id="consent-checkbox" checked />
+        <label for="consent-checkbox">이름과 점수를 반 전체가 볼 수 있는 <b>공개 순위표</b>에 기록하는 것에 동의해요</label>
       </div>
-      <div id="form-template-status" class="copy-status"></div>
-      <p class="teacher-note">이미 설정되어 있다면 여기서 링크를 바꾸거나 지울 수 있어요. 이 설정은 이 화면을 <b>선생님 계정으로</b> 열었을 때만 저장할 수 있어요 (학생 화면에서는 안내만 보여요).</p>
+      <p class="consent-note">체크를 해제해도 퀴즈는 똑같이 풀 수 있어요. 다만 그 경우 순위표에는 기록되지 않아요.</p>
     </div>
   </div>
 
@@ -342,62 +320,50 @@
       <div class="kset-recap">
         <span class="math">lim<sub><em class="v">t</em>→0+</sub> <em class="v">S</em>(<em class="v">t</em>) / <em class="v">t</em><sup>3</sup></span> = <span class="math">1/4</span>
       </div>
-      <div id="gform-row" style="display:none; margin-bottom:10px;">
-        <button class="btn accent" id="gform-btn">구글 설문지로 제출하기</button>
+
+      <div id="submit-status" class="submit-status"></div>
+      <button class="btn ghost" id="retry-submit-btn" type="button" style="display:none;">순위표에 다시 제출하기</button>
+
+      <div class="leaderboard-row">
+        <a class="btn accent" id="leaderboard-link" href="./results.html" target="_blank" rel="noopener">전체 순위표 보기</a>
       </div>
+
       <div class="copy-box">
         <input type="text" id="copy-text" class="copy-input" readonly />
-        <button class="btn accent" id="copy-btn">결과 복사하기</button>
+        <button class="btn ghost" id="copy-btn">결과 텍스트로 복사하기</button>
       </div>
       <div id="copy-status" class="copy-status"></div>
-      <div class="callout" id="submit-callout" style="text-align:left; margin-top:14px;">복사한 내용을 선생님이 안내한 패들렛이나 제출 링크에 붙여넣어 제출해주세요.</div>
 
-      <button class="btn ghost" id="restart-btn" type="button" style="margin-top:14px;">처음으로</button>
-
-      <button class="teacher-toggle" id="teacher-toggle" type="button">선생님용 · 이 화면에 자동 저장된 결과 보기</button>
-      <div id="teacher-panel">
-        <div class="t-header">
-          <h3>제출 현황</h3>
-        </div>
-        <div id="results-table-wrap"></div>
-        <p class="teacher-note" style="margin-top:10px;">표의 내용을 드래그해서 선택한 뒤 복사하면 스프레드시트에 바로 붙여넣을 수 있어요.</p>
+      <div class="final-actions">
+        <button class="btn ghost" id="restart-btn" type="button">처음으로</button>
       </div>
     </div>
   </div>
 
-  <footer class="note">직접 계산하며 채워보는 풀이 퀴즈 · 마지막에 결과를 복사해서 선생님이 안내한 곳에 제출하세요</footer>
+  <footer class="note">직접 계산하며 채워보는 풀이 퀴즈 · 동의한 경우 결과가 자동으로 순위표에 기록돼요</footer>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  // built by concatenation so the contiguous marker text appears exactly
-  // once in this document (in the data slot below) — see build_quiz.py
-  var STATE_TOKEN = '__STATE_JSON' + '_LITERAL__';
-  var SELF_TOKEN = '__RAW_TEMPLATE' + '_LITERAL__';
-  var RAW_TEMPLATE = "<!doctype html>\n<html lang=\"ko\">\n<head>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<title>정사각형 속 넓이의 극한 퀴즈</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n<link href=\"https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap\" rel=\"stylesheet\">\n<script id=\"state-data\" type=\"application/json\">__STATE_JSON_LITERAL__<\/script>\n<style>\n  :root{\n    --paper: #EEF2F6;\n    --paper-alt: #E3E9F1;\n    --card: #FBFCFE;\n    --ink: #1C2541;\n    --ink-soft: #56637E;\n    --ink-faint: #8A93A8;\n    --line: rgba(28,37,65,0.20);\n    --line-soft: rgba(28,37,65,0.10);\n\n    --a: #1F7A63; --a-bg: #E4F2ED;\n    --b: #A9720F; --b-bg: #F5EBD8;\n    --c: #6A4C93; --c-bg: #ECE6F5;\n    --d: #1D6FA5; --d-bg: #E2EEF6;\n    --f: #B23A48; --f-bg: #F7E4E6;\n\n    --ok: #1F7A63; --ok-bg: #E4F2ED;\n    --bad: #B23A48; --bad-bg: #F7E4E6;\n\n    --shadow: 0 1px 2px rgba(28,37,65,0.06), 0 8px 24px -12px rgba(28,37,65,0.18);\n    --radius: 16px;\n  }\n  @media (prefers-color-scheme: dark){\n    :root:not([data-theme=\"light\"]){\n      --paper: #10142A; --paper-alt: #171D3A; --card: #1B2140;\n      --ink: #E9EDF8; --ink-soft: #AEB8D2; --ink-faint: #7C87A6;\n      --line: rgba(233,237,248,0.20); --line-soft: rgba(233,237,248,0.09);\n      --a: #4CC9A7; --a-bg: #16332C;\n      --b: #E3B45B; --b-bg: #3A2E14;\n      --c: #B79BE0; --c-bg: #2C2447;\n      --d: #6FB6EA; --d-bg: #16283C;\n      --f: #E8828C; --f-bg: #3A1D22;\n      --ok: #4CC9A7; --ok-bg: #16332C;\n      --bad: #E8828C; --bad-bg: #3A1D22;\n      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);\n    }\n  }\n  :root[data-theme=\"dark\"]{\n    --paper: #10142A; --paper-alt: #171D3A; --card: #1B2140;\n    --ink: #E9EDF8; --ink-soft: #AEB8D2; --ink-faint: #7C87A6;\n    --line: rgba(233,237,248,0.20); --line-soft: rgba(233,237,248,0.09);\n    --a: #4CC9A7; --a-bg: #16332C;\n    --b: #E3B45B; --b-bg: #3A2E14;\n    --c: #B79BE0; --c-bg: #2C2447;\n    --d: #6FB6EA; --d-bg: #16283C;\n    --f: #E8828C; --f-bg: #3A1D22;\n    --ok: #4CC9A7; --ok-bg: #16332C;\n    --bad: #E8828C; --bad-bg: #3A1D22;\n    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);\n  }\n\n  *{ box-sizing:border-box; }\n  html, body{ margin:0; padding:0; }\n  body{\n    word-break: keep-all;\n    overflow-wrap: break-word;\n    background:\n      linear-gradient(var(--line-soft) 1px, transparent 1px) 0 0/100% 42px,\n      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px) 0 0/42px 100%,\n      var(--paper);\n    color: var(--ink);\n    font-family:'Noto Sans KR','Malgun Gothic',sans-serif;\n    -webkit-font-smoothing:antialiased;\n  }\n  .math{ font-family:'STIX Two Text','Noto Sans KR',serif; font-style:italic; font-variant-numeric:tabular-nums; }\n  em.v{ font-family:'STIX Two Text',serif; font-style:italic; }\n  sup, sub{ font-size:0.72em; }\n\n  .wrap{ max-width: 760px; margin:0 auto; padding: 26px 18px 60px; }\n\n  header.page{ text-align:center; margin-bottom: 18px; }\n  .eyebrow{ font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; }\n  h1.title{ font-family:'Gowun Batang',serif; font-weight:700; font-size:clamp(20px,3.4vw,26px); margin:6px 0 4px; text-wrap:balance; }\n  .subtitle{ color:var(--ink-soft); font-size:14px; margin:0; }\n\n  .progress{ display:flex; gap:6px; margin: 22px 0 4px; }\n  .progress .seg{ flex:1; height:6px; border-radius:4px; background:var(--paper-alt); overflow:hidden; }\n  .progress .seg i{ display:block; height:100%; width:0%; background:var(--d); border-radius:4px; transition:width .35s ease; }\n  .progress .seg.done i{ width:100%; background:var(--ok); }\n  .progress .seg.current i{ width:100%; }\n  .progress-label{ text-align:center; font-size:12px; color:var(--ink-faint); margin-bottom: 10px; }\n\n  .screen{ display:none; }\n  .screen.active{ display:block; }\n\n  .card{ background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:22px 22px 24px; }\n\n  /* start screen */\n  #screen-start .card{ text-align:center; }\n  #screen-start .fn{ font-size:15px; margin: 14px 0 6px; }\n  #screen-start .lim{ display:block; margin: 6px auto 14px; font-size:16px; }\n  .diagram{ margin: 4px auto 10px; }\n  .diagram svg{ display:block; margin:0 auto; max-width:100%; height:auto; }\n  #quiz-diagram{ text-align:center; margin-bottom:8px; padding-bottom:10px; border-bottom:1px dashed var(--line); }\n  .name-row{ display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap; }\n  input.name-input{\n    font-family:'Noto Sans KR',sans-serif; font-size:15px; padding:10px 14px;\n    border-radius:10px; border:1.5px solid var(--line); background:var(--paper-alt); color:var(--ink);\n    min-width: 220px;\n  }\n  input.name-input:focus{ outline:none; border-color:var(--d); }\n\n  button{ font-family:'Noto Sans KR',sans-serif; cursor:pointer; }\n  .btn{\n    font-weight:700; font-size:14.5px; padding:10px 20px; border-radius:999px;\n    border:none; background:var(--ink); color:var(--paper); transition: transform .12s ease, opacity .12s ease;\n  }\n  .btn:hover{ opacity:0.9; }\n  .btn:active{ transform: scale(0.97); }\n  .btn:disabled{ opacity:0.45; cursor:not-allowed; }\n  .btn.ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line); }\n  .btn.accent{ background:var(--d); }\n\n  /* step */\n  .step{ display:none; }\n  .step.active{ display:block; }\n  .step-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }\n  .step-eyebrow{ font-size:12px; font-weight:700; letter-spacing:0.06em; color:var(--accent); text-transform:uppercase; margin-bottom:0; }\n  .step-timer{\n    font-family:'STIX Two Text',serif; font-variant-numeric:tabular-nums; font-size:13px; font-weight:600;\n    color: var(--accent); background: var(--paper-alt); padding:3px 10px; border-radius:999px; flex:none;\n    transition: color .3s ease;\n  }\n  .step-timer.timer-late{ color: var(--ink-faint); }\n  .step h2{ font-family:'Gowun Batang',serif; font-size:19px; margin:0 0 12px; }\n  .explain{ background: var(--bg,var(--paper-alt)); border-radius:12px; padding:12px 14px; font-size:14px; line-height:1.65; margin-bottom:14px; }\n  .explain .math{ font-size:14.5px; }\n  .callout{\n    border:1px dashed var(--line); border-radius:12px; padding:10px 13px; font-size:12.8px;\n    color:var(--ink-soft); margin: 12px 0 4px; line-height:1.6;\n  }\n\n  .question{ font-size:15px; font-weight:600; margin: 14px 0 12px; line-height:1.6; }\n\n  .options{ display:flex; flex-direction:column; gap:9px; margin-bottom: 10px; }\n  .opt{\n    text-align:left; font-size:14px; padding:11px 14px; border-radius:12px;\n    border:1.5px solid var(--line); background:var(--card); color:var(--ink);\n  }\n  .opt:hover{ border-color: var(--accent); }\n  .opt.selected{ border-color: var(--accent); background: var(--bg,var(--paper-alt)); }\n  .opt.correct{ border-color: var(--ok); background: var(--ok-bg); color: var(--ok); font-weight:700; }\n  .opt.wrong{ border-color: var(--bad); background: var(--bad-bg); color: var(--bad); }\n  .opt:disabled{ cursor:default; }\n\n  .numeric-row{ display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }\n  input.numeric-input{\n    font-family:'STIX Two Text',serif; font-size:16px; width:120px; padding:9px 12px;\n    border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink);\n    text-align:center;\n  }\n  input.numeric-input:focus{ outline:none; border-color:var(--accent); }\n  input.numeric-input.correct{ border-color:var(--ok); background:var(--ok-bg); }\n  input.numeric-input.wrong{ border-color:var(--bad); background:var(--bad-bg); }\n\n  .feedback{ font-size:13.6px; line-height:1.6; border-radius:12px; padding:11px 14px; margin: 8px 0 14px; display:none; }\n  .feedback.show{ display:block; }\n  .feedback.ok{ background:var(--ok-bg); color:var(--ok); }\n  .feedback.no{ background:var(--bad-bg); color:var(--bad); }\n\n  .step-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top: 6px; flex-wrap:wrap; }\n\n  /* final */\n  #screen-final .card{ text-align:center; }\n  .score-badge{\n    font-family:'Gowun Batang',serif; font-weight:700; font-size:22px; color:var(--f);\n    background:var(--f-bg); border-radius:999px; padding:8px 22px; display:inline-block; margin: 10px 0 14px;\n  }\n  .score-badge .num{ font-size:28px; }\n  .score-breakdown{ font-size:13px; color:var(--ink-faint); margin: -6px 0 14px; }\n  .final-msg{ font-size:14.5px; color:var(--ink-soft); margin-bottom: 16px; line-height:1.6; }\n  .kset-recap{ font-size:15px; margin: 6px 0 18px; }\n  .kset-recap .math{ font-size:15.5px; }\n  .copy-box{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:6px; }\n  input.copy-input{\n    font-family:'STIX Two Text',serif; font-size:14px; padding:9px 12px; width: 300px; max-width: 100%;\n    border-radius:10px; border:1.5px solid var(--line); background:var(--paper-alt); color:var(--ink);\n    text-align:center;\n  }\n  .copy-status{ font-size:13px; color:var(--ok); margin-top:8px; min-height:18px; }\n\n  .teacher-toggle{\n    display:block; margin: 26px auto 0; background:none; border:none; color:var(--ink-faint);\n    font-size:12.5px; text-decoration:underline; text-underline-offset:3px;\n  }\n  #teacher-panel{ display:none; margin-top:16px; text-align:left; }\n  #teacher-panel.show{ display:block; }\n\n  #teacher-setup-panel{ display:none; text-align:left; margin-top:14px; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px 20px; }\n  #teacher-setup-panel.show{ display:block; }\n  #teacher-setup-panel p{ font-size:13px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px; }\n  #teacher-setup-panel ol{ font-size:13px; color:var(--ink-soft); line-height:1.7; margin:0 0 14px; padding-left:20px; }\n  #teacher-setup-panel ol li{ margin-bottom:4px; }\n  #teacher-setup-panel code{ background:var(--paper-alt); padding:1px 6px; border-radius:6px; font-size:12.5px; }\n  #teacher-setup-panel .name-row{ justify-content:flex-start; margin-top:4px; }\n  .teacher-note{ font-size:12px !important; color:var(--ink-faint) !important; margin-top:10px !important; }\n  .t-header{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; flex-wrap:wrap; }\n  .t-header h3{ font-family:'Gowun Batang',serif; font-size:15px; margin:0; }\n  table.results{ width:100%; border-collapse:collapse; font-size:13px; }\n  table.results th, table.results td{ text-align:left; padding:7px 8px; border-bottom:1px solid var(--line-soft); }\n  table.results th{ color:var(--ink-faint); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:0.04em; }\n  table.results td.num{ font-family:'STIX Two Text',serif; font-variant-numeric:tabular-nums; }\n  .empty-note{ color:var(--ink-faint); font-size:13px; text-align:center; padding: 14px 0; }\n\n  footer.note{ text-align:center; color:var(--ink-faint); font-size:12px; margin-top: 26px; }\n\n  @media (max-width: 480px){\n    .name-row{ flex-direction:column; align-items:stretch; }\n    input.name-input{ min-width:0; }\n  }\n</style>\n</head>\n<body>\n<div class=\"wrap\">\n  <header class=\"page\">\n    <div class=\"eyebrow\">고2 수학 · 도형과 극한</div>\n    <h1 class=\"title\">정사각형 속 넓이의 극한, 한 단계씩 풀어보자</h1>\n    <p class=\"subtitle\">좌표를 직접 세워 교점 R을 구하고, 삼각형 CPR의 넓이의 극한값을 계산해보세요</p>\n  </header>\n\n  <div class=\"progress\" id=\"progress\"></div>\n  <div class=\"progress-label\" id=\"progress-label\"></div>\n\n  <!-- START SCREEN -->\n  <div class=\"screen active\" id=\"screen-start\">\n    <div class=\"card\">\n      <span class=\"eyebrow\" style=\"color:var(--d);\">문제</span>\n      <p style=\"font-size:13.6px; color:var(--ink-soft); line-height:1.75; text-align:left; margin: 12px 0 4px;\">\n        그림과 같이 한 변의 길이가 1인 정사각형 ABCD가 있다.\n        <span class=\"math\">0 &lt; <em class=\"v\">t</em> &lt; 1</span>인 실수 <em class=\"v\">t</em>에 대하여 선분 CD 위에 점 P를\n        <span class=\"math\"><span style=\"text-decoration:overline;\">CP</span> = <em class=\"v\">t</em></span>가 되도록 잡고,\n        선분 AD 위에 점 Q를 <span class=\"math\"><span style=\"text-decoration:overline;\">DQ</span> = <em class=\"v\">t</em>/2</span>가 되도록 잡을 때,\n        선분 BP와 선분 CQ의 교점을 R이라 하자. 삼각형 CPR의 넓이를 <span class=\"math\"><em class=\"v\">S</em>(<em class=\"v\">t</em>)</span>라 하자.\n      </p>\n      <div class=\"diagram\">\n        <svg viewBox=\"0 0 240 240\" width=\"200\" height=\"200\" role=\"img\" aria-label=\"정사각형 ABCD와 점 P, Q, R, 삼각형 CPR\">\n          <polygon points=\"220,110 220,220 193.7,124.5\" fill=\"var(--f-bg)\" stroke=\"var(--f)\" stroke-width=\"1.5\"/>\n          <path d=\"M20,20 L220,20 L220,220 L20,220 Z\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"2\"/>\n          <line x1=\"20\" y1=\"220\" x2=\"220\" y2=\"110\" stroke=\"var(--ink-soft)\" stroke-width=\"1.5\"/>\n          <line x1=\"220\" y1=\"220\" x2=\"165\" y2=\"20\" stroke=\"var(--ink-soft)\" stroke-width=\"1.5\"/>\n          <circle cx=\"20\" cy=\"20\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"220\" cy=\"20\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"20\" cy=\"220\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"220\" cy=\"220\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"220\" cy=\"110\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"165\" cy=\"20\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"193.7\" cy=\"124.5\" r=\"3\" fill=\"var(--f)\"/>\n          <text x=\"7\" y=\"15\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">A</text>\n          <text x=\"226\" y=\"15\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">D</text>\n          <text x=\"5\" y=\"235\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">B</text>\n          <text x=\"226\" y=\"235\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">C</text>\n          <text x=\"227\" y=\"106\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">P</text>\n          <text x=\"160\" y=\"14\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">Q</text>\n          <text x=\"169\" y=\"120\" font-size=\"14\" fill=\"var(--f)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">R</text>\n          <text x=\"227\" y=\"168\" font-size=\"12\" fill=\"var(--ink-soft)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">t</text>\n          <text x=\"184\" y=\"12\" font-size=\"12\" fill=\"var(--ink-soft)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">t/2</text>\n        </svg>\n      </div>\n      <span class=\"lim math\">\n        lim<sub><em class=\"v\">t</em>→0+</sub>\n        <span style=\"display:inline-block; vertical-align:middle; text-align:center; margin:0 4px;\">\n          <span style=\"display:block; border-bottom:1.4px solid var(--ink); padding-bottom:2px;\"><em class=\"v\">S</em>(<em class=\"v\">t</em>)</span>\n          <span style=\"display:block; padding-top:2px;\"><em class=\"v\">t</em><sup>3</sup></span>\n        </span>\n        의 값은?\n      </span>\n      <p style=\"font-size:13px; color:var(--ink-faint); margin: 4px 0 4px;\">7단계 이하로 나눠서, 힌트를 따라가며 직접 계산해봅시다.</p>\n      <div class=\"name-row\">\n        <input type=\"text\" class=\"name-input\" id=\"name-input\" placeholder=\"이름을 입력하세요\" maxlength=\"20\" />\n        <button class=\"btn accent\" id=\"start-btn\">시작하기</button>\n      </div>\n    </div>\n\n    <button class=\"teacher-toggle\" id=\"teacher-setup-toggle\" type=\"button\">선생님이신가요? · 구글 설문지 자동 제출 설정</button>\n    <div id=\"teacher-setup-panel\">\n      <p>학생이 퀴즈를 마치면 \"이름 · 점수\"가 자동으로 채워진 구글 설문지가 열리게 하려면, 아주 간단한 설문지를 딱 한 번만 만들어두시면 돼요.</p>\n      <ol>\n        <li><a href=\"https://forms.google.com\" target=\"_blank\" rel=\"noopener\">forms.google.com</a>에서 새 설문지를 만들고, 단답형 질문 2개를 추가하세요 (예: \"이름\", \"점수\").</li>\n        <li>이름 질문 답에는 정확히 <code>PLACEHOLDER_NAME</code>, 점수 질문 답에는 정확히 <code>PLACEHOLDER_SCORE</code>라고 입력하세요.</li>\n        <li>오른쪽 위 <b>⋮ 더보기</b> 메뉴 → <b>미리 채워진 링크 받기</b>를 누르고, 방금 입력한 값 그대로 <b>링크 받기</b>를 눌러 URL을 복사하세요.</li>\n        <li>그 URL 전체를 아래 칸에 붙여넣고 저장하세요.</li>\n      </ol>\n      <div class=\"name-row\">\n        <input type=\"text\" class=\"name-input\" id=\"form-template-input\" placeholder=\"구글 설문지 링크를 붙여넣으세요\" style=\"min-width:280px;\" />\n        <button class=\"btn accent\" id=\"form-template-save\">저장</button>\n      </div>\n      <div id=\"form-template-status\" class=\"copy-status\"></div>\n      <p class=\"teacher-note\">이미 설정되어 있다면 여기서 링크를 바꾸거나 지울 수 있어요. 이 설정은 이 화면을 <b>선생님 계정으로</b> 열었을 때만 저장할 수 있어요 (학생 화면에서는 안내만 보여요).</p>\n    </div>\n  </div>\n\n  <!-- QUIZ SCREEN -->\n  <div class=\"screen\" id=\"screen-quiz\">\n    <div class=\"card\">\n      <div id=\"quiz-diagram\">\n        <svg viewBox=\"0 0 240 240\" width=\"140\" height=\"140\" role=\"img\" aria-label=\"정사각형 ABCD와 점 P, Q, R, 삼각형 CPR\">\n          <polygon points=\"220,110 220,220 193.7,124.5\" fill=\"var(--f-bg)\" stroke=\"var(--f)\" stroke-width=\"1.5\"/>\n          <path d=\"M20,20 L220,20 L220,220 L20,220 Z\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"2\"/>\n          <line x1=\"20\" y1=\"220\" x2=\"220\" y2=\"110\" stroke=\"var(--ink-soft)\" stroke-width=\"1.5\"/>\n          <line x1=\"220\" y1=\"220\" x2=\"165\" y2=\"20\" stroke=\"var(--ink-soft)\" stroke-width=\"1.5\"/>\n          <circle cx=\"20\" cy=\"20\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"220\" cy=\"20\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"20\" cy=\"220\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"220\" cy=\"220\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"220\" cy=\"110\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"165\" cy=\"20\" r=\"3\" fill=\"var(--ink)\"/>\n          <circle cx=\"193.7\" cy=\"124.5\" r=\"3\" fill=\"var(--f)\"/>\n          <text x=\"7\" y=\"15\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">A</text>\n          <text x=\"226\" y=\"15\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">D</text>\n          <text x=\"5\" y=\"235\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">B</text>\n          <text x=\"226\" y=\"235\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">C</text>\n          <text x=\"227\" y=\"106\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">P</text>\n          <text x=\"160\" y=\"14\" font-size=\"14\" fill=\"var(--ink)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">Q</text>\n          <text x=\"169\" y=\"120\" font-size=\"14\" fill=\"var(--f)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">R</text>\n          <text x=\"227\" y=\"168\" font-size=\"12\" fill=\"var(--ink-soft)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">t</text>\n          <text x=\"184\" y=\"12\" font-size=\"12\" fill=\"var(--ink-soft)\" font-family=\"'STIX Two Text',serif\" font-style=\"italic\">t/2</text>\n        </svg>\n      </div>\n      <!-- steps injected by JS from STEP_DEFS -->\n      <div id=\"steps-root\"></div>\n    </div>\n  </div>\n\n  <!-- FINAL SCREEN -->\n  <div class=\"screen\" id=\"screen-final\">\n    <div class=\"card\">\n      <span class=\"eyebrow\" style=\"color:var(--f);\">결과</span>\n      <div class=\"score-badge\"><span id=\"score-text\">-</span></div>\n      <div class=\"score-breakdown\" id=\"score-breakdown\"></div>\n      <div class=\"final-msg\" id=\"final-msg\"></div>\n      <div class=\"kset-recap\">\n        <span class=\"math\">lim<sub><em class=\"v\">t</em>→0+</sub> <em class=\"v\">S</em>(<em class=\"v\">t</em>) / <em class=\"v\">t</em><sup>3</sup></span> = <span class=\"math\">1/4</span>\n      </div>\n      <div id=\"gform-row\" style=\"display:none; margin-bottom:10px;\">\n        <button class=\"btn accent\" id=\"gform-btn\">구글 설문지로 제출하기</button>\n      </div>\n      <div class=\"copy-box\">\n        <input type=\"text\" id=\"copy-text\" class=\"copy-input\" readonly />\n        <button class=\"btn accent\" id=\"copy-btn\">결과 복사하기</button>\n      </div>\n      <div id=\"copy-status\" class=\"copy-status\"></div>\n      <div class=\"callout\" id=\"submit-callout\" style=\"text-align:left; margin-top:14px;\">복사한 내용을 선생님이 안내한 패들렛이나 제출 링크에 붙여넣어 제출해주세요.</div>\n\n      <button class=\"btn ghost\" id=\"restart-btn\" type=\"button\" style=\"margin-top:14px;\">처음으로</button>\n\n      <button class=\"teacher-toggle\" id=\"teacher-toggle\" type=\"button\">선생님용 · 이 화면에 자동 저장된 결과 보기</button>\n      <div id=\"teacher-panel\">\n        <div class=\"t-header\">\n          <h3>제출 현황</h3>\n        </div>\n        <div id=\"results-table-wrap\"></div>\n        <p class=\"teacher-note\" style=\"margin-top:10px;\">표의 내용을 드래그해서 선택한 뒤 복사하면 스프레드시트에 바로 붙여넣을 수 있어요.</p>\n      </div>\n    </div>\n  </div>\n\n  <footer class=\"note\">직접 계산하며 채워보는 풀이 퀴즈 · 마지막에 결과를 복사해서 선생님이 안내한 곳에 제출하세요</footer>\n</div>\n\n<script>\n(function(){\n  \"use strict\";\n\n  // built by concatenation so the contiguous marker text appears exactly\n  // once in this document (in the data slot below) — see build_quiz.py\n  var STATE_TOKEN = '__STATE_JSON' + '_LITERAL__';\n  var SELF_TOKEN = '__RAW_TEMPLATE' + '_LITERAL__';\n  var RAW_TEMPLATE = __RAW_TEMPLATE_LITERAL__;\n\n  var stateEl = document.getElementById('state-data');\n  var state;\n  try { state = JSON.parse(stateEl.textContent); } catch(e){ state = { results: [] }; }\n  if (!state || !Array.isArray(state.results)) state = { results: [] };\n\n  function scriptSafe(s){\n    // an HTML parser ends a <script> block on a literal \"<\/script\" even\n    // inside a JS string, so break up any such sequence before splicing\n    // a full-document string back into the page.\n    return s.replace(/<\\/(script)/ig, '<\\\\/$1');\n  }\n\n  function buildPage(newState){\n    var out = RAW_TEMPLATE.split(STATE_TOKEN).join(scriptSafe(JSON.stringify(newState)));\n    out = out.split(SELF_TOKEN).join(scriptSafe(JSON.stringify(RAW_TEMPLATE)));\n    return out;\n  }\n\n  /* ---------------- step definitions ---------------- */\n  var ACCENTS = ['a','a','b','c','d','d','f'];\n  var STEPS = [\n    {\n      accent: 'a',\n      eyebrow: '1단계 · 7단계 중',\n      title: '좌표를 세워보자',\n      explain: 'B를 원점에, 변 BC를 x축 위에 놓으면 한 변의 길이가 1인 정사각형이므로 A(0,1), B(0,0), C(1,0), D(1,1)로 나타낼 수 있어요. 점 P는 선분 CD 위에서 <span class=\"math\"><span style=\"text-decoration:overline;\">CP</span> = <em class=\"v\">t</em></span>가 되도록 잡은 점이고, CD는 C(1,0)에서 D(1,1)로 이어지는 수직선분이에요.',\n      type: 'mc',\n      question: '점 P의 좌표는?',\n      options: [\n        'P(t, 1)',\n        'P(1−t, 1)',\n        'P(1, t)',\n        'P(1, 1−t)'\n      ],\n      correctIndex: 2,\n      feedbackOk: '맞아요! C(1,0)에서 D 방향(위쪽)으로 t만큼 이동하므로 P(1, t)예요.',\n      hint: 'C(1,0)에서 y좌표만 t만큼 늘려보세요.'\n    },\n    {\n      accent: 'b',\n      eyebrow: '2단계 · 7단계 중',\n      title: 'Q의 좌표도 구해보자',\n      explain: '같은 방법으로, 점 Q는 선분 AD 위에서 <span class=\"math\"><span style=\"text-decoration:overline;\">DQ</span> = <em class=\"v\">t</em>/2</span>가 되도록 잡은 점이에요. AD는 A(0,1)에서 D(1,1)로 이어지는 수평선분이에요.',\n      type: 'mc',\n      question: '점 Q의 좌표는?',\n      options: [\n        'Q(t/2, 1)',\n        'Q(1 − t/2, 1)',\n        'Q(1, 1 − t/2)',\n        'Q(1 − t/2, 0)'\n      ],\n      correctIndex: 1,\n      feedbackOk: '맞아요! D(1,1)에서 A 방향(왼쪽)으로 t/2만큼 이동하므로 Q(1 − t/2, 1)이에요.',\n      hint: 'D(1,1)에서 x좌표만 t/2만큼 줄여보세요.'\n    },\n    {\n      accent: 'c',\n      eyebrow: '3단계 · 7단계 중',\n      title: '직선 BP의 방정식은?',\n      explain: '직선 BP는 두 점 B(0,0), P(1,t)를 지나요. 기울기는 <span class=\"math\">(<em class=\"v\">t</em>−0)/(1−0) = <em class=\"v\">t</em></span> 이고, 원점을 지나는 직선이에요.',\n      type: 'mc',\n      question: '직선 BP의 방정식은?',\n      options: [\n        'y = (1/t)x',\n        'y = x + t',\n        'x = ty',\n        'y = tx'\n      ],\n      correctIndex: 3,\n      feedbackOk: '맞아요! 기울기가 t이고 원점을 지나므로 y = tx예요.',\n      hint: '두 점 (0,0), (1,t)를 지나는 직선의 기울기는 t/1 = t예요.'\n    },\n    {\n      accent: 'c',\n      eyebrow: '4단계 · 7단계 중',\n      title: '직선 CQ의 방정식은?',\n      explain: '직선 CQ는 두 점 C(1,0), Q(1−t/2, 1)을 지나요. 기울기는 <span class=\"math\">(1−0) / ((1−<em class=\"v\">t</em>/2)−1) = 1/(−<em class=\"v\">t</em>/2) = −2/<em class=\"v\">t</em></span> 예요.',\n      type: 'mc',\n      question: '점 C(1,0)을 지나고 기울기가 −2/t인 직선 CQ의 방정식은?',\n      options: [\n        'y = −(2/t)(x−1)',\n        'y = −(2/t)(x+1)',\n        'y = (2/t)(x−1)',\n        'y = −(t/2)(x−1)'\n      ],\n      correctIndex: 0,\n      feedbackOk: '맞아요! y − 0 = −(2/t)(x−1) 이므로 y = −(2/t)(x−1) 이에요.',\n      hint: 'y − y₁ = m(x − x₁) 꼴에 C(1,0)을 대입해보세요.'\n    },\n    {\n      accent: 'd',\n      eyebrow: '5단계 · 7단계 중',\n      title: '교점 R의 x좌표는?',\n      explain: '두 직선 <span class=\"math\"><em class=\"v\">y</em> = <em class=\"v\">tx</em></span>와 <span class=\"math\"><em class=\"v\">y</em> = −(2/<em class=\"v\">t</em>)(<em class=\"v\">x</em>−1)</span>이 만나는 점의 x좌표를 구해봐요. <span class=\"math\"><em class=\"v\">tx</em> = −(2/<em class=\"v\">t</em>)(<em class=\"v\">x</em>−1)</span>의 양변에 t를 곱하면 <span class=\"math\"><em class=\"v\">t</em><sup>2</sup><em class=\"v\">x</em> = −2(<em class=\"v\">x</em>−1) = −2<em class=\"v\">x</em>+2</span>, 즉 <span class=\"math\">(<em class=\"v\">t</em><sup>2</sup>+2)<em class=\"v\">x</em> = 2</span>가 돼요.',\n      type: 'mc',\n      question: '교점 R의 x좌표는?',\n      options: [\n        't²/(t²+2)',\n        '2/(t²−2)',\n        '2/(t²+2)',\n        '1/(t²+2)'\n      ],\n      correctIndex: 2,\n      feedbackOk: '맞아요! (t²+2)x = 2 이므로 x = 2/(t²+2)예요. (y좌표는 y=tx에 대입하면 2t/(t²+2)가 돼요.)',\n      hint: '(t²+2)x = 2 를 x에 대해 풀어보세요.'\n    },\n    {\n      accent: 'd',\n      eyebrow: '6단계 · 7단계 중',\n      title: '넓이 S(t)를 구해보자',\n      explain: 'R의 x좌표가 2/(t²+2)이므로, C(1,0)에서 R까지의 수평거리(높이)는 <span class=\"math\">1 − 2/(<em class=\"v\">t</em><sup>2</sup>+2) = <em class=\"v\">t</em><sup>2</sup>/(<em class=\"v\">t</em><sup>2</sup>+2)</span> 예요. 밑변 <span class=\"math\"><span style=\"text-decoration:overline;\">CP</span> = <em class=\"v\">t</em></span>이므로, <span class=\"math\"><em class=\"v\">S</em>(<em class=\"v\">t</em>) = (1/2) × 밑변 × 높이</span>로 넓이를 구할 수 있어요.',\n      type: 'mc',\n      question: 'S(t)는?',\n      options: [\n        't²/(t²+2)',\n        't³/(2(t²+2))',\n        '2t³/(t²+2)',\n        't³/(t²+2)'\n      ],\n      correctIndex: 1,\n      feedbackOk: '맞아요! S(t) = (1/2) × t × t²/(t²+2) = t³/(2(t²+2)) 예요.',\n      hint: '넓이 = (1/2) × 밑변 × 높이 = (1/2) × t × t²/(t²+2)'\n    },\n    {\n      accent: 'f',\n      eyebrow: '7단계 · 7단계 중',\n      title: '최종 정답',\n      explain: '이제 <span class=\"math\"><em class=\"v\">S</em>(<em class=\"v\">t</em>)/<em class=\"v\">t</em><sup>3</sup> = 1 / ( 2(<em class=\"v\">t</em><sup>2</sup>+2) )</span> 이고, t→0+ 이면 t²+2 → 2가 돼요.',\n      type: 'num',\n      question: '극한값 lim(t→0+) S(t)/t³ 을 기약분수 1/n 꼴로 나타낼 때, n의 값은?',\n      answer: 4,\n      feedbackOk: '정답이에요! lim(t→0+) S(t)/t³ = 1/(2×2) = 1/4 이므로 n = 4예요.',\n      hint: 't→0이면 t²+2 → 2가 되므로, 2×2를 계산해보세요.'\n    }\n  ];\n\n  var firstTryCorrect = STEPS.map(function(){ return null; });\n  var curStep = 0;\n  var studentName = '';\n  var currentEntry = null;\n\n  /* ---------------- scoring: accuracy + speed ---------------- */\n  var FIRST_TRY_BASE = 100;   // points for solving it yourself, first try\n  var RETRY_BASE = 50;        // points for solving it after a wrong guess\n  var SPEED_BONUS_MAX = 50;   // extra points for a fast first-try answer\n  var SPEED_BONUS_WINDOW = 30; // seconds over which the speed bonus fades to 0\n  var MAX_POINTS = STEPS.length * (FIRST_TRY_BASE + SPEED_BONUS_MAX);\n\n  var stepPoints = STEPS.map(function(){ return 0; });\n  var stepElapsed = STEPS.map(function(){ return null; });\n  var stepStartedAt = STEPS.map(function(){ return null; });\n  var timerInterval = null;\n\n  function pointsForCorrect(elapsedSec, isFirstTry){\n    if (!isFirstTry) return RETRY_BASE;\n    var bonus = Math.max(0, Math.round(SPEED_BONUS_MAX * (1 - elapsedSec / SPEED_BONUS_WINDOW)));\n    return FIRST_TRY_BASE + bonus;\n  }\n\n  function formatClock(sec){\n    sec = Math.max(0, Math.floor(sec));\n    var m = Math.floor(sec / 60);\n    var s = sec % 60;\n    return m + ':' + (s < 10 ? '0' : '') + s;\n  }\n\n  function runningPoints(){\n    return stepPoints.reduce(function(a,b){ return a+b; }, 0);\n  }\n\n  function stopTimer(){\n    if (timerInterval){ clearInterval(timerInterval); timerInterval = null; }\n  }\n\n  function startTimer(idx){\n    stopTimer();\n    if (!stepStartedAt[idx]) stepStartedAt[idx] = Date.now();\n    var el = stepEls[idx].querySelector('[data-role=\"timer\"]');\n    function tick(){\n      var elapsed = (Date.now() - stepStartedAt[idx]) / 1000;\n      el.textContent = '⏱ ' + formatClock(elapsed);\n      el.classList.toggle('timer-late', elapsed > SPEED_BONUS_WINDOW);\n    }\n    tick();\n    timerInterval = setInterval(tick, 500);\n  }\n\n  /* ---------------- render steps ---------------- */\n  var stepsRoot = document.getElementById('steps-root');\n  STEPS.forEach(function(step, idx){\n    var div = document.createElement('div');\n    div.className = 'step';\n    div.dataset.index = idx;\n    div.style.setProperty('--accent', 'var(--' + step.accent + ')');\n\n    var html = '';\n    html += '<div class=\"step-head\">';\n    html += '<div class=\"step-eyebrow\" style=\"color:var(--' + step.accent + ');\">' + step.eyebrow + '</div>';\n    html += '<div class=\"step-timer\" data-role=\"timer\" style=\"--accent:var(--' + step.accent + ');\">⏱ 0:00</div>';\n    html += '</div>';\n    html += '<h2>' + step.title + '</h2>';\n    html += '<div class=\"explain\" style=\"background:var(--' + step.accent + '-bg);\">' + step.explain + '</div>';\n    html += '<div class=\"question\">' + step.question + '</div>';\n\n    if (step.type === 'mc'){\n      html += '<div class=\"options\" data-role=\"options\">';\n      step.options.forEach(function(opt, oi){\n        html += '<button class=\"opt\" data-oi=\"' + oi + '\" style=\"--accent:var(--' + step.accent + ');\">' + opt + '</button>';\n      });\n      html += '</div>';\n    } else {\n      html += '<div class=\"numeric-row\">';\n      html += '<input type=\"text\" inputmode=\"numeric\" class=\"numeric-input\" data-role=\"numeric-input\" style=\"--accent:var(--' + step.accent + ');\" placeholder=\"?\" />';\n      html += '<button class=\"btn accent\" data-role=\"check-btn\">확인</button>';\n      html += '</div>';\n    }\n\n    html += '<div class=\"feedback\" data-role=\"feedback\"></div>';\n    html += '<div class=\"callout\" data-role=\"callout\" style=\"display:none;\"></div>';\n    html += '<div class=\"step-actions\">';\n    html += '<button class=\"btn ghost\" data-role=\"hint-btn\">힌트 보기</button>';\n    html += '<button class=\"btn ghost\" data-role=\"skip-btn\" style=\"display:none;\">정답 보고 다음으로</button>';\n    html += '<button class=\"btn accent\" data-role=\"next-btn\" style=\"display:none;\">다음 단계</button>';\n    html += '</div>';\n\n    div.innerHTML = html;\n    stepsRoot.appendChild(div);\n  });\n\n  var stepEls = Array.prototype.slice.call(stepsRoot.querySelectorAll('.step'));\n\n  function renderProgress(){\n    var bar = document.getElementById('progress');\n    var label = document.getElementById('progress-label');\n    var quizActive = document.getElementById('screen-quiz').classList.contains('active');\n    var finalActive = document.getElementById('screen-final').classList.contains('active');\n    var startActive = document.getElementById('screen-start').classList.contains('active');\n    bar.style.visibility = startActive ? 'hidden' : 'visible';\n    bar.innerHTML = '';\n    STEPS.forEach(function(step, i){\n      var seg = document.createElement('div');\n      seg.className = 'seg';\n      if (finalActive || i < curStep) seg.className += ' done';\n      else if (i === curStep && quizActive) seg.className += ' current';\n      var inner = document.createElement('i');\n      seg.appendChild(inner);\n      bar.appendChild(seg);\n    });\n    if (quizActive){\n      label.textContent = (curStep+1) + ' / ' + STEPS.length + ' 단계 · 현재 ' + runningPoints() + '점';\n    } else if (finalActive){\n      label.textContent = '모든 단계 완료';\n    } else {\n      label.textContent = '';\n    }\n  }\n\n  function showScreen(id){\n    ['screen-start','screen-quiz','screen-final'].forEach(function(sid){\n      document.getElementById(sid).classList.toggle('active', sid === id);\n    });\n    if (id !== 'screen-quiz') stopTimer();\n    renderProgress();\n  }\n\n  function showStep(i){\n    curStep = i;\n    stepEls.forEach(function(el, idx){ el.classList.toggle('active', idx === i); });\n    startTimer(i);\n    renderProgress();\n  }\n\n  function wireStep(idx){\n    var step = STEPS[idx];\n    var el = stepEls[idx];\n    var feedbackEl = el.querySelector('[data-role=\"feedback\"]');\n    var nextBtn = el.querySelector('[data-role=\"next-btn\"]');\n    var hintBtn = el.querySelector('[data-role=\"hint-btn\"]');\n    var skipBtn = el.querySelector('[data-role=\"skip-btn\"]');\n    var calloutEl = el.querySelector('[data-role=\"callout\"]');\n    var answered = false;\n    var attempted = false;\n\n    function unlockSkip(){\n      skipBtn.style.display = 'inline-block';\n    }\n\n    hintBtn.addEventListener('click', function(){\n      feedbackEl.className = 'feedback show';\n      feedbackEl.style.background = 'var(--paper-alt)';\n      feedbackEl.style.color = 'var(--ink-soft)';\n      feedbackEl.textContent = '힌트: ' + step.hint;\n      unlockSkip();\n    });\n\n    function finishStepUI(){\n      if (step.calloutAfter){\n        calloutEl.style.display = 'block';\n        calloutEl.textContent = step.calloutAfter;\n      }\n      nextBtn.style.display = 'inline-block';\n      hintBtn.style.display = 'none';\n      skipBtn.style.display = 'none';\n      renderProgress();\n    }\n\n    function onCorrect(){\n      if (!answered){\n        var isFirstTry = !attempted;\n        firstTryCorrect[idx] = isFirstTry;\n        answered = true;\n        stopTimer();\n        var elapsed = (Date.now() - stepStartedAt[idx]) / 1000;\n        stepElapsed[idx] = elapsed;\n        stepPoints[idx] = pointsForCorrect(elapsed, isFirstTry);\n      }\n      feedbackEl.className = 'feedback show ok';\n      feedbackEl.textContent = step.feedbackOk + ' (+' + stepPoints[idx] + '점)';\n      finishStepUI();\n    }\n    function onWrong(){\n      attempted = true;\n      feedbackEl.className = 'feedback show no';\n      feedbackEl.textContent = '다시 한번 생각해볼까요? 계속 헷갈리면 \"정답 보고 다음으로\"를 눌러도 괜찮아요.';\n      unlockSkip();\n    }\n    function onReveal(){\n      if (answered) return;\n      answered = true;\n      stopTimer();\n      firstTryCorrect[idx] = false;\n      stepElapsed[idx] = (Date.now() - stepStartedAt[idx]) / 1000;\n      stepPoints[idx] = 0;\n      feedbackEl.className = 'feedback show ok';\n      feedbackEl.textContent = (step.revealText ? step.revealText() : step.feedbackOk) + ' (0점 처리)';\n      finishStepUI();\n    }\n\n    function stripLeadPraise(text){\n      // feedbackOk starts with a \"맞아요!\"/\"정답이에요!\" style clause meant\n      // for someone who just answered right — drop it when revealing the\n      // answer to someone who skipped, so it doesn't read as \"you got it\".\n      return text.replace(/^[^.!?]*[!.?]\\s*/, '');\n    }\n\n    if (step.type === 'mc'){\n      var optBtns = Array.prototype.slice.call(el.querySelectorAll('.opt'));\n      step.revealText = function(){ return '정답은 초록색으로 표시된 보기예요. ' + stripLeadPraise(step.feedbackOk); };\n      optBtns.forEach(function(btn){\n        btn.addEventListener('click', function(){\n          if (answered) return;\n          var oi = parseInt(btn.dataset.oi, 10);\n          if (oi === step.correctIndex){\n            optBtns.forEach(function(b, bi){\n              b.disabled = true;\n              if (bi === step.correctIndex) b.classList.add('correct');\n            });\n            onCorrect();\n          } else {\n            btn.classList.add('wrong');\n            btn.disabled = true;\n            onWrong();\n          }\n        });\n      });\n      skipBtn.addEventListener('click', function(){\n        if (answered) return;\n        optBtns.forEach(function(b, bi){\n          b.disabled = true;\n          if (bi === step.correctIndex) b.classList.add('correct');\n        });\n        onReveal();\n      });\n    } else {\n      var input = el.querySelector('[data-role=\"numeric-input\"]');\n      var checkBtn = el.querySelector('[data-role=\"check-btn\"]');\n      step.revealText = function(){ return '정답은 ' + step.answer + '이에요. ' + stripLeadPraise(step.feedbackOk); };\n      function check(){\n        if (answered) return;\n        var raw = (input.value || '').trim();\n        var val = parseFloat(raw);\n        if (raw !== '' && !isNaN(val) && Math.abs(val - step.answer) < 1e-9){\n          input.classList.remove('wrong');\n          input.classList.add('correct');\n          input.disabled = true;\n          checkBtn.disabled = true;\n          onCorrect();\n        } else {\n          input.classList.add('wrong');\n          onWrong();\n        }\n      }\n      checkBtn.addEventListener('click', check);\n      input.addEventListener('keydown', function(e){ if (e.key === 'Enter') check(); });\n      input.addEventListener('input', function(){ input.classList.remove('wrong'); });\n      skipBtn.addEventListener('click', function(){\n        if (answered) return;\n        input.value = step.answer;\n        input.classList.remove('wrong');\n        input.classList.add('correct');\n        input.disabled = true;\n        checkBtn.disabled = true;\n        onReveal();\n      });\n    }\n\n    nextBtn.addEventListener('click', function(){\n      if (idx + 1 < STEPS.length){\n        showStep(idx + 1);\n      } else {\n        finishQuiz();\n      }\n    });\n  }\n\n  STEPS.forEach(function(_, idx){ wireStep(idx); });\n\n  document.getElementById('start-btn').addEventListener('click', function(){\n    var nameInput = document.getElementById('name-input');\n    var name = (nameInput.value || '').trim();\n    if (!name){\n      nameInput.style.borderColor = 'var(--bad)';\n      nameInput.placeholder = '이름을 입력해주세요';\n      nameInput.focus();\n      return;\n    }\n    studentName = name;\n    showScreen('screen-quiz');\n    showStep(0);\n  });\n\n  // Compute everything the final screen needs to show, as a plain snapshot\n  // object. Kept separate from rendering so the exact same snapshot can be\n  // rebuilt after a page reload (see renderFinalScreen / resumePending\n  // below) instead of recomputing from live quiz state that no longer\n  // exists post-reload.\n  function computeFinalSnapshot(){\n    var correctCount = firstTryCorrect.filter(function(v){ return v === true; }).length;\n    var solvedCount = stepPoints.filter(function(p){ return p > 0; }).length;\n    var total = STEPS.length;\n    var totalPoints = runningPoints();\n    var answeredElapsed = stepElapsed.filter(function(v){ return v !== null; });\n    var avgSec = answeredElapsed.length\n      ? answeredElapsed.reduce(function(a,b){ return a+b; }, 0) / answeredElapsed.length\n      : 0;\n\n    var pct = totalPoints / MAX_POINTS;\n    var msg;\n    if (pct >= 0.85) msg = '정확하고 빠르네요! 두 직선의 방정식을 세워 교점을 구하는 과정을 확실히 이해하고 있어요.';\n    else if (pct >= 0.6) msg = '전체 흐름을 잘 따라왔어요. 헷갈렸던 단계는 힌트를 다시 읽어보면 좋아요.';\n    else msg = '천천히 다시 훑어보면 금방 이해될 거예요. 직선 BP, CQ의 방정식을 세우는 부분을 다시 짚어보세요.';\n\n    var entry = {\n      id: uid(),\n      name: studentName || '이름 없음',\n      score: correctCount,\n      total: total,\n      points: totalPoints,\n      submittedAt: new Date().toISOString()\n    };\n\n    return {\n      entry: entry,\n      solvedCount: solvedCount,\n      correctCount: correctCount,\n      total: total,\n      totalPoints: totalPoints,\n      avgSec: avgSec,\n      msg: msg\n    };\n  }\n\n  // Paint the final screen from a snapshot. Used both right after finishing\n  // the quiz, and when restoring the final screen after a reload triggered\n  // by a successful background save (see attemptPublish's comment on\n  // ns.publish reloading the calling view).\n  function renderFinalScreen(snap){\n    var entry = snap.entry;\n    currentEntry = entry;\n    document.getElementById('score-text').innerHTML = '<span class=\"num\">' + snap.totalPoints + '</span>점';\n    document.getElementById('score-breakdown').textContent =\n      '정답 ' + snap.solvedCount + '/' + snap.total + ' (한 번에 맞힌 문제 ' + snap.correctCount + '개) · 평균 ' + formatClock(snap.avgSec) + '/문제 · ' + MAX_POINTS + '점 만점';\n    document.getElementById('final-msg').textContent = snap.msg;\n    document.getElementById('copy-text').value = entry.name + ' | ' + entry.points + '점 (정답 ' + entry.score + '/' + entry.total + ')';\n\n    var gformRow = document.getElementById('gform-row');\n    var copyBtn = document.getElementById('copy-btn');\n    var callout = document.getElementById('submit-callout');\n    if (state.googleFormTemplate){\n      gformRow.style.display = 'block';\n      copyBtn.classList.remove('accent');\n      copyBtn.classList.add('ghost');\n      callout.textContent = '\"구글 설문지로 제출하기\"를 누르면 결과가 채워진 설문지가 새 탭에서 열려요. 거기서 제출 버튼만 눌러주세요.';\n    } else {\n      gformRow.style.display = 'none';\n      copyBtn.classList.remove('ghost');\n      copyBtn.classList.add('accent');\n      callout.textContent = '복사한 내용을 선생님이 안내한 패들렛이나 제출 링크에 붙여넣어 제출해주세요.';\n    }\n    showScreen('screen-final');\n  }\n\n  function finishQuiz(){\n    var snap = computeFinalSnapshot();\n    renderFinalScreen(snap);\n\n    // best-effort background save to this page's own results table — only\n    // works when the viewer has been granted edit access to this artifact;\n    // fails silently for the normal read-only link, which is why the copy\n    // box (and, once configured, the Google Form button) above are the\n    // real submission paths. When it DOES succeed (e.g. the teacher's own\n    // owner view), the platform silently reloads this view to the newly\n    // published version — resumePending() below repaints this same final\n    // screen from the stashed snapshot instead of falling through to the\n    // start screen, which is what used to cause the premature jump back.\n    stashPending(snap);\n    attemptPublish(snap.entry);\n  }\n\n  /* ---------------- submission ---------------- */\n  var PENDING_KEY = 'quiz-pending-submission-v1';\n\n  function uid(){\n    return 'r-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);\n  }\n\n  function renderTeacherPanel(){\n    var wrap = document.getElementById('results-table-wrap');\n    var results = state.results.slice().sort(function(a,b){ return (b.points||0) - (a.points||0); });\n    if (!results.length){\n      wrap.innerHTML = '<div class=\"empty-note\">아직 제출된 결과가 없어요.</div>';\n      return;\n    }\n    var html = '<table class=\"results\"><thead><tr><th>순위</th><th>이름</th><th>포인트</th><th>정답</th><th>제출 시각</th></tr></thead><tbody>';\n    results.forEach(function(r, i){\n      var t = '';\n      try { t = new Date(r.submittedAt).toLocaleString('ko-KR'); } catch(e){ t = r.submittedAt || ''; }\n      var points = (r.points == null) ? '—' : r.points;\n      html += '<tr><td class=\"num\">' + (i+1) + '</td><td>' + escapeHtml(r.name) + '</td><td class=\"num\">' + points + '</td><td class=\"num\">' + r.score + ' / ' + r.total + '</td><td>' + t + '</td></tr>';\n    });\n    html += '</tbody></table>';\n    wrap.innerHTML = html;\n  }\n\n  function escapeHtml(s){\n    return String(s == null ? '' : s).replace(/[&<>\"']/g, function(c){\n      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', \"'\":'&#39;' }[c];\n    });\n  }\n\n  function setCopyStatus(text, isError){\n    var el = document.getElementById('copy-status');\n    el.textContent = text;\n    el.style.color = isError ? 'var(--bad)' : 'var(--ok)';\n  }\n\n  var artifactNsPromise = (window.claude && typeof window.claude.use === 'function')\n    ? window.claude.use('artifact')\n    : Promise.resolve(null);\n\n  // Silent, best-effort: only succeeds when this viewer has edit access to\n  // the artifact (an invited editor, on a plan that supports it). For the\n  // ordinary \"anyone with the link\" viewer this always ends up not_granted,\n  // which is expected and not shown to the student — the copy box is the\n  // real submission path.\n  function attemptPublish(entry, attemptNum){\n    attemptNum = attemptNum || 1;\n    artifactNsPromise.then(function(ns){\n      if (!ns){ clearPending(); return; }\n      var already = state.results.some(function(r){ return r.id === entry.id; });\n      var merged = already ? state : { results: state.results.concat([entry]), googleFormTemplate: state.googleFormTemplate };\n      var html = buildPage(merged);\n      ns.publish(html).then(function(){\n        // this view will reload to the new version automatically\n      }).catch(function(err){\n        var code = err && err.code;\n        if ((code === 'conflict' || code === 'rate_limited') && attemptNum < 6){\n          setTimeout(function(){ attemptPublish(entry, attemptNum + 1); }, 900 * attemptNum);\n        } else if (code === 'upstream_error' && attemptNum < 3){\n          setTimeout(function(){ attemptPublish(entry, attemptNum + 1); }, 1200);\n        } else {\n          clearPending();\n          if (window.console) console.log('배경 자동 저장을 사용할 수 없어요 (', code, '). 복사 제출 방식을 사용하세요.');\n        }\n      });\n    });\n  }\n\n  function stashPending(entry){\n    try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(entry)); } catch(e){}\n  }\n  function clearPending(){\n    try { sessionStorage.removeItem(PENDING_KEY); } catch(e){}\n  }\n\n  document.getElementById('copy-btn').addEventListener('click', function(){\n    var input = document.getElementById('copy-text');\n    var text = input.value;\n    function fallbackSelect(){\n      input.focus();\n      input.select();\n      try {\n        var ok = document.execCommand && document.execCommand('copy');\n        setCopyStatus(ok ? '복사됐어요! 패들렛에 붙여넣어 주세요.' : '아래 칸의 글자를 직접 선택해서 복사해주세요.', !ok);\n      } catch(e){\n        setCopyStatus('아래 칸의 글자를 직접 선택해서 복사해주세요.', true);\n      }\n    }\n    if (navigator.clipboard && navigator.clipboard.writeText){\n      navigator.clipboard.writeText(text).then(function(){\n        setCopyStatus('복사됐어요! 패들렛에 붙여넣어 주세요.');\n      }).catch(fallbackSelect);\n    } else {\n      fallbackSelect();\n    }\n  });\n\n  document.getElementById('teacher-toggle').addEventListener('click', function(){\n    var panel = document.getElementById('teacher-panel');\n    var willShow = !panel.classList.contains('show');\n    panel.classList.toggle('show', willShow);\n    if (willShow) renderTeacherPanel();\n  });\n\n  // \"처음으로\": explicit, user-initiated reset back to the start screen.\n  // A full page reload is the most reliable way to reset every bit of quiz\n  // state (per-step closures, disabled inputs, timers, classes) without\n  // hand-tracking each one — clearPending() first so resumePending() on\n  // the fresh load doesn't repaint the just-finished result instead of the\n  // start screen.\n  document.getElementById('restart-btn').addEventListener('click', function(){\n    clearPending();\n    location.reload();\n  });\n\n  document.getElementById('gform-btn').addEventListener('click', function(){\n    if (!currentEntry || !state.googleFormTemplate) return;\n    var scoreText = currentEntry.points + '점 (' + currentEntry.score + '/' + currentEntry.total + ')';\n    var url = state.googleFormTemplate\n      .split('PLACEHOLDER_NAME').join(encodeURIComponent(currentEntry.name))\n      .split('PLACEHOLDER_SCORE').join(encodeURIComponent(scoreText));\n    window.open(url, '_blank', 'noopener');\n  });\n\n  /* ---------------- teacher setup: google form template ---------------- */\n  var teacherSetupPanel = document.getElementById('teacher-setup-panel');\n  var formTemplateInput = document.getElementById('form-template-input');\n  var formTemplateSaveBtn = document.getElementById('form-template-save');\n\n  document.getElementById('teacher-setup-toggle').addEventListener('click', function(){\n    var willShow = !teacherSetupPanel.classList.contains('show');\n    teacherSetupPanel.classList.toggle('show', willShow);\n    if (willShow && !formTemplateInput.value){\n      formTemplateInput.value = state.googleFormTemplate || '';\n    }\n  });\n\n  function setFormStatus(text, isError){\n    var el = document.getElementById('form-template-status');\n    el.textContent = text;\n    el.style.color = isError ? 'var(--bad)' : 'var(--ok)';\n  }\n\n  function attemptSaveTemplate(templateUrl, attemptNum){\n    attemptNum = attemptNum || 1;\n    artifactNsPromise.then(function(ns){\n      if (!ns){\n        setFormStatus('이 아티팩트의 소유자 계정으로 열었을 때만 저장할 수 있어요. (학생 화면에서는 저장 버튼이 동작하지 않아요)', true);\n        formTemplateSaveBtn.disabled = false;\n        formTemplateSaveBtn.textContent = '저장';\n        return;\n      }\n      var merged = { results: state.results, googleFormTemplate: templateUrl };\n      var html = buildPage(merged);\n      ns.publish(html).then(function(){\n        setFormStatus('저장됐어요! 화면이 곧 새로고침돼요.');\n      }).catch(function(err){\n        var code = err && err.code;\n        if ((code === 'conflict' || code === 'rate_limited') && attemptNum < 6){\n          setTimeout(function(){ attemptSaveTemplate(templateUrl, attemptNum + 1); }, 900 * attemptNum);\n        } else if (code === 'upstream_error' && attemptNum < 3){\n          setTimeout(function(){ attemptSaveTemplate(templateUrl, attemptNum + 1); }, 1200);\n        } else {\n          var msg = (code === 'not_writer' || code === 'not_granted')\n            ? '이 아티팩트의 소유자 계정으로 열었을 때만 저장할 수 있어요.'\n            : ('저장에 실패했어요 (' + code + '). 잠시 후 다시 시도해주세요.');\n          setFormStatus(msg, true);\n          formTemplateSaveBtn.disabled = false;\n          formTemplateSaveBtn.textContent = '저장';\n        }\n      });\n    });\n  }\n\n  formTemplateSaveBtn.addEventListener('click', function(){\n    var val = (formTemplateInput.value || '').trim();\n    if (val && (val.indexOf('PLACEHOLDER_NAME') === -1 || val.indexOf('PLACEHOLDER_SCORE') === -1)){\n      setFormStatus('링크에 PLACEHOLDER_NAME과 PLACEHOLDER_SCORE가 그대로 들어있는지 확인해주세요.', true);\n      return;\n    }\n    formTemplateSaveBtn.disabled = true;\n    formTemplateSaveBtn.textContent = '저장 중...';\n    setFormStatus('저장 중...');\n    attemptSaveTemplate(val);\n  });\n\n  /* Resume after a reload. Two cases land here:\n     1) A student mid-quiz just reloads the page (or a background save from\n        a previous finish never confirmed) — no usable snapshot, show the\n        start screen as before.\n     2) The background save in attemptPublish() succeeded and the platform\n        silently reloaded this view. Without this, the reload fell through\n        to the start screen even though the student had just finished —\n        the \"너무 일찍 처음으로 넘어가는\" bug. Now we repaint the exact same\n        final screen from the stashed snapshot instead. */\n  (function resumePending(){\n    var raw;\n    try { raw = sessionStorage.getItem(PENDING_KEY); } catch(e){ raw = null; }\n    var snap = null;\n    if (raw){\n      try { snap = JSON.parse(raw); } catch(e){ snap = null; }\n    }\n    if (!snap || !snap.entry){\n      showScreen('screen-start');\n      return;\n    }\n\n    studentName = snap.entry.name;\n    renderFinalScreen(snap);\n\n    var already = state.results.some(function(r){ return r.id === snap.entry.id; });\n    if (already){\n      clearPending();\n    } else {\n      attemptPublish(snap.entry);\n    }\n  })();\n})();\n<\/script>\n</body>\n</html>\n";
+  /* ---------------- leaderboard backend ----------------
+     Paste the Google Apps Script Web App URL here once (see the deployment
+     guide the teacher was given). Leave it empty to disable auto-submit —
+     the quiz still works, it just won't try to reach a backend. */
+  var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIzGLUml6AAwKhvPPGyxgbQ8PLatLCh-K5j3LNIAkiScuBVxBmfgm3HnlisVQIfsk3/exec";
 
-  var stateEl = document.getElementById('state-data');
-  var state;
-  try { state = JSON.parse(stateEl.textContent); } catch(e){ state = { results: [] }; }
-  if (!state || !Array.isArray(state.results)) state = { results: [] };
+  // Identifies which quiz a submission belongs to, so one Apps Script
+  // backend / one sheet can serve several quiz pages without their
+  // leaderboards mixing together. results.html groups by this.
+  var QUIZ_ID = "square-area-limit";
+  var QUIZ_LABEL = "정사각형 속 넓이의 극한";
 
-  function scriptSafe(s){
-    // an HTML parser ends a <script> block on a literal "</script" even
-    // inside a JS string, so break up any such sequence before splicing
-    // a full-document string back into the page.
-    return s.replace(/<\/(script)/ig, '<\\/$1');
-  }
-
-  function buildPage(newState){
-    var out = RAW_TEMPLATE.split(STATE_TOKEN).join(scriptSafe(JSON.stringify(newState)));
-    out = out.split(SELF_TOKEN).join(scriptSafe(JSON.stringify(RAW_TEMPLATE)));
-    return out;
+  function backendConfigured(){
+    return !!SCRIPT_URL && SCRIPT_URL.indexOf('PASTE_YOUR_') !== 0;
   }
 
   /* ---------------- step definitions ---------------- */
-  var ACCENTS = ['a','a','b','c','d','d','f'];
   var STEPS = [
     {
       accent: 'a',
@@ -717,9 +683,6 @@
     }
 
     function stripLeadPraise(text){
-      // feedbackOk starts with a "맞아요!"/"정답이에요!" style clause meant
-      // for someone who just answered right — drop it when revealing the
-      // answer to someone who skipped, so it doesn't read as "you got it".
       return text.replace(/^[^.!?]*[!.?]\s*/, '');
     }
 
@@ -795,6 +758,9 @@
 
   STEPS.forEach(function(_, idx){ wireStep(idx); });
 
+  var leaderboardLink = document.getElementById('leaderboard-link');
+  if (leaderboardLink) leaderboardLink.href = './results.html?quiz=' + encodeURIComponent(QUIZ_ID);
+
   document.getElementById('start-btn').addEventListener('click', function(){
     var nameInput = document.getElementById('name-input');
     var name = (nameInput.value || '').trim();
@@ -809,12 +775,44 @@
     showStep(0);
   });
 
-  // Compute everything the final screen needs to show, as a plain snapshot
-  // object. Kept separate from rendering so the exact same snapshot can be
-  // rebuilt after a page reload (see renderFinalScreen / resumePending
-  // below) instead of recomputing from live quiz state that no longer
-  // exists post-reload.
-  function computeFinalSnapshot(){
+  function uid(){
+    return 'r-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
+  }
+
+  function setSubmitStatus(text, kind){
+    var el = document.getElementById('submit-status');
+    el.textContent = text;
+    el.className = 'submit-status' + (kind ? ' ' + kind : '');
+  }
+
+  // Fire-and-forget POST to the Apps Script backend. We use mode:'no-cors'
+  // with a text/plain body so the browser treats this as a "simple
+  // request" and never needs to preflight it — Apps Script web apps don't
+  // reliably answer CORS preflights. The trade-off is that we can't read
+  // the response or know for certain it was written, so the messaging
+  // below stays honest ("제출을 시도했어요") rather than claiming success.
+  function submitToLeaderboard(entry){
+    if (!backendConfigured()){
+      setSubmitStatus('아직 순위표 저장이 설정되지 않았어요. 결과 복사하기로 선생님께 전달해주세요.', 'bad');
+      document.getElementById('retry-submit-btn').style.display = 'none';
+      return;
+    }
+    setSubmitStatus('순위표에 제출하는 중...', 'pending');
+    document.getElementById('retry-submit-btn').style.display = 'none';
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(entry)
+    }).then(function(){
+      setSubmitStatus('제출을 시도했어요. 잠시 후 순위표에서 확인해보세요.', 'ok');
+    }).catch(function(){
+      setSubmitStatus('인터넷 연결 문제로 제출하지 못했어요.', 'bad');
+      document.getElementById('retry-submit-btn').style.display = 'inline-block';
+    });
+  }
+
+  function finishQuiz(){
     var correctCount = firstTryCorrect.filter(function(v){ return v === true; }).length;
     var solvedCount = stepPoints.filter(function(p){ return p > 0; }).length;
     var total = STEPS.length;
@@ -830,147 +828,42 @@
     else if (pct >= 0.6) msg = '전체 흐름을 잘 따라왔어요. 헷갈렸던 단계는 힌트를 다시 읽어보면 좋아요.';
     else msg = '천천히 다시 훑어보면 금방 이해될 거예요. 직선 BP, CQ의 방정식을 세우는 부분을 다시 짚어보세요.';
 
+    document.getElementById('score-text').innerHTML = '<span class="num">' + totalPoints + '</span>점';
+    document.getElementById('score-breakdown').textContent =
+      '정답 ' + solvedCount + '/' + total + ' (한 번에 맞힌 문제 ' + correctCount + '개) · 평균 ' + formatClock(avgSec) + '/문제 · ' + MAX_POINTS + '점 만점';
+    document.getElementById('final-msg').textContent = msg;
+
     var entry = {
       id: uid(),
+      quizId: QUIZ_ID,
+      quizLabel: QUIZ_LABEL,
       name: studentName || '이름 없음',
       score: correctCount,
       total: total,
       points: totalPoints,
       submittedAt: new Date().toISOString()
     };
-
-    return {
-      entry: entry,
-      solvedCount: solvedCount,
-      correctCount: correctCount,
-      total: total,
-      totalPoints: totalPoints,
-      avgSec: avgSec,
-      msg: msg
-    };
-  }
-
-  // Paint the final screen from a snapshot. Used both right after finishing
-  // the quiz, and when restoring the final screen after a reload triggered
-  // by a successful background save (see attemptPublish's comment on
-  // ns.publish reloading the calling view).
-  function renderFinalScreen(snap){
-    var entry = snap.entry;
     currentEntry = entry;
-    document.getElementById('score-text').innerHTML = '<span class="num">' + snap.totalPoints + '</span>점';
-    document.getElementById('score-breakdown').textContent =
-      '정답 ' + snap.solvedCount + '/' + snap.total + ' (한 번에 맞힌 문제 ' + snap.correctCount + '개) · 평균 ' + formatClock(snap.avgSec) + '/문제 · ' + MAX_POINTS + '점 만점';
-    document.getElementById('final-msg').textContent = snap.msg;
     document.getElementById('copy-text').value = entry.name + ' | ' + entry.points + '점 (정답 ' + entry.score + '/' + entry.total + ')';
 
-    var gformRow = document.getElementById('gform-row');
-    var copyBtn = document.getElementById('copy-btn');
-    var callout = document.getElementById('submit-callout');
-    if (state.googleFormTemplate){
-      gformRow.style.display = 'block';
-      copyBtn.classList.remove('accent');
-      copyBtn.classList.add('ghost');
-      callout.textContent = '"구글 설문지로 제출하기"를 누르면 결과가 채워진 설문지가 새 탭에서 열려요. 거기서 제출 버튼만 눌러주세요.';
-    } else {
-      gformRow.style.display = 'none';
-      copyBtn.classList.remove('ghost');
-      copyBtn.classList.add('accent');
-      callout.textContent = '복사한 내용을 선생님이 안내한 패들렛이나 제출 링크에 붙여넣어 제출해주세요.';
-    }
     showScreen('screen-final');
-  }
 
-  function finishQuiz(){
-    var snap = computeFinalSnapshot();
-    renderFinalScreen(snap);
-
-    // best-effort background save to this page's own results table — only
-    // works when the viewer has been granted edit access to this artifact;
-    // fails silently for the normal read-only link, which is why the copy
-    // box (and, once configured, the Google Form button) above are the
-    // real submission paths. When it DOES succeed (e.g. the teacher's own
-    // owner view), the platform silently reloads this view to the newly
-    // published version — resumePending() below repaints this same final
-    // screen from the stashed snapshot instead of falling through to the
-    // start screen, which is what used to cause the premature jump back.
-    stashPending(snap);
-    attemptPublish(snap.entry);
-  }
-
-  /* ---------------- submission ---------------- */
-  var PENDING_KEY = 'quiz-pending-submission-v1';
-
-  function uid(){
-    return 'r-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9);
-  }
-
-  function renderTeacherPanel(){
-    var wrap = document.getElementById('results-table-wrap');
-    var results = state.results.slice().sort(function(a,b){ return (b.points||0) - (a.points||0); });
-    if (!results.length){
-      wrap.innerHTML = '<div class="empty-note">아직 제출된 결과가 없어요.</div>';
-      return;
+    var consentChecked = document.getElementById('consent-checkbox').checked;
+    if (consentChecked){
+      submitToLeaderboard(entry);
+    } else {
+      setSubmitStatus('순위표에는 기록하지 않았어요. (동의 체크가 해제되어 있었어요)', 'pending');
     }
-    var html = '<table class="results"><thead><tr><th>순위</th><th>이름</th><th>포인트</th><th>정답</th><th>제출 시각</th></tr></thead><tbody>';
-    results.forEach(function(r, i){
-      var t = '';
-      try { t = new Date(r.submittedAt).toLocaleString('ko-KR'); } catch(e){ t = r.submittedAt || ''; }
-      var points = (r.points == null) ? '—' : r.points;
-      html += '<tr><td class="num">' + (i+1) + '</td><td>' + escapeHtml(r.name) + '</td><td class="num">' + points + '</td><td class="num">' + r.score + ' / ' + r.total + '</td><td>' + t + '</td></tr>';
-    });
-    html += '</tbody></table>';
-    wrap.innerHTML = html;
   }
 
-  function escapeHtml(s){
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
-      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
-    });
-  }
+  document.getElementById('retry-submit-btn').addEventListener('click', function(){
+    if (currentEntry) submitToLeaderboard(currentEntry);
+  });
 
   function setCopyStatus(text, isError){
     var el = document.getElementById('copy-status');
     el.textContent = text;
     el.style.color = isError ? 'var(--bad)' : 'var(--ok)';
-  }
-
-  var artifactNsPromise = (window.claude && typeof window.claude.use === 'function')
-    ? window.claude.use('artifact')
-    : Promise.resolve(null);
-
-  // Silent, best-effort: only succeeds when this viewer has edit access to
-  // the artifact (an invited editor, on a plan that supports it). For the
-  // ordinary "anyone with the link" viewer this always ends up not_granted,
-  // which is expected and not shown to the student — the copy box is the
-  // real submission path.
-  function attemptPublish(entry, attemptNum){
-    attemptNum = attemptNum || 1;
-    artifactNsPromise.then(function(ns){
-      if (!ns){ clearPending(); return; }
-      var already = state.results.some(function(r){ return r.id === entry.id; });
-      var merged = already ? state : { results: state.results.concat([entry]), googleFormTemplate: state.googleFormTemplate };
-      var html = buildPage(merged);
-      ns.publish(html).then(function(){
-        // this view will reload to the new version automatically
-      }).catch(function(err){
-        var code = err && err.code;
-        if ((code === 'conflict' || code === 'rate_limited') && attemptNum < 6){
-          setTimeout(function(){ attemptPublish(entry, attemptNum + 1); }, 900 * attemptNum);
-        } else if (code === 'upstream_error' && attemptNum < 3){
-          setTimeout(function(){ attemptPublish(entry, attemptNum + 1); }, 1200);
-        } else {
-          clearPending();
-          if (window.console) console.log('배경 자동 저장을 사용할 수 없어요 (', code, '). 복사 제출 방식을 사용하세요.');
-        }
-      });
-    });
-  }
-
-  function stashPending(entry){
-    try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(entry)); } catch(e){}
-  }
-  function clearPending(){
-    try { sessionStorage.removeItem(PENDING_KEY); } catch(e){}
   }
 
   document.getElementById('copy-btn').addEventListener('click', function(){
@@ -981,140 +874,29 @@
       input.select();
       try {
         var ok = document.execCommand && document.execCommand('copy');
-        setCopyStatus(ok ? '복사됐어요! 패들렛에 붙여넣어 주세요.' : '아래 칸의 글자를 직접 선택해서 복사해주세요.', !ok);
+        setCopyStatus(ok ? '복사됐어요!' : '아래 칸의 글자를 직접 선택해서 복사해주세요.', !ok);
       } catch(e){
         setCopyStatus('아래 칸의 글자를 직접 선택해서 복사해주세요.', true);
       }
     }
     if (navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).then(function(){
-        setCopyStatus('복사됐어요! 패들렛에 붙여넣어 주세요.');
+        setCopyStatus('복사됐어요!');
       }).catch(fallbackSelect);
     } else {
       fallbackSelect();
     }
   });
 
-  document.getElementById('teacher-toggle').addEventListener('click', function(){
-    var panel = document.getElementById('teacher-panel');
-    var willShow = !panel.classList.contains('show');
-    panel.classList.toggle('show', willShow);
-    if (willShow) renderTeacherPanel();
-  });
-
-  // "처음으로": explicit, user-initiated reset back to the start screen.
-  // A full page reload is the most reliable way to reset every bit of quiz
-  // state (per-step closures, disabled inputs, timers, classes) without
-  // hand-tracking each one — clearPending() first so resumePending() on
-  // the fresh load doesn't repaint the just-finished result instead of the
-  // start screen.
+  // "처음으로": reset back to the start screen. A full page reload is the
+  // simplest reliable way to reset every bit of quiz state (per-step
+  // closures, disabled inputs, timers, classes) without hand-tracking each
+  // one individually.
   document.getElementById('restart-btn').addEventListener('click', function(){
-    clearPending();
     location.reload();
   });
 
-  document.getElementById('gform-btn').addEventListener('click', function(){
-    if (!currentEntry || !state.googleFormTemplate) return;
-    var scoreText = currentEntry.points + '점 (' + currentEntry.score + '/' + currentEntry.total + ')';
-    var url = state.googleFormTemplate
-      .split('PLACEHOLDER_NAME').join(encodeURIComponent(currentEntry.name))
-      .split('PLACEHOLDER_SCORE').join(encodeURIComponent(scoreText));
-    window.open(url, '_blank', 'noopener');
-  });
-
-  /* ---------------- teacher setup: google form template ---------------- */
-  var teacherSetupPanel = document.getElementById('teacher-setup-panel');
-  var formTemplateInput = document.getElementById('form-template-input');
-  var formTemplateSaveBtn = document.getElementById('form-template-save');
-
-  document.getElementById('teacher-setup-toggle').addEventListener('click', function(){
-    var willShow = !teacherSetupPanel.classList.contains('show');
-    teacherSetupPanel.classList.toggle('show', willShow);
-    if (willShow && !formTemplateInput.value){
-      formTemplateInput.value = state.googleFormTemplate || '';
-    }
-  });
-
-  function setFormStatus(text, isError){
-    var el = document.getElementById('form-template-status');
-    el.textContent = text;
-    el.style.color = isError ? 'var(--bad)' : 'var(--ok)';
-  }
-
-  function attemptSaveTemplate(templateUrl, attemptNum){
-    attemptNum = attemptNum || 1;
-    artifactNsPromise.then(function(ns){
-      if (!ns){
-        setFormStatus('이 아티팩트의 소유자 계정으로 열었을 때만 저장할 수 있어요. (학생 화면에서는 저장 버튼이 동작하지 않아요)', true);
-        formTemplateSaveBtn.disabled = false;
-        formTemplateSaveBtn.textContent = '저장';
-        return;
-      }
-      var merged = { results: state.results, googleFormTemplate: templateUrl };
-      var html = buildPage(merged);
-      ns.publish(html).then(function(){
-        setFormStatus('저장됐어요! 화면이 곧 새로고침돼요.');
-      }).catch(function(err){
-        var code = err && err.code;
-        if ((code === 'conflict' || code === 'rate_limited') && attemptNum < 6){
-          setTimeout(function(){ attemptSaveTemplate(templateUrl, attemptNum + 1); }, 900 * attemptNum);
-        } else if (code === 'upstream_error' && attemptNum < 3){
-          setTimeout(function(){ attemptSaveTemplate(templateUrl, attemptNum + 1); }, 1200);
-        } else {
-          var msg = (code === 'not_writer' || code === 'not_granted')
-            ? '이 아티팩트의 소유자 계정으로 열었을 때만 저장할 수 있어요.'
-            : ('저장에 실패했어요 (' + code + '). 잠시 후 다시 시도해주세요.');
-          setFormStatus(msg, true);
-          formTemplateSaveBtn.disabled = false;
-          formTemplateSaveBtn.textContent = '저장';
-        }
-      });
-    });
-  }
-
-  formTemplateSaveBtn.addEventListener('click', function(){
-    var val = (formTemplateInput.value || '').trim();
-    if (val && (val.indexOf('PLACEHOLDER_NAME') === -1 || val.indexOf('PLACEHOLDER_SCORE') === -1)){
-      setFormStatus('링크에 PLACEHOLDER_NAME과 PLACEHOLDER_SCORE가 그대로 들어있는지 확인해주세요.', true);
-      return;
-    }
-    formTemplateSaveBtn.disabled = true;
-    formTemplateSaveBtn.textContent = '저장 중...';
-    setFormStatus('저장 중...');
-    attemptSaveTemplate(val);
-  });
-
-  /* Resume after a reload. Two cases land here:
-     1) A student mid-quiz just reloads the page (or a background save from
-        a previous finish never confirmed) — no usable snapshot, show the
-        start screen as before.
-     2) The background save in attemptPublish() succeeded and the platform
-        silently reloaded this view. Without this, the reload fell through
-        to the start screen even though the student had just finished —
-        the "너무 일찍 처음으로 넘어가는" bug. Now we repaint the exact same
-        final screen from the stashed snapshot instead. */
-  (function resumePending(){
-    var raw;
-    try { raw = sessionStorage.getItem(PENDING_KEY); } catch(e){ raw = null; }
-    var snap = null;
-    if (raw){
-      try { snap = JSON.parse(raw); } catch(e){ snap = null; }
-    }
-    if (!snap || !snap.entry){
-      showScreen('screen-start');
-      return;
-    }
-
-    studentName = snap.entry.name;
-    renderFinalScreen(snap);
-
-    var already = state.results.some(function(r){ return r.id === snap.entry.id; });
-    if (already){
-      clearPending();
-    } else {
-      attemptPublish(snap.entry);
-    }
-  })();
+  showScreen('screen-start');
 })();
 </script>
 </body>
