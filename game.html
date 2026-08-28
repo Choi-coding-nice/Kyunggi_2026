@@ -668,6 +668,7 @@ var QUIZ_BANK = [
    CONFIG / STATE
 --------------------------------------------------------- */
 var CW=480, CH=720;
+var QUIZ_HOVER_Y=CH*0.6; // where answer ships settle — close to the player, easy to read
 var canvas=document.getElementById("game");
 var ctx=canvas.getContext("2d");
 
@@ -959,9 +960,20 @@ function initStars(){
 }
 
 /* ---------------------------------------------------------
+   DIFFICULTY CURVE — obstacles get steadily faster the longer
+   a single run lasts, on top of the per-wave bump.
+--------------------------------------------------------- */
+var DIFFICULTY_RAMP_SECONDS = 75;   // time to reach +100% speed
+var DIFFICULTY_MAX_MULT = 2.6;      // hard cap so it stays playable
+function getSpeedMul(){
+  return 1 + Math.min(DIFFICULTY_MAX_MULT-1, S.elapsed / DIFFICULTY_RAMP_SECONDS);
+}
+
+/* ---------------------------------------------------------
    ENTITY SPAWNING
 --------------------------------------------------------- */
 function spawnEnemy(){
+  var speedMul = getSpeedMul();
   var elite = S.wave>=3 && Math.random()<0.28;
   var lane = 30 + Math.random()*(CW-60);
   S.enemies.push({
@@ -969,8 +981,8 @@ function spawnEnemy(){
     r: elite?20:14,
     hp: elite?3:1,
     maxHp: elite?3:1,
-    vy: (elite?46:64) + S.wave*3 + Math.random()*20,
-    vx: (Math.random()-0.5)*24,
+    vy: ((elite?46:64) + S.wave*3 + Math.random()*20) * speedMul,
+    vx: (Math.random()-0.5)*24 * Math.min(1.6,speedMul),
     elite:elite,
     spin:0
   });
@@ -988,16 +1000,19 @@ function startQuizWave(){
   S.enemies=[];
   var q=pickQuestion();
   var order=[0,1,2,3];
-  var dur = 13 - Math.min(3,S.wave*0.3);
+  var dur = 14 - Math.min(3,S.wave*0.3);
   S.quiz={active:true, question:q, deadline:S.elapsed+dur, dur:dur};
   S.quizSeen++;
   var lanes=[CW*0.18,CW*0.4,CW*0.6,CW*0.82];
   var labels=["A","B","C","D"];
   S.quizShips=order.map(function(ci,li){
     return {
-      x:lanes[li], y:-40-li*70, r:34,
+      // start just above frame and close the (short) distance to the hover
+      // band quickly, so choices settle into view within a couple seconds
+      // instead of crawling down for most of the wave's timer.
+      x:lanes[li], y:-30-li*40, r:34,
       choiceIdx:ci, label:labels[li], text:q.c[ci],
-      vy: 26 + S.wave*1.5, hit:false
+      vy: 130 + S.wave*5 + Math.random()*20, hit:false
     };
   });
   document.getElementById("qbQ").textContent=q.q;
@@ -1094,7 +1109,7 @@ function update(dt){
     S.nextEnemyAt-=dt;
     if(S.nextEnemyAt<=0){
       spawnEnemy();
-      S.nextEnemyAt = Math.max(0.45, 1.35 - S.wave*0.05);
+      S.nextEnemyAt = Math.max(0.4, (1.35 - S.wave*0.05) / getSpeedMul());
     }
     S.enemies.forEach(function(en){
       en.y += en.vy*slowFactor*dt;
@@ -1108,10 +1123,16 @@ function update(dt){
       return true;
     });
   } else {
-    S.quizShips.forEach(function(qs){ qs.y += qs.vy*slowFactor*dt; });
-    var anyLeft=false;
-    S.quizShips.forEach(function(qs){ if(!qs.hit && qs.y<CH+40) anyLeft=true; });
-    if(S.elapsed>=S.quiz.deadline || !anyLeft){
+    // Answer ships ease down into a hover band close to the player instead
+    // of streaming all the way to the bottom, so the choice text stays big
+    // and readable for the whole wave instead of flashing past once.
+    S.quizShips.forEach(function(qs){
+      if(qs.y<QUIZ_HOVER_Y){
+        qs.y += qs.vy*slowFactor*dt;
+        if(qs.y>QUIZ_HOVER_Y) qs.y=QUIZ_HOVER_Y;
+      }
+    });
+    if(S.elapsed>=S.quiz.deadline){
       resolveQuizWave(false);
     }
   }
@@ -1144,6 +1165,9 @@ function update(dt){
             resolveQuizWave(true);
           } else {
             spawnBurst(qs.x,qs.y,"#ff4d8d");
+            var absorbedByShield = S.skills.shield>0;
+            takeDamage();
+            flashMessage(absorbedByShield ? "오답! 보호막 소모" : "오답! HP -1", "wrong");
           }
         }
       });
@@ -1351,7 +1375,9 @@ window.__gukhanDebug=function(){
   return {mode:S.mode, hp:S.hp, gold:S.gold, score:S.score, wave:S.wave,
     bullets:S.bullets.length, enemies:S.enemies.length, quizActive:S.quiz.active,
     playerX:S.player.x, fireCooldown:S.fireCooldown, keysSpace:!!keys.Space,
-    keysLeft:!!keys.ArrowLeft, keysRight:!!keys.ArrowRight, controlMode:controlMode};
+    keysLeft:!!keys.ArrowLeft, keysRight:!!keys.ArrowRight, controlMode:controlMode,
+    elapsed:S.elapsed, speedMul:getSpeedMul(),
+    enemyVy:S.enemies.map(function(e){return Math.round(e.vy);})};
 };
 var last=performance.now();
 function loop(now){
