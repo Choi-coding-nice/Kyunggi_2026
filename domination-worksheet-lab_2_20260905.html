@@ -1,0 +1,1475 @@
+<title>지배집합 실험실</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gothic+A1:wght@500;700;800&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap');
+
+  :root{
+    --ink:#16232a;
+    --ink-soft:#4b5c58;
+    --ink-faint:#7c8b86;
+    --bg:#eef1ec;
+    --surface:#ffffff;
+    --surface-2:#e5eae1;
+    --surface-3:#dbe2d8;
+    --border:#c7d0c4;
+    --border-strong:#aebaa9;
+    --accent:#d9670f;
+    --accent-strong:#b8560c;
+    --accent-ink:#fffaf4;
+    --accent-tint:rgba(217,103,15,0.14);
+    --covered:#1f8a7c;
+    --covered-tint:rgba(31,138,124,0.16);
+    --uncovered:#c94b4b;
+    --uncovered-tint:rgba(201,75,75,0.10);
+    --wire:#93a099;
+    --wire-strong:#5b6b64;
+    --grid-dot:rgba(74,92,84,0.16);
+    --shadow:0 1px 2px rgba(22,35,42,0.06), 0 8px 20px -12px rgba(22,35,42,0.18);
+    --font-display:'Gothic A1', 'Apple SD Gothic Neo', sans-serif;
+    --font-body:'IBM Plex Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#e9efe9;
+      --ink-soft:#aebcb2;
+      --ink-faint:#7f938a;
+      --bg:#11170f;
+      --surface:#181f16;
+      --surface-2:#1f281c;
+      --surface-3:#283322;
+      --border:#324033;
+      --border-strong:#455646;
+      --accent:#f3903f;
+      --accent-strong:#ffab5c;
+      --accent-ink:#1c1206;
+      --accent-tint:rgba(243,144,63,0.16);
+      --covered:#3fc0ac;
+      --covered-tint:rgba(63,192,172,0.16);
+      --uncovered:#e2837e;
+      --uncovered-tint:rgba(226,131,126,0.13);
+      --wire:#546258;
+      --wire-strong:#93a698;
+      --grid-dot:rgba(180,205,185,0.10);
+      --shadow:0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#e9efe9;
+    --ink-soft:#aebcb2;
+    --ink-faint:#7f938a;
+    --bg:#11170f;
+    --surface:#181f16;
+    --surface-2:#1f281c;
+    --surface-3:#283322;
+    --border:#324033;
+    --border-strong:#455646;
+    --accent:#f3903f;
+    --accent-strong:#ffab5c;
+    --accent-ink:#1c1206;
+    --accent-tint:rgba(243,144,63,0.16);
+    --covered:#3fc0ac;
+    --covered-tint:rgba(63,192,172,0.16);
+    --uncovered:#e2837e;
+    --uncovered-tint:rgba(226,131,126,0.13);
+    --wire:#546258;
+    --wire-strong:#93a698;
+    --grid-dot:rgba(180,205,185,0.10);
+    --shadow:0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--accent-tint);}
+
+  .app{
+    max-width:1320px;
+    margin:0 auto;
+    padding:28px 28px 64px;
+  }
+
+  header.masthead{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+    padding-bottom:18px;
+    margin-bottom:20px;
+    border-bottom:2px solid var(--border);
+  }
+  .masthead-title{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:34px;
+    letter-spacing:-0.01em;
+    line-height:1.1;
+    margin:0 0 6px;
+    text-wrap:balance;
+  }
+  .masthead-title .unit{
+    font-family:var(--font-mono);
+    font-weight:600;
+    font-size:14px;
+    color:var(--accent-strong);
+    letter-spacing:0.08em;
+    display:block;
+    margin-bottom:8px;
+    text-transform:uppercase;
+  }
+  .masthead-sub{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:14.5px;
+    max-width:56ch;
+    line-height:1.5;
+  }
+
+  nav.tabs{
+    display:inline-flex;
+    gap:2px;
+    padding:3px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  nav.tabs button{
+    appearance:none;
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14.5px;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{
+    background:var(--surface);
+    color:var(--accent-strong);
+    box-shadow:var(--shadow);
+  }
+  nav.tabs button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .layout{
+    display:grid;
+    grid-template-columns:minmax(0,1.62fr) minmax(300px,1fr);
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width:920px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+  }
+  .card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    padding:14px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .card-head h2{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:16px;
+    margin:0;
+    letter-spacing:-0.005em;
+  }
+  .card-body{padding:16px 18px;}
+  .card-body.pad-tight{padding:10px;}
+
+  select.select{
+    appearance:none;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--ink);
+    background:var(--surface-2) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0L5 6L10 0Z" fill="%237c8b86"/></svg>') no-repeat right 12px center;
+    border:1px solid var(--border-strong);
+    border-radius:8px;
+    padding:9px 32px 9px 12px;
+    cursor:pointer;
+  }
+  select.select:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+
+  .seg{
+    display:inline-flex;
+    border:1px solid var(--border-strong);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .seg button{
+    appearance:none;
+    border:none;
+    background:var(--surface-2);
+    color:var(--ink-soft);
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13px;
+    padding:8px 14px;
+    cursor:pointer;
+    border-left:1px solid var(--border-strong);
+  }
+  .seg button:first-child{border-left:none;}
+  .seg button.active{background:var(--accent); color:var(--accent-ink);}
+  .seg button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+
+  .graph-wrap{
+    position:relative;
+    background:var(--surface-2);
+    border-radius:8px;
+    border:1px solid var(--border);
+    overflow:hidden;
+  }
+  svg.graph{display:block; width:100%; height:auto;}
+  .graph.edit-cursor{cursor:copy;}
+
+  .vnode{cursor:pointer;}
+  .vnode:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .vlabel{
+    font-family:var(--font-mono);
+    font-size:11px;
+    font-weight:600;
+    fill:var(--ink-soft);
+    pointer-events:none;
+    user-select:none;
+  }
+  .vlabel.name{font-family:var(--font-body); font-size:11.5px; font-weight:600;}
+  .edge-line{stroke:var(--wire); stroke-width:2.2; pointer-events:none;}
+  .edge-line.muted{stroke-dasharray:5 5; opacity:0.45;}
+  .eweight{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    font-weight:600;
+    fill:var(--ink-soft);
+    pointer-events:none;
+  }
+  .eweight-bg{fill:var(--surface-2); opacity:0.88; pointer-events:none;}
+  .eweight.muted{opacity:0.5;}
+
+  .rename-input{
+    position:absolute;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:12px;
+    padding:3px 6px;
+    border:1.5px solid var(--accent);
+    border-radius:6px;
+    background:var(--surface);
+    color:var(--ink);
+    z-index:5;
+    width:84px;
+  }
+
+  .toolbar-note{
+    font-size:12px;
+    color:var(--ink-faint);
+    line-height:1.6;
+    padding:10px 4px 2px;
+  }
+  .toolbar-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
+    padding:0 4px;
+  }
+  .btn{
+    appearance:none;
+    border:1px solid var(--border-strong);
+    background:var(--surface-2);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:12.5px;
+    padding:8px 13px;
+    border-radius:7px;
+    cursor:pointer;
+    transition:background .12s ease, border-color .12s ease;
+  }
+  .btn:hover{background:var(--surface-3);}
+  .btn:focus-visible{outline:2px solid var(--accent); outline-offset:1px;}
+  .btn.danger{color:var(--uncovered); border-color:var(--uncovered);}
+  .btn.danger.active{background:var(--uncovered); color:#fff8f7;}
+  .btn.primary{background:var(--accent); border-color:var(--accent-strong); color:var(--accent-ink);}
+  .btn.primary:hover{background:var(--accent-strong);}
+  .btn.ghost{background:transparent;}
+  .btn:disabled{opacity:0.45; cursor:not-allowed;}
+
+  .stack{display:flex; flex-direction:column; gap:14px;}
+
+  .stat-row{display:flex; gap:10px;}
+  .stat-tile{
+    flex:1;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:11px 13px;
+  }
+  .stat-tile .k{
+    font-size:11px;
+    color:var(--ink-faint);
+    font-weight:600;
+    letter-spacing:0.02em;
+    display:block;
+    margin-bottom:3px;
+  }
+  .stat-tile .v{
+    font-family:var(--font-mono);
+    font-variant-numeric:tabular-nums;
+    font-size:20px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .stat-tile .v .of{font-size:13px; color:var(--ink-faint); font-weight:600;}
+
+  .status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:9px 14px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:13px;
+    font-family:var(--font-body);
+    border:1.5px solid var(--border-strong);
+    color:var(--ink-soft);
+    background:var(--surface-2);
+    width:100%;
+    justify-content:center;
+  }
+  .status-pill .dot{width:9px; height:9px; border-radius:50%; background:var(--ink-faint); flex:none;}
+  .status-pill.valid{
+    background:var(--covered-tint);
+    border-color:var(--covered);
+    color:var(--covered);
+  }
+  .status-pill.valid .dot{background:var(--covered);}
+
+  .legend{display:flex; flex-direction:column; gap:7px; font-size:12px; color:var(--ink-soft);}
+  .legend-row{display:flex; align-items:center; gap:8px;}
+  .legend-swatch{width:14px; height:14px; border-radius:50%; flex:none; border:2px solid transparent;}
+  .legend-swatch.sel{background:var(--accent); border-color:var(--accent-strong);}
+  .legend-swatch.cov{background:var(--covered-tint); border-color:var(--covered);}
+  .legend-swatch.unc{background:var(--surface-2); border-color:var(--uncovered); border-style:dashed;}
+
+  .reveal{
+    margin-top:2px;
+    padding:13px 14px;
+    border-radius:9px;
+    background:var(--accent-tint);
+    border:1px solid var(--accent);
+  }
+  .reveal .gamma{
+    font-family:var(--font-mono);
+    font-size:22px;
+    font-weight:700;
+    color:var(--accent-strong);
+  }
+  .reveal .setline{
+    margin-top:6px;
+    font-size:12.5px;
+    color:var(--ink);
+    line-height:1.5;
+  }
+  .reveal .setline b{font-family:var(--font-mono); font-weight:700;}
+  .reveal .hint{margin-top:6px; font-size:11.5px; color:var(--ink-faint);}
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:12.5px; font-weight:600; color:var(--ink-soft);}
+  .field .row{display:flex; align-items:center; gap:10px;}
+  input[type=range]{
+    flex:1;
+    accent-color:var(--accent);
+    height:20px;
+  }
+  .rangeval{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:14px;
+    color:var(--accent-strong);
+    min-width:56px;
+    text-align:right;
+  }
+
+  .switch-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:10px 12px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:9px;
+  }
+  .switch-row .lbl{font-size:12.5px; font-weight:600; line-height:1.4;}
+  .switch-row .lbl small{display:block; font-weight:500; color:var(--ink-faint); margin-top:2px; font-size:11px;}
+  .switch{
+    position:relative;
+    width:42px;
+    height:24px;
+    flex:none;
+    border-radius:999px;
+    background:var(--surface-3);
+    border:1px solid var(--border-strong);
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .switch.on{background:var(--accent); border-color:var(--accent-strong);}
+  .switch .knob{
+    position:absolute;
+    top:2px; left:2px;
+    width:18px; height:18px;
+    border-radius:50%;
+    background:var(--surface);
+    box-shadow:0 1px 3px rgba(0,0,0,0.3);
+    transition:left .15s ease;
+  }
+  .switch.on .knob{left:20px; background:var(--accent-ink);}
+  .switch:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .netinfo{
+    font-size:11.5px;
+    color:var(--ink-faint);
+    font-family:var(--font-mono);
+    padding:8px 12px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:8px;
+  }
+
+  .divider{height:1px; background:var(--border); margin:2px 0;}
+
+  h3.sub{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:13px;
+    margin:0 0 8px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+
+  footer.credit{
+    margin-top:26px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+    font-size:11.5px;
+    color:var(--ink-faint);
+    line-height:1.6;
+  }
+
+  .graph-bg-dot{fill:var(--grid-dot);}
+
+  .pw-overlay{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(10,14,10,0.44);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .pw-overlay[hidden]{display:none;}
+  .pw-modal{
+    width:100%; max-width:340px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:0 20px 48px -16px rgba(10,14,10,0.4);
+    padding:22px 22px 20px;
+  }
+  .pw-modal h4{
+    margin:0 0 6px; font-family:var(--font-display); font-weight:700;
+    font-size:16px; color:var(--ink);
+  }
+  .pw-modal p{
+    margin:0 0 14px; font-size:12.5px; color:var(--ink-soft); line-height:1.5;
+  }
+  .pw-input{
+    width:100%; box-sizing:border-box;
+    font-family:var(--font-mono); font-size:15px; letter-spacing:0.04em;
+    padding:10px 12px; border-radius:9px;
+    border:1px solid var(--border-strong);
+    background:var(--surface-2); color:var(--ink);
+    outline:none;
+  }
+  .pw-input:focus{border-color:var(--accent);}
+  .pw-error{
+    min-height:16px; font-size:11.5px; color:var(--uncovered);
+    margin-top:6px;
+  }
+  .pw-actions{display:flex; gap:8px; margin-top:14px;}
+  .pw-actions .btn{flex:1;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+
+<div class="app">
+  <header class="masthead">
+    <div>
+      <span class="unit">GRAPH THEORY WORKSHOP &middot; γ(G)</span>
+      <h1 class="masthead-title">지배집합 실험실</h1>
+      <p class="masthead-sub">그래프 위에 CCTV, 공유기, 보안시설을 직접 배치해보고 그래프 전체를 남김없이 지배하는 최소 개수를 찾아보는 실습 도구</p>
+    </div>
+    <nav class="tabs" id="tabnav">
+      <button class="tab-btn active" data-tab="A">A · 그래프 예제</button>
+      <button class="tab-btn" data-tab="B">B · 가중치 그래프: 보안시설 배치</button>
+    </nav>
+  </header>
+
+  <!-- ============ TAB A ============ -->
+  <section class="panel active" id="panelA">
+    <div class="layout">
+      <div class="card">
+        <div class="card-head">
+          <h2>그래프 캔버스</h2>
+          <select class="select" id="a-preset"></select>
+        </div>
+        <div class="card-body pad-tight">
+          <div class="graph-wrap" id="a-graphwrap">
+            <svg class="graph" id="a-svg"></svg>
+          </div>
+        </div>
+        <div id="a-edit-tools" class="stack" style="display:none; padding:0 6px 14px;">
+          <div class="toolbar-row">
+            <div class="seg" id="a-mode-seg">
+              <button data-mode="edit" class="active">편집</button>
+              <button data-mode="practice">실습</button>
+            </div>
+            <button class="btn danger" id="a-delmode-btn">정점 삭제 모드</button>
+            <button class="btn ghost" id="a-reset-graph-btn">그래프 초기화</button>
+          </div>
+          <p class="toolbar-note" id="a-edit-help">빈 캔버스 클릭: 정점 추가 &nbsp;&middot;&nbsp; 정점을 순서대로 두 번 클릭: 그 사이 간선 켜기/끄기 &nbsp;&middot;&nbsp; 드래그: 정점 이동 &nbsp;&middot;&nbsp; 더블클릭: 이름 바꾸기 &nbsp;&middot;&nbsp; 정점 최대 16개</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-head"><h2>실습 현황</h2></div>
+          <div class="card-body stack">
+            <div class="stat-row">
+              <div class="stat-tile">
+                <span class="k">선택한 정점 (S)</span>
+                <span class="v" id="a-stat-selected">0</span>
+              </div>
+              <div class="stat-tile">
+                <span class="k">커버된 정점</span>
+                <span class="v" id="a-stat-covered">0 <span class="of">/ 0</span></span>
+              </div>
+            </div>
+            <div class="status-pill" id="a-status"><span class="dot"></span><span id="a-status-text">정점을 클릭해 시작하세요</span></div>
+            <div class="legend">
+              <div class="legend-row"><span class="legend-swatch sel"></span>선택됨 (S에 포함)</div>
+              <div class="legend-row"><span class="legend-swatch cov"></span>커버됨 (S의 이웃)</div>
+              <div class="legend-row"><span class="legend-swatch unc"></span>아직 커버 안 됨</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>정답</h2>
+            <button class="btn primary" id="a-reveal-btn">정답 확인</button>
+          </div>
+          <div class="card-body" id="a-reveal-body">
+            <p class="toolbar-note" style="padding:0;">버튼을 누르면 이 그래프의 최소 지배수 γ(G)를 실시간으로 계산해 보여줍니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TAB B ============ -->
+  <section class="panel" id="panelB">
+    <div class="layout">
+      <div class="card">
+        <div class="card-head">
+          <h2>13개 마을 도로망</h2>
+          <span class="netinfo" id="b-netinfo">연결 그룹 1개</span>
+        </div>
+        <div class="card-body pad-tight">
+          <div class="graph-wrap" id="b-graphwrap">
+            <svg class="graph" id="b-svg"></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-head"><h2>관할 조건</h2></div>
+          <div class="card-body stack">
+            <div class="field">
+              <label for="b-radius">관할 반경 (이 거리보다 가까운 마을까지)</label>
+              <div class="row">
+                <input type="range" id="b-radius" min="30" max="120" step="1" value="50">
+                <span class="rangeval" id="b-radius-val">50km</span>
+              </div>
+            </div>
+            <div class="switch-row">
+              <span class="lbl">전기차 충전 제약<small>1회 최대 50km만 이동, 충전은 마을에서만</small></span>
+              <div class="switch" id="b-charge-switch" role="switch" aria-checked="false" tabindex="0"><div class="knob"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>실습 현황</h2></div>
+          <div class="card-body stack">
+            <div class="stat-row">
+              <div class="stat-tile">
+                <span class="k">배치한 시설</span>
+                <span class="v" id="b-stat-selected">0</span>
+              </div>
+              <div class="stat-tile">
+                <span class="k">관할된 마을</span>
+                <span class="v" id="b-stat-covered">0 <span class="of">/ 13</span></span>
+              </div>
+            </div>
+            <div class="status-pill" id="b-status"><span class="dot"></span><span id="b-status-text">마을을 클릭해 보안시설을 배치하세요</span></div>
+            <div class="legend">
+              <div class="legend-row"><span class="legend-swatch sel"></span>보안시설 배치됨</div>
+              <div class="legend-row"><span class="legend-swatch cov"></span>관할 구역 안</div>
+              <div class="legend-row"><span class="legend-swatch unc"></span>관할 밖</div>
+            </div>
+            <button class="btn ghost" id="b-reset-btn">배치 초기화</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>정답</h2>
+            <button class="btn primary" id="b-reveal-btn">정답 확인</button>
+          </div>
+          <div class="card-body" id="b-reveal-body">
+            <p class="toolbar-note" style="padding:0;">현재 반경/충전 제약 조건에서 필요한 최소 보안시설 개수를 실시간으로 계산합니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="credit">
+    모든 정답은 클릭 시점의 그래프 상태로부터 비트마스크 DP(닫힌 이웃 커버 / 다익스트라 최단거리 기반)로 그 자리에서 계산됩니다.
+  </footer>
+</div>
+
+<div class="pw-overlay" id="pw-overlay" hidden>
+  <div class="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+    <h4 id="pw-title">정답을 확인하려면 암호가 필요해요</h4>
+    <p>선생님이 알려준 암호를 입력하세요.</p>
+    <input class="pw-input" id="pw-input" type="password" inputmode="numeric" autocomplete="off" placeholder="암호 입력" />
+    <div class="pw-error" id="pw-error"></div>
+    <div class="pw-actions">
+      <button class="btn ghost" id="pw-cancel">취소</button>
+      <button class="btn primary" id="pw-submit">확인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= generic exact algorithms ================= */
+
+// Minimum set cover / dominating-set solver.
+// n vertices, coverMasks[i] = bitmask of vertices covered if vertex i is chosen (closed neighborhood, or distance-based coverage).
+// Returns {gamma, set:[indices]} or null if uncoverable (shouldn't happen if every vertex covers itself).
+function solveMinCover(n, coverMasks){
+  if(n===0) return {gamma:0, set:[]};
+  const full = (n>=31)? 0x7fffffff : ((1<<n)-1);
+  const size = full+1;
+  const dp = new Array(size).fill(Infinity);
+  const pv = new Array(size).fill(-1);
+  const pm = new Array(size).fill(-1);
+  dp[0]=0;
+  for(let mask=0; mask<size; mask++){
+    const cur = dp[mask];
+    if(cur===Infinity || mask===full) continue;
+    let lowBit=-1;
+    for(let b=0;b<n;b++){ if(!((mask>>b)&1)){ lowBit=b; break; } }
+    if(lowBit===-1) continue;
+    for(let v=0; v<n; v++){
+      if((coverMasks[v]>>lowBit)&1){
+        const nm = mask | coverMasks[v];
+        if(cur+1 < dp[nm]){
+          dp[nm]=cur+1; pv[nm]=v; pm[nm]=mask;
+        }
+      }
+    }
+  }
+  if(dp[full]===Infinity) return null;
+  const chosen=[];
+  let c=full;
+  while(c!==0){
+    chosen.push(pv[c]);
+    c = pm[c];
+  }
+  return {gamma:dp[full], set:chosen};
+}
+
+// plain Dijkstra over adjacency list, n vertices, adj[i] = [[j,w],...]
+function dijkstra(n, adj, src){
+  const dist = new Array(n).fill(Infinity);
+  const visited = new Array(n).fill(false);
+  dist[src]=0;
+  for(let iter=0; iter<n; iter++){
+    let u=-1, best=Infinity;
+    for(let i=0;i<n;i++){ if(!visited[i] && dist[i]<best){ best=dist[i]; u=i; } }
+    if(u===-1) break;
+    visited[u]=true;
+    for(const [v,w] of adj[u]){
+      if(dist[u]+w < dist[v]) dist[v]=dist[u]+w;
+    }
+  }
+  return dist;
+}
+
+function connectedComponents(n, adj){
+  const seen = new Array(n).fill(false);
+  let count=0;
+  for(let s=0;s<n;s++){
+    if(seen[s]) continue;
+    count++;
+    const stack=[s]; seen[s]=true;
+    while(stack.length){
+      const u=stack.pop();
+      for(const [v] of adj[u]){ if(!seen[v]){ seen[v]=true; stack.push(v); } }
+    }
+  }
+  return count;
+}
+
+/* ================= graph helpers ================= */
+
+function bbox(nodes, pad){
+  if(!nodes.length) return {minX:0,minY:0,w:560,h:360};
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  for(const n of nodes){
+    minX=Math.min(minX,n.x); maxX=Math.max(maxX,n.x);
+    minY=Math.min(minY,n.y); maxY=Math.max(maxY,n.y);
+  }
+  minX-=pad; minY-=pad; maxX+=pad; maxY+=pad;
+  let w = maxX-minX, h = maxY-minY;
+  if(w<300){ const d=(300-w)/2; minX-=d; w=300; }
+  if(h<220){ const d=(220-h)/2; minY-=d; h=220; }
+  return {minX,minY,w,h};
+}
+
+const SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs){
+  const e = document.createElementNS(SVGNS, tag);
+  if(attrs) for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function svgPoint(svg, evt){
+  const pt = svg.createSVGPoint();
+  const t = (evt.touches && evt.touches[0]) ? evt.touches[0] : evt;
+  pt.x = t.clientX; pt.y = t.clientY;
+  const ctm = svg.getScreenCTM();
+  if(!ctm) return {x:0,y:0};
+  const p = pt.matrixTransform(ctm.inverse());
+  return {x:p.x, y:p.y};
+}
+
+/* ================= preset graph builders (Tab A) ================= */
+
+function buildGrid(){
+  const nodes=[], edges=[];
+  const rows=3, cols=4, sp=100, ox=70, oy=70;
+  const idOf=(r,c)=>'r'+r+'c'+c;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    nodes.push({id:idOf(r,c), label:'('+r+','+c+')', x:ox+c*sp, y:oy+r*sp});
+  }
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    if(c<cols-1) edges.push({a:idOf(r,c), b:idOf(r,c+1)});
+    if(r<rows-1) edges.push({a:idOf(r,c), b:idOf(r+1,c)});
+  }
+  return {nodes, edges};
+}
+
+function buildUVW(){
+  const coords = {
+    u:[276,55], u1:[219,95], v1:[333,95], u2:[188,150], v:[275,150], v2:[363,150],
+    u3:[188,215], v3:[363,215], u4:[213,275], v4:[337,275], w:[275,310]
+  };
+  const nodes = Object.keys(coords).map(id=>({id, label:id, x:coords[id][0], y:coords[id][1]}));
+  const pairs = "u-u1,u-v1,u1-u2,v1-v2,u1-v,v1-v,u2-u3,v2-v3,u2-w,v2-w,v-u3,v-v3,u3-u4,v3-v4,u4-w,v4-w".split(',');
+  const edges = pairs.map(p=>{ const [a,b]=p.split('-'); return {a,b}; });
+  return {nodes, edges};
+}
+
+function buildOffice(){
+  const coords = {
+    A:[60,180], B:[150,180], C:[60,260], D:[160,260], E:[60,340],
+    F:[200,90], G:[360,90], H:[200,180], I:[360,180], J:[200,260], K:[360,260]
+  };
+  const nodes = Object.keys(coords).map(id=>({id, label:id, x:coords[id][0], y:coords[id][1]}));
+  const pairs = "A-B,A-C,B-D,B-F,C-D,C-E,D-E,D-J,F-G,F-H,G-I,H-I,H-J,I-K,J-K".split(',');
+  const edges = pairs.map(p=>{ const [a,b]=p.split('-'); return {a,b}; });
+  return {nodes, edges};
+}
+
+function buildPetersen(){
+  const outerNames = ['Teresa','Steve','Sandee','Mike','Pete'];
+  const innerNames = ['Renu','Ern','Odile','Jean','Kieka'];
+  const cx=210, cy=210, Rout=150, Rin=76;
+  const nodes=[];
+  for(let i=0;i<5;i++){
+    const ang = (-90 + i*72) * Math.PI/180;
+    nodes.push({id:outerNames[i], label:outerNames[i], x:cx+Rout*Math.cos(ang), y:cy+Rout*Math.sin(ang)});
+  }
+  for(let i=0;i<5;i++){
+    const ang = (-90 + i*72) * Math.PI/180;
+    nodes.push({id:innerNames[i], label:innerNames[i], x:cx+Rin*Math.cos(ang), y:cy+Rin*Math.sin(ang)});
+  }
+  const pairs = [
+    'Teresa-Steve','Steve-Sandee','Sandee-Mike','Mike-Pete','Pete-Teresa',
+    'Teresa-Renu','Steve-Ern','Sandee-Odile','Mike-Jean','Pete-Kieka',
+    'Renu-Jean','Renu-Odile','Kieka-Odile','Kieka-Ern','Jean-Ern'
+  ];
+  const edges = pairs.map(p=>{ const [a,b]=p.split('-'); return {a,b}; });
+  return {nodes, edges};
+}
+
+const PRESETS = [
+  {key:'p1', name:'문제1 · CCTV 배치 (3×4 격자)', build:buildGrid},
+  {key:'p3', name:'문제3 · u-v-w 그래프', build:buildUVW},
+  {key:'p4', name:'문제4 · 사무실 공유기 배치 (A~K)', build:buildOffice},
+  {key:'p7', name:'문제7 · 피터슨 그래프 (학생 10명)', build:buildPetersen},
+  {key:'free', name:'자유롭게 그리기', build:()=>({nodes:[], edges:[]})}
+];
+
+/* ================= Tab B fixed weighted graph ================= */
+
+function buildVillages(){
+  const coords = {
+    J:[300,60], K:[460,90], M:[230,180], C:[430,190], A:[230,320], B:[400,320], D:[520,290],
+    H:[70,460], I:[300,460], F:[360,560], E:[460,530], G:[180,600], L:[560,590]
+  };
+  const nodes = Object.keys(coords).map(id=>({id,label:id,x:coords[id][0],y:coords[id][1]}));
+  const wpairs = "J-K:33,J-M:36,J-A:54,K-C:25,K-B:54,M-A:24,M-H:65,M-C:44,A-B:39,A-C:60,A-I:27,A-H:54,B-C:28,B-D:32,B-I:38,B-E:32,C-D:25,D-E:52,D-L:45,H-I:53,H-G:42,I-E:23,I-F:26,I-G:54,E-F:15,E-L:37,F-G:53,F-L:42".split(',');
+  const edges = wpairs.map(p=>{
+    const [ab,w] = p.split(':');
+    const [a,b] = ab.split('-');
+    return {a,b,w:+w};
+  });
+  return {nodes, edges};
+}
+const VILLAGES = buildVillages();
+
+/* ================= shared render module ================= */
+
+function makeIndex(nodes){
+  const idx={};
+  nodes.forEach((n,i)=>idx[n.id]=i);
+  return idx;
+}
+
+function unweightedCoverMasks(nodes, edges){
+  const idx = makeIndex(nodes);
+  const n = nodes.length;
+  const masks = new Array(n).fill(0);
+  for(let i=0;i<n;i++) masks[i] = 1<<i;
+  for(const e of edges){
+    const a=idx[e.a], b=idx[e.b];
+    if(a===undefined||b===undefined) continue;
+    masks[a] |= (1<<b);
+    masks[b] |= (1<<a);
+  }
+  return masks;
+}
+
+function buildAdjList(nodes, edges, filterMaxW){
+  const idx = makeIndex(nodes);
+  const n = nodes.length;
+  const adj = Array.from({length:n}, ()=>[]);
+  for(const e of edges){
+    const w = (e.w===undefined)?1:e.w;
+    if(filterMaxW!=null && w>filterMaxW) continue;
+    const a=idx[e.a], b=idx[e.b];
+    if(a===undefined||b===undefined) continue;
+    adj[a].push([b,w]);
+    adj[b].push([a,w]);
+  }
+  return adj;
+}
+
+function weightedCoverMasks(nodes, adj, radius){
+  const n = nodes.length;
+  const masks = new Array(n).fill(0);
+  for(let f=0; f<n; f++){
+    const dist = dijkstra(n, adj, f);
+    let m=0;
+    for(let v=0; v<n; v++){ if(dist[v] < radius) m |= (1<<v); }
+    masks[f]=m;
+  }
+  return masks;
+}
+
+// draws a graph into svgEl. config:
+// { nodes, edges, selected:Set, coveredMask:number, weighted:bool, edgeUsable:fn(edge)->bool,
+//   interactive:'practice'|'edit'|'off', onVertexClick, onCanvasClick, onDrag, onRename, pendingId, deleteMode, revealSet:Set }
+function renderGraph(svg, wrap, cfg){
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const {nodes, edges} = cfg;
+  const idx = makeIndex(nodes);
+  const box = bbox(nodes, 46);
+  svg.setAttribute('viewBox', box.minX+' '+box.minY+' '+box.w+' '+box.h);
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+
+  const defs = el('defs');
+  const pattern = el('pattern', {id:'gp', width:22, height:22, patternUnits:'userSpaceOnUse'});
+  const dot = el('circle', {cx:1, cy:1, r:1.1});
+  dot.setAttribute('class','graph-bg-dot');
+  pattern.appendChild(dot);
+  defs.appendChild(pattern);
+  svg.appendChild(defs);
+
+  const bg = el('rect', {x:box.minX, y:box.minY, width:box.w, height:box.h, fill:'url(#gp)'});
+  svg.appendChild(bg);
+  if(cfg.interactive==='edit'){
+    bg.style.cursor='copy';
+    bg.addEventListener('click', (evt)=>{
+      if(evt.target!==bg) return;
+      const p = svgPoint(svg, evt);
+      cfg.onCanvasClick && cfg.onCanvasClick(p);
+    });
+  }
+
+  const selected = cfg.selected || new Set();
+  const revealSet = cfg.revealSet || null;
+  const rInner = cfg.weighted ? 17 : 15.5;
+
+  // edges (drawn first, under nodes)
+  for(const e of edges){
+    const a = nodes[idx[e.a]], b = nodes[idx[e.b]];
+    if(!a||!b) continue;
+    const usable = cfg.edgeUsable ? cfg.edgeUsable(e) : true;
+    const line = el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y});
+    line.setAttribute('class', 'edge-line'+(usable?'':' muted'));
+    svg.appendChild(line);
+    if(cfg.weighted){
+      const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
+      const wStr = String(e.w);
+      const bgw = 9 + wStr.length*6.2;
+      const wbg = el('rect',{x:mx-bgw/2, y:my-8, width:bgw, height:14, rx:4, class:'eweight-bg'});
+      svg.appendChild(wbg);
+      const wt = el('text',{x:mx, y:my+3, 'text-anchor':'middle', class:'eweight'+(usable?'':' muted')});
+      wt.textContent = wStr;
+      svg.appendChild(wt);
+    }
+  }
+
+  // vertices
+  for(const n of nodes){
+    const g = el('g', {class:'vnode', tabindex:'0', role:'button', 'aria-label':n.label});
+    g.setAttribute('transform','translate('+n.x+','+n.y+')');
+
+    const isSel = selected.has(n.id);
+    const isCov = !isSel && cfg.coveredMask!=null && ((cfg.coveredMask>>idx[n.id])&1);
+    const isPending = cfg.pendingId===n.id;
+    const isRevealed = revealSet && revealSet.has(n.id);
+
+    if(isRevealed){
+      const ring = el('circle',{cx:0,cy:0,r:rInner+6,fill:'none',stroke:'var(--accent-strong)','stroke-width':2,'stroke-dasharray':'3 3'});
+      g.appendChild(ring);
+    }
+
+    let fill, stroke, sw, dash;
+    if(isSel){ fill='var(--accent)'; stroke='var(--accent-strong)'; sw=2.6; dash=null; }
+    else if(isCov){ fill='var(--covered-tint)'; stroke='var(--covered)'; sw=2.2; dash=null; }
+    else { fill='var(--surface)'; stroke='var(--uncovered)'; sw=2.2; dash='4 3'; }
+
+    const circle = el('circle',{cx:0,cy:0,r:rInner,fill:fill,stroke:stroke,'stroke-width':sw});
+    if(dash) circle.setAttribute('stroke-dasharray',dash);
+    g.appendChild(circle);
+
+    if(isPending){
+      const pr = el('circle',{cx:0,cy:0,r:rInner+5,fill:'none',stroke:'var(--accent)','stroke-width':2,'stroke-dasharray':'2 3'});
+      g.appendChild(pr);
+    }
+
+    const insideCircle = n.label.length<=2;
+    const label = insideCircle
+      ? el('text',{x:0,y:4,'text-anchor':'middle',class:'vlabel name', fill: isSel?'var(--accent-ink)':'var(--ink)'})
+      : el('text',{x:0,y:rInner+13,'text-anchor':'middle',class:'vlabel'+(cfg.nameLabels?' name':'')});
+    label.textContent = n.label;
+    g.appendChild(label);
+
+    if(cfg.interactive!=='off'){
+      g.addEventListener('click', (evt)=>{
+        evt.stopPropagation();
+        cfg.onVertexClick && cfg.onVertexClick(n.id, evt);
+      });
+      g.addEventListener('keydown', (evt)=>{
+        if(evt.key==='Enter' || evt.key===' '){
+          evt.preventDefault();
+          cfg.onVertexClick && cfg.onVertexClick(n.id, evt);
+        }
+      });
+    }
+    if(cfg.interactive==='edit'){
+      g.addEventListener('dblclick', (evt)=>{
+        evt.stopPropagation();
+        cfg.onRename && cfg.onRename(n.id, g);
+      });
+      g.addEventListener('pointerdown', (evt)=>{
+        if(cfg.deleteMode) return;
+        evt.stopPropagation();
+        cfg.onDragStart && cfg.onDragStart(n.id, evt);
+      });
+    }
+    svg.appendChild(g);
+  }
+
+  if(cfg.interactive==='edit' && cfg._dragMoveHandler){
+    svg.onpointermove = cfg._dragMoveHandler;
+    svg.onpointerup = cfg._dragEndHandler;
+    svg.onpointerleave = cfg._dragEndHandler;
+  }
+}
+
+function popcount(x){ let c=0; while(x){ c+=x&1; x>>>=1; } return c; }
+
+function svgToClient(svg, x, y){
+  const pt = svg.createSVGPoint();
+  pt.x=x; pt.y=y;
+  const ctm = svg.getScreenCTM();
+  if(!ctm) return {x:0,y:0};
+  const p = pt.matrixTransform(ctm);
+  return {x:p.x, y:p.y};
+}
+
+/* ================= Tab A state & wiring ================= */
+
+const A = {
+  presetKey:'p1',
+  selections:{},
+  freeGraph:{nodes:[], edges:[]},
+  freeMode:'edit',
+  freeNextId:1,
+  pendingEdgeVertex:null,
+  deleteMode:false,
+  dragId:null,
+  reveal:null
+};
+
+function selA(){
+  if(!A.selections[A.presetKey]) A.selections[A.presetKey] = new Set();
+  return A.selections[A.presetKey];
+}
+
+function currentGraphA(){
+  if(A.presetKey==='free') return A.freeGraph;
+  const p = PRESETS.find(pp=>pp.key===A.presetKey);
+  if(!p._cache) p._cache = p.build();
+  return p._cache;
+}
+
+function flashEditHelp(msg){
+  const help = document.getElementById('a-edit-help');
+  const original = help.dataset.original || help.textContent;
+  help.dataset.original = original;
+  help.textContent = msg;
+  help.style.color = 'var(--uncovered)';
+  clearTimeout(flashEditHelp._t);
+  flashEditHelp._t = setTimeout(()=>{
+    help.textContent = original;
+    help.style.color = '';
+  }, 1800);
+}
+
+function renderA(){
+  const graph = currentGraphA();
+  const isFree = A.presetKey==='free';
+  const editToolsEl = document.getElementById('a-edit-tools');
+  editToolsEl.style.display = isFree ? '' : 'none';
+
+  const interactive = isFree ? (A.freeMode==='edit' ? 'edit' : 'practice') : 'practice';
+
+  const n = graph.nodes.length;
+  const masks = unweightedCoverMasks(graph.nodes, graph.edges);
+  const idx = makeIndex(graph.nodes);
+  const selected = selA();
+  let coveredMask = 0;
+  for(const id of selected){ if(idx[id]!==undefined) coveredMask |= masks[idx[id]]; }
+  const coveredCount = n? popcount(coveredMask & (n>=31?0x7fffffff:((1<<n)-1))) : 0;
+
+  document.getElementById('a-stat-selected').textContent = selected.size;
+  document.getElementById('a-stat-covered').innerHTML = coveredCount + ' <span class="of">/ ' + n + '</span>';
+
+  const statusEl = document.getElementById('a-status');
+  const statusText = document.getElementById('a-status-text');
+  if(n===0){
+    statusEl.classList.remove('valid');
+    statusText.textContent = '빈 캔버스입니다 — 정점을 추가해 그래프를 만들어보세요';
+  } else if(selected.size===0){
+    statusEl.classList.remove('valid');
+    statusText.textContent = (isFree && A.freeMode==='edit') ? '실습 탭으로 전환한 뒤 정점을 클릭해 시작하세요' : '정점을 클릭해 지배집합 S를 만들어보세요';
+  } else if(coveredCount===n){
+    statusEl.classList.add('valid');
+    statusText.textContent = '지배집합 성립 — 정점 ' + n + '개를 모두 커버했습니다';
+  } else {
+    statusEl.classList.remove('valid');
+    statusText.textContent = '아직 지배집합 아님 — 커버되지 않은 정점이 있습니다';
+  }
+
+  const svg = document.getElementById('a-svg');
+  const wrap = document.getElementById('a-graphwrap');
+
+  const cfg = {
+    nodes: graph.nodes,
+    edges: graph.edges,
+    selected,
+    coveredMask,
+    weighted:false,
+    nameLabels: (A.presetKey==='p7' || isFree),
+    interactive,
+    pendingId: A.pendingEdgeVertex,
+    deleteMode: A.deleteMode,
+    revealSet: (A.reveal && A.reveal.presetKey===A.presetKey) ? new Set(A.reveal.ids) : null,
+    onVertexClick(id){
+      if(isFree && A.freeMode==='edit'){
+        if(A.deleteMode){
+          const g = currentGraphA();
+          g.nodes = g.nodes.filter(nd=>nd.id!==id);
+          g.edges = g.edges.filter(e=>e.a!==id && e.b!==id);
+          selA().delete(id);
+          if(A.pendingEdgeVertex===id) A.pendingEdgeVertex=null;
+          A.reveal=null;
+          renderA();
+          return;
+        }
+        if(A.pendingEdgeVertex===null){
+          A.pendingEdgeVertex = id;
+        } else if(A.pendingEdgeVertex===id){
+          A.pendingEdgeVertex = null;
+        } else {
+          const g = currentGraphA();
+          const p1=A.pendingEdgeVertex, p2=id;
+          const i = g.edges.findIndex(e=>(e.a===p1&&e.b===p2)||(e.a===p2&&e.b===p1));
+          if(i>=0) g.edges.splice(i,1);
+          else g.edges.push({a:p1,b:p2});
+          A.pendingEdgeVertex = null;
+          A.reveal = null;
+        }
+        renderA();
+        return;
+      }
+      const s = selA();
+      if(s.has(id)) s.delete(id); else s.add(id);
+      renderA();
+    },
+    onCanvasClick(pt){
+      if(!(isFree && A.freeMode==='edit')) return;
+      if(A.deleteMode) return;
+      const g = currentGraphA();
+      if(g.nodes.length>=16){ flashEditHelp('정점은 최대 16개까지 만들 수 있어요'); return; }
+      const newId = 'v'+(A.freeNextId++);
+      g.nodes.push({id:newId, label:String(g.nodes.length+1), x:pt.x, y:pt.y});
+      A.reveal = null;
+      renderA();
+    },
+    onRename(id, gEl){
+      const g = currentGraphA();
+      const node = g.nodes.find(nd=>nd.id===id);
+      if(!node) return;
+      const client = svgToClient(svg, node.x, node.y);
+      const wrapRect = wrap.getBoundingClientRect();
+      const input = document.createElement('input');
+      input.className = 'rename-input';
+      input.value = node.label;
+      input.maxLength = 10;
+      input.style.left = Math.round(client.x - wrapRect.left - 42) + 'px';
+      input.style.top = Math.round(client.y - wrapRect.top + 16) + 'px';
+      wrap.appendChild(input);
+      input.focus();
+      input.select();
+      let done=false;
+      function commit(){
+        if(done) return; done=true;
+        const val = input.value.trim();
+        if(val) node.label = val.slice(0,10);
+        input.remove();
+        renderA();
+      }
+      input.addEventListener('keydown', e=>{
+        if(e.key==='Enter'){ commit(); }
+        else if(e.key==='Escape'){ done=true; input.remove(); }
+      });
+      input.addEventListener('blur', commit);
+    },
+    onDragStart(id, evt){
+      A.dragId = id;
+    },
+    _dragMoveHandler(evt){
+      if(!A.dragId) return;
+      const g = currentGraphA();
+      const node = g.nodes.find(nd=>nd.id===A.dragId);
+      if(!node) return;
+      const p = svgPoint(svg, evt);
+      node.x = p.x; node.y = p.y;
+      renderA();
+    },
+    _dragEndHandler(evt){ A.dragId = null; }
+  };
+
+  renderGraph(svg, wrap, cfg);
+}
+
+function revealA(){
+  const graph = currentGraphA();
+  if(graph.nodes.length===0){
+    document.getElementById('a-reveal-body').innerHTML = '<p class="toolbar-note" style="padding:0;">정점이 없습니다. 먼저 그래프를 만들어보세요.</p>';
+    return;
+  }
+  const masks = unweightedCoverMasks(graph.nodes, graph.edges);
+  const result = solveMinCover(graph.nodes.length, masks);
+  const ids = result.set.map(i=>graph.nodes[i].id);
+  const labels = result.set.map(i=>graph.nodes[i].label);
+  A.reveal = {presetKey:A.presetKey, gamma:result.gamma, ids};
+  document.getElementById('a-reveal-body').innerHTML =
+    '<div class="reveal"><span class="gamma">γ(G) = ' + result.gamma + '</span>' +
+    '<div class="setline">예시 최소 지배집합: <b>{ ' + labels.join(', ') + ' }</b></div>' +
+    '<div class="hint">그래프 위 점선 테두리로 표시했습니다. 학생이 고른 집합과 비교해보세요.</div></div>';
+  renderA();
+}
+
+/* ================= Tab B state & wiring ================= */
+
+const B = { radius:50, charge:false, selected:new Set(), reveal:null };
+
+function computeBData(){
+  const adj = buildAdjList(VILLAGES.nodes, VILLAGES.edges, B.charge ? 50 : null);
+  const masks = weightedCoverMasks(VILLAGES.nodes, adj, B.radius);
+  return {adj, masks};
+}
+
+function renderB(){
+  const {adj, masks} = computeBData();
+  const idx = makeIndex(VILLAGES.nodes);
+  const n = VILLAGES.nodes.length;
+  let coveredMask = 0;
+  for(const id of B.selected){ if(idx[id]!==undefined) coveredMask |= masks[idx[id]]; }
+  const coveredCount = popcount(coveredMask & ((1<<n)-1));
+
+  document.getElementById('b-stat-selected').textContent = B.selected.size;
+  document.getElementById('b-stat-covered').innerHTML = coveredCount + ' <span class="of">/ ' + n + '</span>';
+
+  const comps = connectedComponents(n, adj);
+  document.getElementById('b-netinfo').textContent = '연결 그룹 ' + comps + '개';
+
+  const statusEl = document.getElementById('b-status');
+  const statusText = document.getElementById('b-status-text');
+  if(B.selected.size===0){
+    statusEl.classList.remove('valid');
+    statusText.textContent = '마을을 클릭해 보안시설을 배치하세요';
+  } else if(coveredCount===n){
+    statusEl.classList.add('valid');
+    statusText.textContent = '유효한 배치 — 13개 마을을 모두 관할합니다';
+  } else {
+    statusEl.classList.remove('valid');
+    statusText.textContent = '아직 부족합니다 — 관할 밖 마을이 있어요';
+  }
+
+  const svg = document.getElementById('b-svg');
+  const wrap = document.getElementById('b-graphwrap');
+  const cfg = {
+    nodes: VILLAGES.nodes,
+    edges: VILLAGES.edges,
+    selected: B.selected,
+    coveredMask,
+    weighted:true,
+    interactive:'practice',
+    edgeUsable(e){ return !B.charge || e.w<=50; },
+    revealSet: B.reveal ? new Set(B.reveal.ids) : null,
+    onVertexClick(id){
+      if(B.selected.has(id)) B.selected.delete(id); else B.selected.add(id);
+      renderB();
+    }
+  };
+  renderGraph(svg, wrap, cfg);
+}
+
+function revealB(){
+  const {masks} = computeBData();
+  const result = solveMinCover(VILLAGES.nodes.length, masks);
+  const ids = result.set.map(i=>VILLAGES.nodes[i].id);
+  B.reveal = {gamma:result.gamma, ids};
+  document.getElementById('b-reveal-body').innerHTML =
+    '<div class="reveal"><span class="gamma">최소 ' + result.gamma + '개</span>' +
+    '<div class="setline">예시 배치: <b>{ ' + ids.join(', ') + ' }</b></div>' +
+    '<div class="hint">현재 반경 ' + B.radius + 'km, 충전 제약 ' + (B.charge?'ON':'OFF') + ' 기준입니다. 그래프 위 점선 테두리로 표시했습니다.</div></div>';
+  renderB();
+}
+
+/* ================= answer password gate ================= */
+
+const ANSWER_PASSWORD = '20260905';
+let pwPendingCallback = null;
+
+function openPasswordGate(onSuccess){
+  pwPendingCallback = onSuccess;
+  const overlay = document.getElementById('pw-overlay');
+  const input = document.getElementById('pw-input');
+  const errorEl = document.getElementById('pw-error');
+  errorEl.textContent = '';
+  input.value = '';
+  overlay.hidden = false;
+  setTimeout(()=>input.focus(), 0);
+}
+
+function closePasswordGate(){
+  document.getElementById('pw-overlay').hidden = true;
+  pwPendingCallback = null;
+}
+
+function submitPasswordGate(){
+  const input = document.getElementById('pw-input');
+  const errorEl = document.getElementById('pw-error');
+  if(input.value === ANSWER_PASSWORD){
+    const cb = pwPendingCallback;
+    closePasswordGate();
+    if(cb) cb();
+  } else {
+    errorEl.textContent = '암호가 올바르지 않습니다.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function wirePasswordGate(){
+  document.getElementById('pw-submit').addEventListener('click', submitPasswordGate);
+  document.getElementById('pw-cancel').addEventListener('click', closePasswordGate);
+  document.getElementById('pw-overlay').addEventListener('click', (evt)=>{
+    if(evt.target.id==='pw-overlay') closePasswordGate();
+  });
+  document.getElementById('pw-input').addEventListener('keydown', (evt)=>{
+    if(evt.key==='Enter'){ evt.preventDefault(); submitPasswordGate(); }
+    else if(evt.key==='Escape'){ evt.preventDefault(); closePasswordGate(); }
+  });
+}
+
+/* ================= init & event wiring ================= */
+
+function init(){
+  wirePasswordGate();
+  // tabs
+  document.getElementById('tabnav').addEventListener('click', (evt)=>{
+    const btn = evt.target.closest('.tab-btn');
+    if(!btn) return;
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
+    const tab = btn.dataset.tab;
+    document.getElementById('panelA').classList.toggle('active', tab==='A');
+    document.getElementById('panelB').classList.toggle('active', tab==='B');
+  });
+
+  // preset select
+  const presetSel = document.getElementById('a-preset');
+  PRESETS.forEach(p=>{
+    const opt = document.createElement('option');
+    opt.value = p.key; opt.textContent = p.name;
+    presetSel.appendChild(opt);
+  });
+  presetSel.value = A.presetKey;
+  presetSel.addEventListener('change', ()=>{
+    A.presetKey = presetSel.value;
+    A.pendingEdgeVertex = null;
+    A.deleteMode = false;
+    document.getElementById('a-delmode-btn').classList.remove('active');
+    document.getElementById('a-reveal-body').innerHTML = '<p class="toolbar-note" style="padding:0;">버튼을 누르면 이 그래프의 최소 지배수 γ(G)를 실시간으로 계산해 보여줍니다.</p>';
+    renderA();
+  });
+
+  // free-draw mode seg
+  document.getElementById('a-mode-seg').addEventListener('click', (evt)=>{
+    const btn = evt.target.closest('button');
+    if(!btn) return;
+    document.querySelectorAll('#a-mode-seg button').forEach(b=>b.classList.toggle('active', b===btn));
+    A.freeMode = btn.dataset.mode;
+    A.pendingEdgeVertex = null;
+    if(A.freeMode!=='edit') A.deleteMode=false;
+    renderA();
+  });
+
+  document.getElementById('a-delmode-btn').addEventListener('click', (evt)=>{
+    A.deleteMode = !A.deleteMode;
+    evt.currentTarget.classList.toggle('active', A.deleteMode);
+    renderA();
+  });
+
+  document.getElementById('a-reset-graph-btn').addEventListener('click', ()=>{
+    A.freeGraph = {nodes:[], edges:[]};
+    A.freeNextId = 1;
+    A.selections['free'] = new Set();
+    A.pendingEdgeVertex = null;
+    A.deleteMode = false;
+    A.reveal = null;
+    document.getElementById('a-delmode-btn').classList.remove('active');
+    document.getElementById('a-reveal-body').innerHTML = '<p class="toolbar-note" style="padding:0;">버튼을 누르면 이 그래프의 최소 지배수 γ(G)를 실시간으로 계산해 보여줍니다.</p>';
+    renderA();
+  });
+
+  document.getElementById('a-reveal-btn').addEventListener('click', ()=>openPasswordGate(revealA));
+
+  // Tab B controls
+  const radiusInput = document.getElementById('b-radius');
+  const radiusVal = document.getElementById('b-radius-val');
+  radiusInput.addEventListener('input', ()=>{
+    B.radius = +radiusInput.value;
+    radiusVal.textContent = B.radius + 'km';
+    B.reveal = null;
+    document.getElementById('b-reveal-body').innerHTML = '<p class="toolbar-note" style="padding:0;">현재 반경/충전 제약 조건에서 필요한 최소 보안시설 개수를 실시간으로 계산합니다.</p>';
+    renderB();
+  });
+
+  const chargeSwitch = document.getElementById('b-charge-switch');
+  function toggleCharge(){
+    B.charge = !B.charge;
+    chargeSwitch.classList.toggle('on', B.charge);
+    chargeSwitch.setAttribute('aria-checked', String(B.charge));
+    B.reveal = null;
+    document.getElementById('b-reveal-body').innerHTML = '<p class="toolbar-note" style="padding:0;">현재 반경/충전 제약 조건에서 필요한 최소 보안시설 개수를 실시간으로 계산합니다.</p>';
+    renderB();
+  }
+  chargeSwitch.addEventListener('click', toggleCharge);
+  chargeSwitch.addEventListener('keydown', (evt)=>{
+    if(evt.key==='Enter' || evt.key===' '){ evt.preventDefault(); toggleCharge(); }
+  });
+
+  document.getElementById('b-reset-btn').addEventListener('click', ()=>{
+    B.selected.clear();
+    renderB();
+  });
+
+  document.getElementById('b-reveal-btn').addEventListener('click', ()=>openPasswordGate(revealB));
+
+  renderA();
+  renderB();
+}
+
+init();
+
+})();
+</script>
