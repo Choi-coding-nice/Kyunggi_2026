@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>지배집합 개념 비교 인터랙티브 학습</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#172033;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+header{background:linear-gradient(135deg,#283b78,#4b67c5);color:white;padding:28px 18px}
+header h1{margin:0 0 8px;font-size:27px}header p{margin:0;opacity:.9}
+main{max-width:1180px;margin:20px auto;padding:0 15px;display:grid;gap:16px}
+.card{background:white;border:1px solid #dde3ef;border-radius:16px;padding:19px;box-shadow:0 5px 18px #1720330d}
+h2{font-size:20px;margin:0 0 12px}.muted{color:#65708a;font-size:14px;line-height:1.65}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{padding:10px 14px;border-radius:10px;border:1px solid #d8deea;background:#fff;cursor:pointer;font-weight:700}.tab.on{background:#4b67c5;color:#fff}
+.definition{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.def{padding:14px;border-radius:12px;background:#f7f8fc;border-top:4px solid #4b67c5}.def b{display:block;margin-bottom:7px}
+.workspace{display:grid;grid-template-columns:minmax(560px,1fr) 330px;gap:17px}.graphbox{position:relative}
+canvas{width:100%;height:470px;border:1px solid #dfe4ee;border-radius:13px;background:#fbfcff}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}button,select{font:inherit;padding:9px 12px;border:1px solid #d6dce8;border-radius:9px;background:white;cursor:pointer}
+button.primary{background:#4b67c5;color:white;border-color:#4b67c5}
+.panel{display:grid;gap:10px}.stat{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat div{background:#f6f7fa;border-radius:10px;padding:11px}.stat strong{display:block;font-size:22px;margin-top:3px}
+.result{padding:13px;border-radius:11px;background:#f7f8fc;line-height:1.7}.good{color:#13865a}.bad{color:#d34848}
+.compare{width:100%;border-collapse:collapse}.compare th,.compare td{border:1px solid #dde3ed;padding:10px;vertical-align:top;text-align:left}.compare th{background:#f2f4f9}
+.task{background:#fff9e8;border:1px solid #eedf9b;border-radius:12px;padding:15px}.choices{display:grid;gap:8px;margin-top:10px}.choices button{text-align:left}
+.progress{height:8px;background:#e7eaf1;border-radius:9px;overflow:hidden}.progress i{display:block;height:100%;background:#4b67c5;width:0}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;background:#eef1ff;font-size:12px}
+@media(max-width:850px){.definition{grid-template-columns:1fr 1fr}.workspace{grid-template-columns:1fr}canvas{height:380px}}
+@media(max-width:520px){.definition{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>그래프로 배우는 지배집합 비교</h1>
+<p>지배집합 → 전체 지배집합 → 독립지배집합 → 2-제한 방송지배를 한 그래프에서 직접 비교해 보세요.</p>
+</header>
+
+<main>
+<section class="card">
+<h2>1. 네 개념을 한눈에 비교</h2>
+<div class="definition">
+<div class="def"><b>지배집합 D</b>모든 정점이 D에 속하거나 D의 정점과 인접하면 D가 지배집합입니다.</div>
+<div class="def"><b>전체 지배집합 TD</b>모든 정점이 D의 어떤 <u>다른 정점</u>과 인접해야 합니다. 즉, 자기 자신으로는 지배할 수 없습니다.</div>
+<div class="def"><b>독립 지배집합 ID</b>D가 지배집합이면서 D에 속한 정점끼리는 서로 인접하지 않습니다.</div>
+<div class="def"><b>2-제한 방송지배</b>각 정점에 방송 세기 <b>0, 1, 2</b>를 배정합니다. 모든 정점은 세기가 양수인 어떤 방송 정점으로부터 거리 ≤ 그 방송 세기인 위치에서 방송을 들어야 합니다.</div>
+</div>
+<p class="muted">2-제한의 ‘2’는 <b>받는 방송의 개수</b>가 아니라 각 방송 정점의 <b>최대 방송 세기</b>를 뜻합니다. 따라서 방송 함수는 f:V→{0,1,2}이고, 비용은 Σf(v)입니다.</p>
+</section>
+
+<section class="card">
+<h2>2. 같은 그래프에서 직접 비교하기</h2>
+<div class="controls">
+<label>그래프 <select id="shape">
+<option value="path">경로 P₈</option><option value="cycle">사이클 C₈</option>
+<option value="star">별 K₁,₇</option><option value="tree">이진 트리</option>
+</select></label>
+<button class="primary" id="reset">초기화</button>
+<button id="clear">선택 해제</button>
+</div>
+<div class="tabs">
+<button class="tab on" data-mode="dom">지배집합</button>
+<button class="tab" data-mode="total">전체 지배집합</button>
+<button class="tab" data-mode="ind">독립 지배집합</button>
+<button class="tab" data-mode="broadcast">2-제한 방송지배</button>
+</div>
+<div class="workspace">
+<div class="graphbox">
+<canvas id="g" width="760" height="470"></canvas>
+<p class="muted" id="hint"></p>
+</div>
+<div class="panel">
+<div class="result" id="rule"></div>
+<div class="stat"><div>선택한 정점 수<strong id="size">0</strong></div><div>조건 위반<strong id="viol">0</strong></div></div>
+<div class="result" id="explain"></div>
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2>3. 선택한 집합을 네 관점에서 판정</h2>
+<p class="muted">정점을 클릭해서 집합 S를 만든 뒤 아래 표에서 한 번에 비교합니다. 방송 모드에서는 클릭한 정점의 방송 세기가 0→1→2→0으로 바뀝니다.</p>
+<table class="compare">
+<thead><tr><th>개념</th><th>현재 상태</th><th>판정 기준</th></tr></thead>
+<tbody id="table"></tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>4. 개념 발견 퀴즈</h2>
+<div class="progress"><i id="progress"></i></div>
+<div id="quiz" style="margin-top:13px"></div>
+</section>
+</main>
+
+<script>
+const C=document.getElementById("g"),ctx=C.getContext("2d");
+let V=[],E=[],sel=new Set(),rad=[],mode="dom",q=0,score=0;
+
+function graph(t){
+ V=[];E=[];
+ if(t==="path"){for(let i=0;i<8;i++)V.push([70+i*89,235]);for(let i=0;i<7;i++)E.push([i,i+1])}
+ if(t==="cycle"){for(let i=0;i<8;i++){let a=i*Math.PI/4-Math.PI/2;V.push([380+155*Math.cos(a),235+155*Math.sin(a)])}for(let i=0;i<8;i++)E.push([i,(i+1)%8])}
+ if(t==="star"){V=[[380,235]];for(let i=0;i<7;i++){let a=i*2*Math.PI/7;V.push([380+160*Math.cos(a),235+160*Math.sin(a)]);E.push([0,i+1])}}
+ if(t==="tree"){V=[[380,55],[235,155],[525,155],[155,275],[315,275],[445,275],[605,275],[115,405],[195,405],[275,405],[355,405],[405,405],[485,405],[565,405],[645,405]];E=[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6],[3,7],[3,8],[4,9],[4,10],[5,11],[5,12],[6,13],[6,14]]}
+ sel=new Set();rad=Array(V.length).fill(0);draw();update()
+}
+function dist(s){
+ let d=Array(V.length).fill(Infinity);d[s]=0;let qu=[s];
+ while(qu.length){let u=qu.shift();E.forEach(([a,b])=>{let z=a===u?b:b===u?a:-1;if(z>=0&&d[z]===Infinity){d[z]=d[u]+1;qu.push(z)}})}
+ return d
+}
+function neighbors(i){let a=[];E.forEach(([x,y])=>{if(x===i)a.push(y);if(y===i)a.push(x)});return a}
+function dominates(){
+ return V.every((_,i)=>sel.has(i)||neighbors(i).some(x=>sel.has(x)))
+}
+function totalDom(){return V.every((_,i)=>neighbors(i).some(x=>sel.has(x)))}
+function independent(){return [...sel].every(i=>neighbors(i).every(j=>!sel.has(j)))}
+function broadcastLoads(){
+ let L=Array(V.length).fill(0);
+ rad.forEach((r,s)=>{if(r>0)dist(s).forEach((d,i)=>{if(d<=r)L[i]++})});
+ return L
+}
+function broadcastOK(){
+ let L=broadcastLoads();return L.every(x=>x>=1)
+}
+function currentStatus(){
+ if(mode==="broadcast")return broadcastOK();
+ if(mode==="total")return totalDom();
+ if(mode==="ind")return dominates()&&independent();
+ return dominates()
+}
+function draw(){
+ ctx.clearRect(0,0,C.width,C.height);
+ ctx.lineWidth=3;ctx.strokeStyle="#c9cfdd";
+ E.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(...V[a]);ctx.lineTo(...V[b]);ctx.stroke()});
+ let L=broadcastLoads();
+ V.forEach(([x,y],i)=>{
+   let active=mode==="broadcast"?rad[i]>0:sel.has(i);
+   let fill=mode==="broadcast"?["#edf0f5","#bfe5d2","#ffe29a"][rad[i]]:(active?"#9fb4ff":"#fff");
+   ctx.beginPath();ctx.arc(x,y,27,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();
+   ctx.lineWidth=(sel.has(i)||rad[i]>0)?4:2;ctx.strokeStyle=(sel.has(i)||rad[i]>0)?"#4b67c5":"#8c95a8";ctx.stroke();
+   ctx.fillStyle="#172033";ctx.textAlign="center";ctx.textBaseline="middle";ctx.font="bold 14px system-ui";
+   ctx.fillText("v"+(i+1),x,y-5);
+   ctx.font="12px system-ui";
+   if(mode==="broadcast")ctx.fillText("r="+rad[i],x,y+12);else if(sel.has(i))ctx.fillText("선택",x,y+12);
+   if(mode==="broadcast"&&L[i]>0){ctx.beginPath();ctx.arc(x+23,y-23,11,0,Math.PI*2);ctx.fillStyle=L[i]>2?"#d34848":"#4b67c5";ctx.fill();ctx.fillStyle="#fff";ctx.font="bold 11px system-ui";ctx.fillText(L[i],x+23,y-23)}
+ })
+}
+function update(){
+ let d=dominates(),td=totalDom(),ind=independent(),bo=broadcastOK(),L=broadcastLoads();
+ document.getElementById("size").textContent=mode==="broadcast"?rad.reduce((a,b)=>a+(b>0?1:0),0):sel.size;
+ let bad=mode==="broadcast"?L.filter(x=>x<1).length:(!currentStatus()?1:0);
+ document.getElementById("viol").textContent=bad;
+ const names={dom:"지배집합: 선택한 정점 자체도 자신을 지배하는 것으로 봅니다.",total:"전체 지배집합: 선택된 정점도 반드시 선택된 ‘이웃’을 가져야 합니다.",ind:"독립 지배집합: 지배집합 조건 + 선택된 정점끼리 인접하지 않는 조건입니다.",broadcast:"2-제한 방송지배: 모든 정점이 최소 한 번, 최대 두 번 방송 영향을 받도록 합니다."};
+ document.getElementById("rule").innerHTML="<b>"+names[mode]+"</b>";
+ document.getElementById("explain").innerHTML=mode==="broadcast"
+ ? `방송 세기: <b>${rad.join(", ")}</b><br>방송 비용 Σf(v) = <b>${rad.reduce((a,b)=>a+b,0)}</b><br>`+(bo?'<span class="good">모든 정점이 적어도 하나의 방송을 듣습니다.</span>':'<span class="bad">아직 방송이 닿지 않는 정점이 있습니다.</span>')
+ : `현재 선택 집합은 <b>${currentStatus()?"조건을 만족합니다.":"조건을 만족하지 않습니다."}</b><br>다른 개념에서는 어떻게 보이는지 아래 표에서 확인하세요.`;
+ document.getElementById("hint").textContent=mode==="broadcast"?"정점을 클릭해 방송 세기를 조절하세요. 방송 세기는 0, 1, 2만 사용할 수 있으며 원 안의 작은 숫자는 그 정점이 듣는 방송의 개수입니다.":"정점을 클릭해 선택 집합 S를 구성하세요. 선택된 정점은 파란색으로 표시됩니다.";
+ document.getElementById("table").innerHTML=[
+ ["지배집합",d?"<span class=good>✓ 만족</span>":"<span class=bad>✗ 불만족</span>","모든 정점이 S에 속하거나 S와 인접"],
+ ["전체 지배집합",td?"<span class=good>✓ 만족</span>":"<span class=bad>✗ 불만족</span>","모든 정점이 S의 이웃과 인접"],
+ ["독립 지배집합",(d&&ind)?"<span class=good>✓ 만족</span>":"<span class=bad>✗ 불만족</span>","지배집합이며 S 내부에 인접한 두 정점이 없음"],
+ ["2-제한 방송지배",bo?"<span class=good>✓ 만족</span>":"<span class=bad>✗ 불만족</span>","모든 정점이 적어도 하나의 방송을 들으며, 각 방송 세기가 2 이하"]
+].map(r=>"<tr><td><b>"+r[0]+"</b></td><td>"+r[1]+"</td><td>"+r[2]+"</td></tr>").join("");
+}
+C.addEventListener("click",e=>{
+ let r=C.getBoundingClientRect(),x=(e.clientX-r.left)*C.width/r.width,y=(e.clientY-r.top)*C.height/r.height;
+ V.forEach(([a,b],i)=>{if(Math.hypot(x-a,y-b)<31){if(mode==="broadcast")rad[i]=(rad[i]+1)%3;else sel.has(i)?sel.delete(i):sel.add(i);draw();update()}});
+});
+document.getElementById("shape").onchange=e=>graph(e.target.value);
+document.getElementById("reset").onclick=()=>graph(document.getElementById("shape").value);
+document.getElementById("clear").onclick=()=>{sel.clear();rad.fill(0);draw();update()};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));b.classList.add("on");mode=b.dataset.mode;draw();update()});
+
+const quiz=[
+["지배집합에서 선택된 정점 v 자체는 v를 지배할 수 있을까?",["그렇다","아니다"],0],
+["전체 지배집합에서 선택된 정점도 반드시 무엇을 가져야 할까?",["선택된 이웃 정점","자기 자신","방송 세기 2"],0],
+["독립 지배집합은 지배집합에 어떤 조건을 추가한 것일까?",["선택된 정점끼리 서로 인접하지 않음","모든 정점이 두 번 지배됨","선택 정점이 반드시 하나"],0],
+["이 학습 자료의 2-제한 방송지배 모델에서 한 정점이 받을 수 있는 방송 영향의 최대 개수는?",["1개","2개","3개"],1],
+["어떤 집합이 독립 지배집합이라면 반드시 무엇이기도 할까?",["지배집합","전체 지배집합","항상 최소 지배집합"],0]
+];
+function renderQuiz(){
+ if(q>=quiz.length){document.getElementById("progress").style.width="100%";document.getElementById("quiz").innerHTML=`<b>학습 완료!</b><p>${quiz.length}문제 중 ${score}문제를 맞혔습니다.</p><button class=primary onclick="q=0;score=0;renderQuiz()">다시 학습하기</button>`;return}
+ let z=quiz[q];document.getElementById("progress").style.width=(q/quiz.length*100)+"%";
+ document.getElementById("quiz").innerHTML=`<span class=badge>문제 ${q+1}/${quiz.length}</span><p><b>${z[0]}</b></p><div class=choices>${z[1].map((x,i)=>`<button onclick="answer(${i})">${x}</button>`).join("")}</div><div id=feedback style="margin-top:10px;font-weight:700"></div>`;
+}
+window.answer=i=>{let z=quiz[q],f=document.getElementById("feedback");if(i===z[2]){score++;f.className="good";f.textContent="정답입니다!";}else{f.className="bad";f.textContent="다시 생각해 보세요.";};setTimeout(()=>{q++;renderQuiz()},600)}
+graph("path");renderQuiz();
+</script>
+</body>
+</html>
