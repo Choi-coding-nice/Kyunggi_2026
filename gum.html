@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>수학 검 강화하기</title>
+<style>
+  :root{
+    --bg:#12141c;
+    --panel:#1b1f2b;
+    --panel2:#232838;
+    --line:#333a4d;
+    --text:#eef0f6;
+    --sub:#9aa2b8;
+    --accent:#7ec8ff;
+    --good:#4CAF50;
+    --bad:#e5534b;
+    --warn:#ffb020;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(circle at 50% -10%, #232a3d 0%, var(--bg) 60%);
+    color:var(--text);
+    font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+    min-height:100vh;
+    padding:16px;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  h1{
+    text-align:center;
+    font-size:clamp(20px,5vw,28px);
+    margin:4px 0 4px;
+    letter-spacing:1px;
+  }
+  .sub-title{
+    text-align:center;
+    color:var(--sub);
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .stage{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px 10px 10px;
+    overflow:hidden;
+  }
+  .tier-label{
+    font-size:13px;
+    color:var(--sub);
+    margin-bottom:2px;
+    min-height:16px;
+  }
+  .sword-box{
+    position:relative;
+    width:180px;
+    height:240px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .sword-box svg{
+    width:150px;
+    height:220px;
+    transition:filter .4s ease;
+  }
+  .level-badge{
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:clamp(22px,7vw,30px);
+    font-weight:800;
+    text-shadow:0 0 8px rgba(0,0,0,.6);
+  }
+  .blade{ transition: fill .4s ease, filter .4s ease; }
+
+  /* 강화 단계별 검 외형 */
+  .tier-0 .blade{ fill:#a7abb3; }
+  .tier-0 svg{ filter:none; }
+
+  .tier-1 .blade{ fill:#cfe8ff; }
+  .tier-1 svg{ filter:drop-shadow(0 0 7px #7ec8ff); }
+
+  .tier-2 .blade{ fill:#bdf3ce; }
+  .tier-2 svg{ filter:drop-shadow(0 0 11px #4CAF50); animation:pulse 2.2s ease-in-out infinite; }
+
+  .tier-3 .blade{ fill:#e6c3ff; }
+  .tier-3 svg{ filter:drop-shadow(0 0 15px #b361ff); animation:pulse 1.8s ease-in-out infinite; }
+
+  .tier-4 .blade{ fill:#ffe8a6; }
+  .tier-4 svg{ filter:drop-shadow(0 0 20px #ffd23f); animation:pulse 1.4s ease-in-out infinite; }
+
+  .tier-5 .blade{ fill:#ffffff; }
+  .tier-5 svg{ filter:drop-shadow(0 0 24px #ff6ec7) hue-rotate(0deg); animation:pulse 1s ease-in-out infinite, hue 3.5s linear infinite; }
+
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.045); }
+  }
+  @keyframes hue{
+    0%{ filter:drop-shadow(0 0 24px #ff6ec7) hue-rotate(0deg); }
+    100%{ filter:drop-shadow(0 0 24px #ff6ec7) hue-rotate(360deg); }
+  }
+  @keyframes shakeX{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-8px) rotate(-3deg);}
+    40%{transform:translateX(7px) rotate(3deg);}
+    60%{transform:translateX(-6px) rotate(-2deg);}
+    80%{transform:translateX(5px) rotate(2deg);}
+  }
+  @keyframes popScale{
+    0%{transform:scale(1);}
+    30%{transform:scale(1.18);}
+    100%{transform:scale(1);}
+  }
+  @keyframes fadeOutSword{
+    0%{opacity:1;}
+    60%{opacity:.15;}
+    100%{opacity:1;}
+  }
+  .anim-success .sword-box{ animation:popScale .5s ease; }
+  .anim-down .sword-box{ animation:shakeX .45s ease; }
+  .anim-destroy .sword-box{ animation:shakeX .5s ease, fadeOutSword .8s ease; }
+
+  .legend-name{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--warn);
+    min-height:18px;
+    font-weight:600;
+    text-align:center;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:6px;
+    margin-top:8px;
+  }
+  .stat{
+    background:var(--panel2);
+    border-radius:10px;
+    padding:8px 4px;
+    text-align:center;
+  }
+  .stat b{
+    display:block;
+    font-size:clamp(14px,4vw,18px);
+  }
+  .stat span{
+    font-size:10.5px;
+    color:var(--sub);
+  }
+  .stat.gold b{ color:#ffd23f; }
+
+  .success-readout{
+    text-align:center;
+    font-size:14px;
+    font-weight:700;
+    color:var(--accent);
+    margin-top:6px;
+    min-height:18px;
+  }
+
+  .prob-panel{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    font-size:12px;
+    margin-top:10px;
+  }
+  .prob-chip{
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:4px 10px;
+  }
+  .prob-chip.success{color:var(--good);}
+  .prob-chip.fail{color:var(--sub);}
+  .prob-chip.down{color:var(--warn);}
+  .prob-chip.destroy{color:var(--bad);}
+
+  .btn{
+    display:block;
+    width:100%;
+    border:none;
+    border-radius:12px;
+    padding:14px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    color:#0c0e14;
+    background:linear-gradient(180deg,#ffe08a,#ffb020);
+    min-height:48px;
+  }
+  .btn:active{ filter:brightness(.92); }
+  .btn.secondary{
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--line);
+  }
+  .btn.small{
+    padding:10px;
+    font-size:14px;
+  }
+  .btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+
+  .result-msg{
+    text-align:center;
+    min-height:22px;
+    font-weight:700;
+    margin:8px 0 2px;
+  }
+  .result-msg.success{color:var(--good);}
+  .result-msg.fail{color:var(--sub);}
+  .result-msg.down{color:var(--warn);}
+  .result-msg.destroy{color:var(--bad);}
+
+  /* 모달 */
+  .modal-back{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+    padding:0;
+  }
+  .modal-back.open{ display:flex; }
+  .modal{
+    background:var(--panel);
+    border-top:1px solid var(--line);
+    border-radius:18px 18px 0 0;
+    padding:20px 18px 24px;
+    width:100%;
+    max-width:640px;
+    max-height:88vh;
+    overflow-y:auto;
+    animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{
+    from{ transform:translateY(30px); opacity:0; }
+    to{ transform:translateY(0); opacity:1; }
+  }
+  .modal .unit-tag{
+    display:inline-block;
+    background:var(--panel2);
+    color:var(--accent);
+    font-size:12px;
+    padding:3px 10px;
+    border-radius:20px;
+    margin-bottom:10px;
+  }
+  .modal .q-text{
+    font-size:17px;
+    line-height:1.6;
+    margin-bottom:16px;
+    white-space:pre-wrap;
+    word-break:keep-all;
+  }
+  .choice-btn{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--panel2);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:10px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    font-size:15px;
+    cursor:pointer;
+    min-height:46px;
+  }
+  .choice-btn:active{ background:#2c3245; }
+  .choice-btn.correct{ border-color:var(--good); background:#193322; }
+  .choice-btn.wrong{ border-color:var(--bad); background:#341c1a; }
+  .q-feedback{
+    text-align:center;
+    font-size:14px;
+    min-height:20px;
+    margin:6px 0 4px;
+    font-weight:600;
+  }
+
+  .lb-input-row{
+    display:flex;
+    gap:8px;
+  }
+  .lb-input-row input{
+    flex:1;
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px;
+    color:var(--text);
+    font-size:15px;
+    min-width:0;
+  }
+  .lb-input-row button{
+    flex:0 0 auto;
+    width:auto;
+    padding:0 16px;
+  }
+  .lb-msg{
+    font-size:13px;
+    min-height:18px;
+    margin-top:6px;
+  }
+  .lb-msg.ok{color:var(--good);}
+  .lb-msg.error{color:var(--bad);}
+
+  table.lb-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:14px;
+  }
+  table.lb-table th, table.lb-table td{
+    padding:8px 6px;
+    border-bottom:1px solid var(--line);
+    text-align:center;
+  }
+  table.lb-table th{ color:var(--sub); font-weight:600; font-size:12px; }
+  table.lb-table tr:first-child td{ color:var(--warn); font-weight:700; }
+
+  .foot-note{
+    font-size:11.5px;
+    color:var(--sub);
+    text-align:center;
+    line-height:1.6;
+    margin-top:6px;
+  }
+
+  .row-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:8px;
+  }
+  .row-3{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    margin-top:8px;
+  }
+  .cost-line{
+    text-align:center;
+    font-size:13px;
+    color:var(--sub);
+    margin-bottom:12px;
+  }
+  .cost-line b{ color:var(--accent); }
+
+  .particle{
+    position:absolute;
+    pointer-events:none;
+    border-radius:50%;
+    animation:flyUp 1s ease-out forwards;
+  }
+  @keyframes flyUp{
+    0%{ transform:translate(0,0) scale(1); opacity:1; }
+    100%{ transform:translate(var(--dx),-90px) scale(.3); opacity:0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚔️ 수학 검 강화하기</h1>
+  <div class="sub-title">문제를 맞혀야 검을 강화할 수 있습니다 (고2 미적분Ⅰ)</div>
+
+  <div class="panel stage" id="stage">
+    <div class="tier-label" id="tierLabel">평범한 철검</div>
+    <div class="sword-box" id="swordBox">
+      <div class="level-badge" id="levelBadge">+0</div>
+      <svg viewBox="0 0 100 220" xmlns="http://www.w3.org/2000/svg">
+        <polygon class="blade" points="50,6 62,120 56,150 44,150 38,120" stroke="#5c6270" stroke-width="2"/>
+        <rect x="24" y="150" width="52" height="10" rx="3" fill="#7a5a2e" stroke="#4a3a20" stroke-width="1.5"/>
+        <rect x="41" y="160" width="18" height="46" rx="5" fill="#4a3a20"/>
+        <circle cx="50" cy="210" r="9" fill="#7a5a2e" stroke="#4a3a20" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="legend-name" id="legendName">&nbsp;</div>
+    <div class="success-readout" id="successReadout">&nbsp;</div>
+    <div class="result-msg" id="resultMsg">&nbsp;</div>
+
+    <div class="stats">
+      <div class="stat"><b id="statLevel">0</b><span>현재 강화</span></div>
+      <div class="stat"><b id="statMax">0</b><span>최고 기록</span></div>
+      <div class="stat"><b id="statCorrect">0</b><span>맞힌 문제</span></div>
+      <div class="stat gold"><b id="statGold">0</b><span>보유 골드</span></div>
+    </div>
+
+    <div class="prob-panel" id="probPanel"></div>
+
+    <button class="btn" id="enhanceBtn" style="margin-top:16px;">🗡️ 문제 풀고 강화하기</button>
+    <div class="row-3">
+      <button class="btn secondary small" id="sellBtn">💰 검 판매</button>
+      <button class="btn secondary small" id="resetBtn">처음부터</button>
+      <button class="btn secondary small" id="ruleBtn">게임 방법</button>
+    </div>
+  </div>
+
+  <div class="panel" id="rulePanel" style="display:none;">
+    <b>게임 방법</b>
+    <div class="foot-note" style="text-align:left;margin-top:8px;">
+      1. "문제 풀고 강화하기"를 누르면 수학 문제가 나옵니다. (강화 시도에는 골드가 필요합니다)<br>
+      2. 정답을 맞히면 골드를 내고 강화를 시도합니다. 오답이면 골드를 내지 않고 강화도 시도되지 않으며, 다른 문제가 나옵니다.<br>
+      3. 강화 단계가 높아질수록 문제도 어려워지고, 강화 비용은 오르고 성공 확률은 낮아지며, 실패 시 단계가 내려가거나 검이 파괴(0단계로 초기화)될 수 있습니다.<br>
+      4. "검 판매" 버튼을 누르면 지금 단계의 검을 팔아 골드로 바꾸고 0단계부터 다시 강화를 시작할 수 있습니다. 높은 단계일수록 더 비싸게 팔립니다.<br>
+      5. 도달한 "최고 기록" 단계가 점수가 되며(판매해도 최고 기록은 유지됩니다), 아래에서 순위표에 등록할 수 있습니다.
+    </div>
+  </div>
+
+  <div class="panel" id="lbPanel">
+    <b>🏆 순위표 등록</b>
+    <div class="lb-input-row" style="margin-top:10px;">
+      <input type="text" id="nameInput" maxlength="10" placeholder="이름을 입력하세요 (최대 10자)">
+      <button class="btn" id="submitScoreBtn">등록</button>
+    </div>
+    <div class="lb-msg" id="lbMsg">&nbsp;</div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+      <b style="font-size:14px;">전체 순위 (상위 10명)</b>
+      <button class="btn secondary small" id="refreshBtn" style="width:auto;padding:6px 12px;">새로고침</button>
+    </div>
+    <table class="lb-table" id="lbTable">
+      <thead><tr><th>순위</th><th>이름</th><th>기록</th></tr></thead>
+      <tbody id="lbBody"><tr><td colspan="3" style="color:var(--sub);">불러오는 중...</td></tr></tbody>
+    </table>
+    <div class="foot-note">
+      ※ 순위표는 선생님이 지정한 구글 스프레드시트와 연동됩니다. 네트워크 상황에 따라 등록/조회가 지연되거나 실패할 수 있어요.
+    </div>
+  </div>
+</div>
+
+<!-- 문제 모달 -->
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <span class="unit-tag" id="unitTag">단원</span>
+    <div class="cost-line" id="costLine"></div>
+    <div class="q-text" id="qText">문제 내용</div>
+    <div id="choiceArea"></div>
+    <div class="q-feedback" id="qFeedback">&nbsp;</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===================== 설정 (필요시 이 부분만 수정) ===================== */
+  var LEADERBOARD_URL = "https://script.google.com/macros/s/AKfycbzIzGLUml6AAwKhvPPGyxgbQ8PLatLCh-K5j3LNIAkiScuBVxBmfgm3HnlisVQIfsk3/exec";
+  var GAME_KEY = "sword_enhance_calc1"; // 여러 게임이 같은 스프레드시트를 쓸 경우 구분용 값
+  var LOCAL_KEY = "sword_enhance_local_scores_v1";
+
+  /* ----- 골드/판매 설정 (숫자만 바꾸면 밸런스 조절 가능) ----- */
+  var START_GOLD = 100;              // 게임 시작 시 보유 골드
+  var ENHANCE_COST_BASE = 10;        // 0강일 때 강화 시도 비용
+  var ENHANCE_COST_PER_LEVEL = 8;    // 강화 단계 1당 추가되는 비용
+  var SELL_PER_LEVEL = 30;           // 판매가: 강화 단계 1당 기본으로 붙는 골드
+  var SELL_LEVEL_BONUS = 3;          // 판매가: 단계가 높을수록 더 크게 붙는 보너스 배율(단계 제곱에 비례)
+  // 판매가 = SELL_PER_LEVEL*단계 + SELL_LEVEL_BONUS*단계² (높은 단계일수록 훨씬 후하게 쳐줌)
+  // 예) 4강 판매가 168골드, 10강 판매가 600골드, 20강 판매가 1800골드
+  // → 위험 없는 0~3강 구간을 다 오른 뒤 팔기만 해도 강화 비용보다 골드가 남도록 설계되어 있습니다.
+
+  function enhanceCost(level){ return ENHANCE_COST_BASE + level*ENHANCE_COST_PER_LEVEL; }
+  function sellValue(level){ return level<=0 ? 0 : SELL_PER_LEVEL*level + SELL_LEVEL_BONUS*level*level; }
+
+  /* =====================================================================
+     문제 은행 — 선생님이 직접 수정/추가/삭제하는 곳입니다.
+     =====================================================================
+     ▸ 구조: BANK.단계문자.list 는 문제 배열이고, 문제 하나는 아래 형식입니다.
+         { q: "문제 내용(문자열)",
+           choices: ["보기1","보기2","보기3","보기4"],  // 반드시 4개
+           answer: 0   // 정답이 choices 배열의 몇 번째(0부터 시작)인지
+         }
+       예) 정답이 "보기3"이면 answer는 2 입니다. (0,1,2,3 순서)
+       화면에 보일 때는 4개 보기의 순서가 매번 무작위로 섞여서 나오므로
+       answer 번호만 정확하면 순서는 신경 쓰지 않아도 됩니다.
+     ▸ 문항 추가: 원하는 단계의 list 배열 안에 { } 문항 객체를 콤마(,)로
+       구분해서 이어 붙이면 됩니다. 문항 개수는 몇 개든 상관없습니다.
+     ▸ 문항 삭제: 해당 { ... } 블록 전체와 앞뒤의 콤마를 함께 지우면 됩니다.
+     ▸ 단계(A~F)는 검의 강화 단계 구간과 연결되어 있습니다.
+         A: 0~3강, B: 4~6강, C: 7~9강, D: 10~12강, E: 13~15강, F: 16강 이상
+       단계별 난이도를 맞추고 싶다면 그 구간의 list에 문제를 넣어주세요.
+       (단계를 새로 만들고 싶다면 아래 tierIndex 함수와 TIER_ORDER,
+        PROB, TIER_TITLE 배열도 함께 늘려야 합니다.)
+     ▸ 수식 표기: 특수 기호(예: ∫, √, ², ³, →, ≠, ≥ 등)는 이 파일에 이미
+       쓰인 것을 복사해서 그대로 사용하면 편합니다.
+     ▸ 저장 방법: 이 HTML 파일을 메모장/VS Code 등 텍스트 편집기로 열어
+       아래 내용을 수정한 뒤 저장하고, 브라우저에서 새로고침하면 바로
+       반영됩니다. 별도의 빌드나 설치 과정은 필요 없습니다.
+     ===================================================================== */
+  var BANK = {
+    A: { name:"함수의 극한", list:[
+      {q:"lim(x→2) (3x+1) 의 값은?", choices:["5","6","7","9"], answer:2},
+      {q:"lim(x→3) (x²-9)/(x-3) 의 값은?", choices:["3","6","9","12"], answer:1},
+      {q:"lim(x→1) (x²+2x-3)/(x-1) 의 값은?", choices:["1","2","4","6"], answer:2},
+      {q:"lim(x→-2) (x²-4)/(x+2) 의 값은?", choices:["-4","-2","0","2"], answer:0},
+      {q:"lim(x→∞) (4x²+3x)/(2x²+1) 의 값은?", choices:["1","2","3","4"], answer:1},
+      {q:"lim(x→0) (x²+5x)/x 의 값은?", choices:["0","3","5","7"], answer:2}
+    ]},
+    B: { name:"함수의 연속", list:[
+      {q:"f(x)=(x²-1)/(x-1) (x≠1), f(1)=k 일 때 f(x)가 x=1에서 연속이 되게 하는 k의 값은?", choices:["0","1","2","3"], answer:2},
+      {q:"f(x)=2x+1 (x<1), ax-1 (x≥1) 이 x=1에서 연속일 때 상수 a의 값은?", choices:["2","3","4","5"], answer:2},
+      {q:"f(x)=x+2 (x≥0), -x+2 (x<0) 일 때 lim(x→0+)f(x) + lim(x→0-)f(x) 의 값은?", choices:["0","2","4","6"], answer:2},
+      {q:"f(x)=(x²-9)/(x-3) (x≠3), f(3)=k 일 때 f(x)가 x=3에서 연속이 되게 하는 k의 값은?", choices:["3","6","9","12"], answer:1},
+      {q:"f(x)=x²-1 (x<2), x+a (x≥2) 가 x=2에서 연속일 때 상수 a의 값은?", choices:["0","1","2","3"], answer:1},
+      {q:"함수 f(x)가 x=a에서 연속이기 위한 필요충분조건으로 옳은 것은?", choices:["f(a)가 정의된다","lim(x→a) f(x)가 존재한다","lim(x→a) f(x) = f(a)","f(a) > 0"], answer:2}
+    ]},
+    C: { name:"미분계수와 도함수", list:[
+      {q:"f(x)=x² 일 때 f'(2)의 값은?", choices:["2","4","6","8"], answer:1},
+      {q:"f(x)=x³-2x 의 도함수 f'(x)는?", choices:["3x²-2","3x²-2x","x³-2x","3x-2"], answer:0},
+      {q:"f(x)=x²+3x 에서 x=1에서의 미분계수(순간변화율)는?", choices:["3","4","5","6"], answer:2},
+      {q:"곡선 y=x²-4x+3 위의 점 (1,0)에서의 접선의 기울기는?", choices:["-4","-2","0","2"], answer:1},
+      {q:"f(x)=2x³ 의 도함수 f'(x)는?", choices:["6x²","6x","2x²","3x²"], answer:0},
+      {q:"f(x)=x²-6x+5 가 x=3에서 갖는 미분계수는?", choices:["-2","0","2","4"], answer:1}
+    ]},
+    D: { name:"부정적분", list:[
+      {q:"∫(3x²+2x) dx 의 값은? (C는 적분상수)", choices:["x³+x²+C","3x³+2x²+C","x³+2x²+C","x²+x+C"], answer:0},
+      {q:"∫(2x+1) dx 의 값은? (C는 적분상수)", choices:["x²+x+C","2x²+x+C","x²+2x+C","2x+C"], answer:0},
+      {q:"f'(x)=4x-3 이고 f(0)=2 일 때 f(1)의 값은?", choices:["0","1","2","3"], answer:1},
+      {q:"∫(x²-1) dx 의 값은? (C는 적분상수)", choices:["x³/3-x+C","x³-x+C","x³/3+C","x-1/3+C"], answer:0},
+      {q:"f'(x)=6x² 이고 f(1)=5 일 때 f(x)는?", choices:["2x³+3","2x³+5","6x³+3","2x²+3"], answer:0},
+      {q:"∫3 dx 의 값은? (C는 적분상수)", choices:["3x+C","3+C","x³+C","3x²+C"], answer:0}
+    ]},
+    E: { name:"정적분과 넓이", list:[
+      {q:"∫(0→1) 3x² dx 의 값은?", choices:["0","1","2","3"], answer:1},
+      {q:"∫(1→2) 2x dx 의 값은?", choices:["1","2","3","4"], answer:2},
+      {q:"∫(0→2) x² dx 의 값은?", choices:["8/3","4/3","2","8"], answer:0},
+      {q:"곡선 y=x² 과 x축, 직선 x=0, x=2로 둘러싸인 부분의 넓이는?", choices:["8/3","2","4","16/3"], answer:0},
+      {q:"∫(-1→1) (x²+1) dx 의 값은?", choices:["8/3","4/3","2","3"], answer:0},
+      {q:"∫(0→3) (2x-1) dx 의 값은?", choices:["4","5","6","7"], answer:2}
+    ]},
+    F: { name:"종합 도전", list:[
+      {q:"f(x)=x³-3x²+2 일 때 f'(x)=0을 만족시키는 x 중 더 큰 값은?", choices:["0","1","2","3"], answer:2},
+      {q:"곡선 y=x²-2x+3 위의 점에서 접선의 기울기가 4가 되는 점의 x좌표는?", choices:["1","2","3","4"], answer:2},
+      {q:"∫(0→2) |x-1| dx 의 값은?", choices:["0","1","2","3"], answer:1},
+      {q:"f(x)=∫(0→x)(t²-1)dt 일 때 f'(2)의 값은?", choices:["1","2","3","4"], answer:2},
+      {q:"곡선 y=x² 과 직선 y=2x로 둘러싸인 부분의 넓이는?", choices:["4/3","2","8/3","4"], answer:0},
+      {q:"함수 f(x)=x³-3x+1 의 극댓값은?", choices:["1","2","3","4"], answer:2}
+    ]}
+  };
+  var TIER_ORDER = ["A","B","C","D","E","F"];
+
+  /* ===================== 강화 확률 테이블 ===================== */
+  var PROB = [
+    {success:1.00, fail:0,    down:0,    destroy:0},
+    {success:0.85, fail:0.15, down:0,    destroy:0},
+    {success:0.65, fail:0.25, down:0.10, destroy:0},
+    {success:0.45, fail:0.25, down:0.20, destroy:0.10},
+    {success:0.30, fail:0.20, down:0.30, destroy:0.20},
+    {success:0.15, fail:0.20, down:0.30, destroy:0.35}
+  ];
+  var TIER_TITLE = ["평범한 철검","은빛으로 빛나는 검","푸른 기운이 감도는 검","보랏빛 마검","황금빛 신검","전설의 무지개 검"];
+
+  function tierIndex(level){
+    if(level < 4) return 0;
+    if(level < 7) return 1;
+    if(level < 10) return 2;
+    if(level < 13) return 3;
+    if(level < 16) return 4;
+    return 5;
+  }
+
+  /* ===================== 상태 ===================== */
+  var state = {
+    level:0,
+    maxLevel:0,
+    correct:0,
+    gold:START_GOLD,
+    locked:false,
+    currentTierIdx:0,
+    currentProblem:null,
+    lastQ:null
+  };
+
+  /* ===================== DOM ===================== */
+  var $ = function(id){ return document.getElementById(id); };
+  var stageEl = $("stage");
+  var swordBox = $("swordBox");
+  var levelBadge = $("levelBadge");
+  var tierLabel = $("tierLabel");
+  var legendName = $("legendName");
+  var resultMsg = $("resultMsg");
+  var statLevel = $("statLevel");
+  var statMax = $("statMax");
+  var statCorrect = $("statCorrect");
+  var statGold = $("statGold");
+  var successReadout = $("successReadout");
+  var probPanel = $("probPanel");
+  var enhanceBtn = $("enhanceBtn");
+  var sellBtn = $("sellBtn");
+  var costLine = $("costLine");
+  var resetBtn = $("resetBtn");
+  var ruleBtn = $("ruleBtn");
+  var rulePanel = $("rulePanel");
+  var modalBack = $("modalBack");
+  var unitTag = $("unitTag");
+  var qText = $("qText");
+  var choiceArea = $("choiceArea");
+  var qFeedback = $("qFeedback");
+  var nameInput = $("nameInput");
+  var submitScoreBtn = $("submitScoreBtn");
+  var lbMsg = $("lbMsg");
+  var refreshBtn = $("refreshBtn");
+  var lbBody = $("lbBody");
+
+  /* ===================== 사운드 (Web Audio, 외부 파일 없음) ===================== */
+  var actx = null;
+  function tone(freqs, dur, type){
+    try{
+      if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)();
+      var t0 = actx.currentTime;
+      freqs.forEach(function(f, i){
+        var o = actx.createOscillator();
+        var g = actx.createGain();
+        o.type = type||"sine";
+        o.frequency.value = f;
+        g.gain.value = 0.0001;
+        o.connect(g); g.connect(actx.destination);
+        var start = t0 + i*0.08;
+        g.gain.exponentialRampToValueAtTime(0.18, start+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start+dur);
+        o.start(start);
+        o.stop(start+dur+0.05);
+      });
+    }catch(e){ /* 오디오 미지원 브라우저: 무시 */ }
+  }
+  function playSound(kind){
+    if(kind==="success") tone([523,659,784], 0.35, "triangle");
+    else if(kind==="fail") tone([300,260], 0.3, "sine");
+    else if(kind==="down") tone([260,220,180], 0.35, "sawtooth");
+    else if(kind==="destroy") tone([200,150,100,70], 0.5, "square");
+    else if(kind==="correct") tone([700], 0.15, "sine");
+    else if(kind==="wrong") tone([180], 0.2, "sine");
+  }
+
+  /* ===================== 파티클 ===================== */
+  function spawnParticles(kind){
+    var colors = kind==="destroy" ? ["#e5534b","#ffb020","#888"] : ["#ffe08a","#ffd23f","#fff5c2"];
+    for(var i=0;i<14;i++){
+      var p = document.createElement("div");
+      p.className = "particle";
+      var size = 4 + Math.random()*5;
+      p.style.width = size+"px";
+      p.style.height = size+"px";
+      p.style.background = colors[Math.floor(Math.random()*colors.length)];
+      p.style.left = (70 + Math.random()*40 - 20)+"px";
+      p.style.top = (100 + Math.random()*40)+"px";
+      p.style.setProperty("--dx",(Math.random()*100-50)+"px");
+      swordBox.appendChild(p);
+      (function(el){ setTimeout(function(){ el.remove(); }, 1050); })(p);
+    }
+  }
+
+  /* ===================== 렌더링 ===================== */
+  function render(){
+    var tIdx = tierIndex(state.level);
+    state.currentTierIdx = tIdx;
+    stageEl.className = "panel stage tier-"+tIdx;
+    levelBadge.textContent = "+"+state.level;
+    tierLabel.textContent = TIER_TITLE[tIdx];
+    statLevel.textContent = state.level;
+    statMax.textContent = state.maxLevel;
+    statCorrect.textContent = state.correct;
+    statGold.textContent = state.gold;
+
+    var p = PROB[tIdx];
+    var successPct = Math.round(p.success*100);
+    var cost = enhanceCost(state.level);
+
+    successReadout.textContent = "이번 강화 성공 확률: "+successPct+"%";
+
+    var chips = "";
+    chips += '<span class="prob-chip success">성공 '+successPct+'%</span>';
+    if(p.fail>0) chips += '<span class="prob-chip fail">변화없음 '+Math.round(p.fail*100)+'%</span>';
+    if(p.down>0) chips += '<span class="prob-chip down">하락 '+Math.round(p.down*100)+'%</span>';
+    if(p.destroy>0) chips += '<span class="prob-chip destroy">파괴 '+Math.round(p.destroy*100)+'%</span>';
+    probPanel.innerHTML = chips;
+
+    enhanceBtn.textContent = "🗡️ 문제 풀고 강화하기 (비용 "+cost+"골드 · 성공률 "+successPct+"%)";
+
+    if(state.level>0){
+      sellBtn.textContent = "💰 검 판매 (+"+sellValue(state.level)+"골드)";
+      sellBtn.disabled = false;
+    } else {
+      sellBtn.textContent = "💰 검 판매";
+      sellBtn.disabled = true;
+    }
+  }
+
+  function setResultMsg(text, cls){
+    resultMsg.textContent = text;
+    resultMsg.className = "result-msg"+(cls?" "+cls:"");
+  }
+
+  /* ===================== 문제 로직 ===================== */
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
+
+  function pickProblem(){
+    var letter = TIER_ORDER[state.currentTierIdx];
+    var bank = BANK[letter];
+    var list = bank.list;
+    var idx = Math.floor(Math.random()*list.length);
+    // 바로 직전과 같은 문제면 한 번 더 뽑기(가능한 범위에서)
+    if(state.lastQ && state.lastQ.letter===letter && list.length>1){
+      var tries=0;
+      while(idx===state.lastQ.idx && tries<5){ idx = Math.floor(Math.random()*list.length); tries++; }
+    }
+    var raw = list[idx];
+    var order = shuffle([0,1,2,3]);
+    var choices = order.map(function(oi){ return raw.choices[oi]; });
+    var answerPos = order.indexOf(raw.answer);
+    state.lastQ = {letter:letter, idx:idx};
+    return { unit: bank.name, q: raw.q, choices: choices, answerPos: answerPos };
+  }
+
+  function openQuestion(){
+    if(state.locked) return;
+    state.currentProblem = pickProblem();
+    var prob = state.currentProblem;
+    var p = PROB[state.currentTierIdx];
+    var cost = enhanceCost(state.level);
+    unitTag.textContent = prob.unit;
+    costLine.innerHTML = "정답을 맞히면 <b>"+cost+"골드</b>를 내고 강화를 시도합니다 (성공률 <b>"+Math.round(p.success*100)+"%</b>)";
+    qText.textContent = prob.q;
+    qFeedback.textContent = "";
+    choiceArea.innerHTML = "";
+    prob.choices.forEach(function(text, i){
+      var b = document.createElement("button");
+      b.className = "choice-btn";
+      b.textContent = text;
+      b.onclick = function(){ answerQuestion(i, b); };
+      choiceArea.appendChild(b);
+    });
+    modalBack.classList.add("open");
+  }
+
+  function closeModal(){ modalBack.classList.remove("open"); }
+
+  function answerQuestion(i, btnEl){
+    var prob = state.currentProblem;
+    var buttons = choiceArea.querySelectorAll(".choice-btn");
+    buttons.forEach(function(b){ b.onclick = null; b.style.opacity = "0.85"; });
+
+    if(i === prob.answerPos){
+      btnEl.classList.add("correct");
+      qFeedback.textContent = "정답입니다! 강화를 시도합니다...";
+      qFeedback.style.color = "var(--good)";
+      playSound("correct");
+      state.correct++;
+      setTimeout(function(){
+        closeModal();
+        resolveEnhance();
+      }, 550);
+    } else {
+      btnEl.classList.add("wrong");
+      buttons[prob.answerPos].classList.add("correct");
+      qFeedback.textContent = "오답입니다. 다른 문제로 다시 도전해보세요!";
+      qFeedback.style.color = "var(--bad)";
+      playSound("wrong");
+      setTimeout(function(){
+        openQuestion();
+      }, 950);
+    }
+  }
+
+  /* ===================== 강화 로직 ===================== */
+  function resolveEnhance(){
+    var cost = enhanceCost(state.level);
+    state.gold = Math.max(0, state.gold - cost);
+    var p = PROB[state.currentTierIdx];
+    var r = Math.random();
+    var outcome;
+    if(r < p.success) outcome = "success";
+    else if(r < p.success+p.fail) outcome = "fail";
+    else if(r < p.success+p.fail+p.down) outcome = "down";
+    else outcome = "destroy";
+
+    if(outcome==="success"){
+      state.level++;
+      if(state.level>state.maxLevel) state.maxLevel=state.level;
+      setResultMsg("✨ +"+state.level+" 강화 성공! (-"+cost+"골드)", "success");
+      swordBox.parentElement.classList.add("anim-success");
+      playSound("success");
+      spawnParticles("success");
+    } else if(outcome==="fail"){
+      setResultMsg("변화가 없습니다... (-"+cost+"골드)", "fail");
+      playSound("fail");
+    } else if(outcome==="down"){
+      state.level = Math.max(0, state.level-1);
+      setResultMsg("강화에 실패하여 단계가 하락했습니다. (-"+cost+"골드)", "down");
+      swordBox.parentElement.classList.add("anim-down");
+      playSound("down");
+    } else {
+      state.level = 0;
+      setResultMsg("💥 검이 파괴되었습니다! 0단계로 초기화됩니다. (-"+cost+"골드)", "destroy");
+      swordBox.parentElement.classList.add("anim-destroy");
+      playSound("destroy");
+      spawnParticles("destroy");
+    }
+    render();
+    setTimeout(function(){
+      swordBox.parentElement.classList.remove("anim-success","anim-down","anim-destroy");
+    }, 900);
+    saveLocalBest();
+  }
+
+  /* ===================== 로컬 저장 (기기 안 최고기록, 서버 실패 대비) ===================== */
+  function saveLocalBest(){
+    try{
+      localStorage.setItem("sword_enhance_my_best", String(state.maxLevel));
+    }catch(e){}
+  }
+
+  /* ===================== 리더보드 ===================== */
+  function showLbMsg(text, cls){
+    lbMsg.textContent = text;
+    lbMsg.className = "lb-msg"+(cls?" "+cls:"");
+  }
+
+  function renderLeaderboardRows(rows){
+    if(!rows || rows.length===0){
+      lbBody.innerHTML = '<tr><td colspan="3" style="color:var(--sub);">등록된 기록이 없습니다.</td></tr>';
+      return;
+    }
+    var html = "";
+    rows.slice(0,10).forEach(function(r, i){
+      html += "<tr><td>"+(i+1)+"</td><td>"+escapeHtml(r.name)+"</td><td>+"+r.score+"</td></tr>";
+    });
+    lbBody.innerHTML = html;
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  function normalizeRows(data){
+    var arr = Array.isArray(data) ? data : (data && (data.rows||data.data||data.records||data.list)) || [];
+    var rows = arr.map(function(r){
+      var name = r.name || r.이름 || r.player || r.닉네임 || "-";
+      var scoreRaw = r.score!==undefined?r.score : (r.점수!==undefined?r.점수 : r.level);
+      var gameField = r.game || r.게임;
+      return { name:name, score:Number(scoreRaw), game:gameField };
+    }).filter(function(r){ return !isNaN(r.score); });
+
+    var filtered = rows.filter(function(r){ return !r.game || r.game===GAME_KEY; });
+    var finalRows = filtered.length>0 ? filtered : rows;
+    finalRows.sort(function(a,b){ return b.score-a.score; });
+    return finalRows;
+  }
+
+  function loadLeaderboard(){
+    lbBody.innerHTML = '<tr><td colspan="3" style="color:var(--sub);">불러오는 중...</td></tr>';
+    var url = LEADERBOARD_URL + "?game=" + encodeURIComponent(GAME_KEY) + "&t=" + Date.now();
+    fetch(url, { method:"GET" })
+      .then(function(res){ return res.text(); })
+      .then(function(text){
+        var data;
+        try{ data = JSON.parse(text); }catch(e){ throw new Error("응답이 JSON 형식이 아닙니다."); }
+        renderLeaderboardRows(normalizeRows(data));
+      })
+      .catch(function(err){
+        lbBody.innerHTML = '<tr><td colspan="3" style="color:var(--bad);">순위표를 불러오지 못했습니다.</td></tr>';
+      });
+  }
+
+  function submitScore(){
+    var name = (nameInput.value||"").trim();
+    if(!name){
+      showLbMsg("이름을 입력해주세요.", "error");
+      return;
+    }
+    if(state.maxLevel<=0){
+      showLbMsg("먼저 검을 한 단계 이상 강화한 뒤 등록해주세요.", "error");
+      return;
+    }
+    submitScoreBtn.disabled = true;
+    showLbMsg("등록 중입니다...", "");
+    var payload = {
+      game: GAME_KEY, 게임: GAME_KEY,
+      name: name, 이름: name,
+      score: state.maxLevel, 점수: state.maxLevel,
+      correct: state.correct, 정답수: state.correct,
+      date: new Date().toISOString()
+    };
+    fetch(LEADERBOARD_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function(){
+      showLbMsg("등록 요청을 보냈습니다. 잠시 후 새로고침 해보세요!", "ok");
+      setTimeout(loadLeaderboard, 1200);
+    }).catch(function(){
+      showLbMsg("순위표 서버에 연결하지 못했습니다. 인터넷 연결을 확인해주세요.", "error");
+    }).finally(function(){
+      submitScoreBtn.disabled = false;
+    });
+  }
+
+  /* ===================== 강화 시도 전 골드 확인 ===================== */
+  function tryStartEnhance(){
+    var cost = enhanceCost(state.level);
+    if(state.gold >= cost){
+      openQuestion();
+      return;
+    }
+    // 0강인데 가장 싼 강화 비용도 못 낼 만큼 골드가 없으면(막힘 방지) 최소 지원금 지급
+    var floor = enhanceCost(0) * 3;
+    if(state.level===0 && state.gold < enhanceCost(0)){
+      state.gold = floor;
+      setResultMsg("골드가 부족하여 기본 지원금 "+floor+"골드를 지급했습니다.", "");
+      render();
+      return;
+    }
+    setResultMsg("골드가 부족합니다! (필요 "+cost+"골드 · 보유 "+state.gold+"골드) 검을 판매하거나 골드를 모아보세요.", "fail");
+  }
+
+  /* ===================== 검 판매 ===================== */
+  var sellConfirmMode = false;
+  function sellSword(){
+    if(state.level<=0) return;
+    if(!sellConfirmMode){
+      sellConfirmMode = true;
+      sellBtn.textContent = "정말 판매할까요? (다시 클릭)";
+      setTimeout(function(){
+        sellConfirmMode = false;
+        render();
+      }, 3000);
+      return;
+    }
+    sellConfirmMode = false;
+    var gain = sellValue(state.level);
+    state.gold += gain;
+    setResultMsg("검을 판매하여 "+gain+"골드를 받았습니다! (최고 기록은 유지됩니다)", "success");
+    state.level = 0;
+    render();
+  }
+
+  /* ===================== 이벤트 연결 ===================== */
+  enhanceBtn.addEventListener("click", tryStartEnhance);
+  sellBtn.addEventListener("click", sellSword);
+  modalBack.addEventListener("click", function(e){ if(e.target===modalBack){ /* 배경 클릭으로 닫지 않음: 문제 풀이 유도 */ } });
+
+  ruleBtn.addEventListener("click", function(){
+    rulePanel.style.display = rulePanel.style.display==="none" ? "block" : "none";
+  });
+
+  var resetConfirmMode = false;
+  resetBtn.addEventListener("click", function(){
+    if(!resetConfirmMode){
+      resetConfirmMode = true;
+      resetBtn.textContent = "정말 초기화할까요? (다시 클릭)";
+      setTimeout(function(){
+        resetConfirmMode = false;
+        resetBtn.textContent = "처음부터";
+      }, 3000);
+      return;
+    }
+    resetConfirmMode = false;
+    resetBtn.textContent = "처음부터";
+    state.level=0; state.maxLevel=0; state.correct=0; state.gold=START_GOLD; state.lastQ=null;
+    setResultMsg("게임을 새로 시작합니다.", "");
+    render();
+  });
+
+  submitScoreBtn.addEventListener("click", submitScore);
+  refreshBtn.addEventListener("click", loadLeaderboard);
+
+  /* ===================== 초기화 ===================== */
+  render();
+  loadLeaderboard();
+
+})();
+</script>
+</body>
+</html>
