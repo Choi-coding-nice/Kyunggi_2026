@@ -1,0 +1,744 @@
+<title>곱함수 연속 탐구실</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#eef1f6;
+    --surface:#ffffff;
+    --surface-2:#f6f8fb;
+    --ink:#1b2430;
+    --muted:#5b6675;
+    --border:#d9dee6;
+    --grid:#e2e7ee;
+    --axis:#8a93a3;
+    --accent:#3457d5;
+    --accent-soft:#e8ecfb;
+    --good:#1a8f63;
+    --good-soft:#e3f6ee;
+    --bad:#c93b4f;
+    --bad-soft:#fbe7ea;
+    --curve-f:#2f5fd6;
+    --curve-fk:#d97f16;
+    --curve-h:#1a8f63;
+    --console-bg:#1c2333;
+    --console-ink:#eef1f8;
+    --console-muted:#a6b0c3;
+    --console-border:#333d54;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12151c;
+      --surface:#1a1f2b;
+      --surface-2:#151a24;
+      --ink:#e7eaf1;
+      --muted:#9aa3b5;
+      --border:#2b3242;
+      --grid:#242c3b;
+      --axis:#7d879b;
+      --accent:#7d9bff;
+      --accent-soft:#20273c;
+      --good:#4fd3a0;
+      --good-soft:#173327;
+      --bad:#ff8a97;
+      --bad-soft:#3a1c22;
+      --curve-f:#7d9bff;
+      --curve-fk:#f2a63f;
+      --curve-h:#4fd3a0;
+      --console-bg:#0d1119;
+      --console-ink:#eef1f8;
+      --console-muted:#8b95a9;
+      --console-border:#2a3245;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12151c;
+    --surface:#1a1f2b;
+    --surface-2:#151a24;
+    --ink:#e7eaf1;
+    --muted:#9aa3b5;
+    --border:#2b3242;
+    --grid:#242c3b;
+    --axis:#7d879b;
+    --accent:#7d9bff;
+    --accent-soft:#20273c;
+    --good:#4fd3a0;
+    --good-soft:#173327;
+    --bad:#ff8a97;
+    --bad-soft:#3a1c22;
+    --curve-f:#7d9bff;
+    --curve-fk:#f2a63f;
+    --curve-h:#4fd3a0;
+    --console-bg:#0d1119;
+    --console-ink:#eef1f8;
+    --console-muted:#8b95a9;
+    --console-border:#2a3245;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Serif KR", serif;
+    font-size:16px;
+    line-height:1.7;
+    padding:0 18px;
+    padding-block:28px 60px;
+  }
+  .wrap{max-width:840px;margin:0 auto;display:flex;flex-direction:column;gap:26px;}
+
+  h1,h2,h3,.disp{font-family:"IBM Plex Sans KR",sans-serif;text-wrap:balance;}
+  .mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;}
+
+  header.top{display:flex;flex-direction:column;gap:6px;padding-block:4px 2px;}
+  .eyebrow{font-family:"IBM Plex Sans KR",sans-serif;font-size:12.5px;letter-spacing:.08em;color:var(--accent);font-weight:600;text-transform:uppercase;}
+  h1{font-size:1.7rem;font-weight:700;margin:0;color:var(--ink);}
+  .sub{color:var(--muted);font-family:"IBM Plex Sans KR",sans-serif;font-size:.92rem;}
+
+  section.card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px 22px 24px;
+  }
+  section.card > h2{
+    font-size:1.05rem;font-weight:600;margin:0 0 12px;
+    display:flex;align-items:center;gap:8px;color:var(--ink);
+  }
+  section.card > h2 .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:6px;background:var(--accent-soft);
+    color:var(--accent);font-size:.72rem;font-weight:700;font-family:"IBM Plex Mono",monospace;
+  }
+
+  .problem-box{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+    padding:16px 18px;font-size:.96rem;
+  }
+  .problem-box .fx{
+    font-family:"IBM Plex Mono",monospace;background:var(--accent-soft);
+    border-radius:8px;padding:10px 14px;margin:10px 0;color:var(--ink);font-size:.9rem;
+    overflow-x:auto;
+  }
+  .cond-list{margin:8px 0 0;padding-left:1.1em;}
+  .cond-list li{margin-bottom:3px;}
+  .ask{margin-top:10px;font-weight:600;color:var(--accent);font-family:"IBM Plex Sans KR",sans-serif;font-size:.92rem;}
+
+  .idea-box{
+    background:var(--accent-soft);border:1px solid var(--border);border-radius:10px;
+    padding:16px 18px;font-size:.95rem;
+  }
+  .idea-box strong{color:var(--accent);}
+
+  .mini-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;}
+  .mini{flex:1 1 150px;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 10px 10px;}
+  .mini .cap{font-family:"IBM Plex Sans KR",sans-serif;font-size:.74rem;color:var(--muted);text-align:center;margin-top:2px;}
+  .mini svg{width:100%;height:auto;display:block;}
+
+  .mistake-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .mistake-list li{
+    display:flex;gap:10px;align-items:flex-start;font-size:.94rem;
+    background:var(--bad-soft);border:1px solid var(--border);border-radius:9px;padding:10px 12px;
+  }
+  .mistake-list li .x{
+    flex:none;width:20px;height:20px;border-radius:50%;background:var(--bad);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;margin-top:2px;
+    font-family:"IBM Plex Sans KR",sans-serif;
+  }
+
+  /* ---- interactive console ---- */
+  .console{
+    background:var(--console-bg);color:var(--console-ink);
+    border-radius:12px;padding:18px 18px 20px;border:1px solid var(--console-border);
+  }
+  .console h2{color:var(--console-ink);}
+  .console h2 .num{background:rgba(125,155,255,.18);color:#9db3ff;}
+
+  .presets{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .btn{
+    font-family:"IBM Plex Sans KR",sans-serif;font-size:.82rem;font-weight:600;
+    border-radius:8px;padding:9px 14px;border:1px solid var(--console-border);
+    background:#232a3c;color:var(--console-ink);cursor:pointer;transition:background .15s,transform .1s;
+  }
+  .btn:hover{background:#2a3348;}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:linear-gradient(135deg,#3457d5,#2c46ad);border-color:#3457d5;}
+  .btn.primary:hover{background:linear-gradient(135deg,#3e63e6,#3453bd);}
+  .btn.ghost{background:transparent;}
+  .btn:focus-visible{outline:2px solid #7d9bff;outline-offset:2px;}
+
+  .sliders{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+  @media (max-width:560px){ .sliders{grid-template-columns:1fr;} }
+  .slider-cell{background:#eef1f8;border:1px solid var(--console-border);border-radius:10px;padding:10px 12px 12px;}
+  .slider-cell .lbl{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:"IBM Plex Sans KR",sans-serif;font-size:.82rem;color:#111318;margin-bottom:6px;
+  }
+  .slider-cell .lbl b{font-family:"IBM Plex Mono",monospace;color:#000;font-size:1.05rem;font-weight:700;}
+  input[type="range"]{
+    width:100%;accent-color:#7d9bff;height:22px;background:transparent;cursor:pointer;
+  }
+
+  .readout{
+    font-family:"IBM Plex Mono",monospace;font-size:.84rem;color:var(--console-muted);
+    text-align:center;min-height:1.3em;margin-bottom:8px;
+  }
+  .readout b{color:var(--console-ink);}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-family:"IBM Plex Sans KR",sans-serif;font-size:.78rem;color:var(--console-muted);margin-bottom:6px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .legend i{width:16px;height:3px;border-radius:2px;display:inline-block;}
+
+  .graph-panel{background:var(--console-bg);border:1px solid var(--console-border);border-radius:10px;padding:6px 4px 2px;margin-bottom:10px;}
+  .graph-panel svg{width:100%;height:auto;display:block;touch-action:pan-y;}
+  .graph-caption{font-family:"IBM Plex Sans KR",sans-serif;font-size:.74rem;color:var(--console-muted);text-align:center;padding:6px 4px 2px;}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px;}
+  .chip{
+    font-family:"IBM Plex Mono",monospace;font-size:.8rem;border-radius:20px;padding:6px 12px;
+    display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;
+  }
+  .chip.ok{background:rgba(79,211,160,.15);color:#7fe3bd;border-color:rgba(79,211,160,.35);}
+  .chip.bad{background:rgba(255,138,151,.15);color:#ffaab3;border-color:rgba(255,138,151,.35);}
+
+  .status-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;}
+  .status-pill{
+    flex:1 1 220px;font-family:"IBM Plex Sans KR",sans-serif;font-size:.82rem;
+    border-radius:9px;padding:9px 12px;border:1px solid var(--console-border);background:#20263659;
+  }
+  .status-pill b{font-family:"IBM Plex Mono",monospace;}
+
+  .banner{
+    margin-top:14px;border-radius:10px;padding:14px 16px;font-family:"IBM Plex Sans KR",sans-serif;
+    font-size:.9rem;line-height:1.55;
+  }
+  .banner.win{background:rgba(79,211,160,.14);border:1px solid rgba(79,211,160,.4);color:#c9f5e3;}
+  .banner.warn{background:rgba(242,166,63,.14);border:1px solid rgba(242,166,63,.4);color:#ffdba8;}
+  .banner.neutral{background:rgba(125,155,255,.12);border:1px solid rgba(125,155,255,.35);color:#cdd8ff;}
+  .banner .big{font-family:"IBM Plex Mono",monospace;font-size:1.05rem;font-weight:600;display:block;margin-top:4px;}
+
+  /* ---- recap table ---- */
+  table.recap{width:100%;border-collapse:collapse;font-size:.88rem;font-family:"IBM Plex Sans KR",sans-serif;}
+  table.recap th,table.recap td{border-bottom:1px solid var(--border);padding:9px 8px;text-align:left;vertical-align:top;}
+  table.recap th{color:var(--muted);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;}
+  table.recap td.mono, table.recap th.mono{font-family:"IBM Plex Mono",monospace;}
+  table.recap tr.pass td{color:var(--good);font-weight:600;}
+  table.recap tr.fail td.verdict{color:var(--bad);font-weight:600;}
+  .tbl-wrap{overflow-x:auto;}
+
+  .final-answer{
+    margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+    background:var(--good-soft);border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  }
+  .final-answer .eq{font-family:"IBM Plex Mono",monospace;font-size:1.05rem;color:var(--ink);}
+  .final-answer .val{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;font-size:1.6rem;color:var(--good);}
+
+  footer{text-align:center;color:var(--muted);font-family:"IBM Plex Sans KR",sans-serif;font-size:.76rem;padding-top:6px;}
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <span class="eyebrow">2024년 7월 학력평가 · 수학 22번</span>
+    <h1>f(x)f(x+k)가 연속이 되는 순간</h1>
+    <span class="sub">그래프를 직접 움직여 보면서, 곱해진 함수가 왜 연속이 되는지 눈으로 확인해 봅니다.</span>
+  </header>
+
+  <section class="card">
+    <h2><span class="num">1</span>문제</h2>
+    <div class="problem-box">
+      두 자연수 <i>a</i>, <i>b</i> (<span class="mono">a &lt; b &lt; 8</span>)에 대하여 함수 <i>f</i>(<i>x</i>)는
+      <div class="fx">
+        f(x) =&nbsp; |x+3| − 1  &nbsp;(x &lt; a)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x − 10 &nbsp;&nbsp;&nbsp;&nbsp;(a ≤ x &lt; b)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |x−9| − 1 &nbsp;(x ≥ b)
+      </div>
+      이다. 함수 f(x)와 양수 k는 다음 조건을 만족시킨다.
+      <ul class="cond-list">
+        <li>(가) 함수 f(x)f(x+k)는 실수 전체의 집합에서 연속이다.</li>
+        <li>(나) f(k) &lt; 0</li>
+      </ul>
+      <div class="ask">f(a) × f(b) × f(k)의 값을 구하시오.</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">2</span>핵심 아이디어</h2>
+    <div class="idea-box">
+      <strong>곱이 연속이라고 해서 두 함수가 각각 연속인 것은 아닙니다.</strong>
+      한 함수가 어떤 점에서 뚝 끊어지더라도(불연속), 바로 그 점에서 <strong>다른 함수의 값이 0</strong>이면
+      곱은 “(어떤 값) × 0 = 0”이 되어 양쪽 극한이 모두 0으로 같아집니다 — 즉 곱은 연속이 됩니다.
+      아래의 아주 작은 예로 먼저 확인해 봅시다.
+    </div>
+    <div class="mini-row">
+      <div class="mini">
+        <svg viewBox="0 0 150 120">
+          <line x1="10" y1="60" x2="140" y2="60" stroke="var(--axis)" stroke-width="1"/>
+          <line x1="75" y1="10" x2="75" y2="110" stroke="var(--axis)" stroke-width="1"/>
+          <line x1="10" y1="80" x2="75" y2="80" stroke="var(--curve-fk)" stroke-width="2.4"/>
+          <circle cx="75" cy="80" r="3.6" fill="var(--surface)" stroke="var(--curve-fk)" stroke-width="2"/>
+          <line x1="75" y1="35" x2="140" y2="35" stroke="var(--curve-fk)" stroke-width="2.4"/>
+          <circle cx="75" cy="35" r="3.6" fill="var(--curve-fk)"/>
+        </svg>
+        <div class="cap">u(x): x=0에서 점프 (불연속)</div>
+      </div>
+      <div class="mini">
+        <svg viewBox="0 0 150 120">
+          <line x1="10" y1="60" x2="140" y2="60" stroke="var(--axis)" stroke-width="1"/>
+          <line x1="75" y1="10" x2="75" y2="110" stroke="var(--axis)" stroke-width="1"/>
+          <line x1="10" y1="100" x2="140" y2="20" stroke="var(--curve-f)" stroke-width="2.4"/>
+          <circle cx="75" cy="60" r="3.2" fill="var(--curve-f)"/>
+        </svg>
+        <div class="cap">v(x)=x: v(0)=0인 연속함수</div>
+      </div>
+      <div class="mini">
+        <svg viewBox="0 0 150 120">
+          <line x1="10" y1="60" x2="140" y2="60" stroke="var(--axis)" stroke-width="1"/>
+          <line x1="75" y1="10" x2="75" y2="110" stroke="var(--axis)" stroke-width="1"/>
+          <line x1="10" y1="100" x2="75" y2="60" stroke="var(--curve-h)" stroke-width="2.6"/>
+          <line x1="75" y1="60" x2="140" y2="8" stroke="var(--curve-h)" stroke-width="2.6"/>
+          <circle cx="75" cy="60" r="3.6" fill="var(--curve-h)"/>
+        </svg>
+        <div class="cap">w=u×v: x=0에서 이어짐! (연속)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">3</span>이런 실수 조심</h2>
+    <ul class="mistake-list">
+      <li><span class="x">1</span>“곱이 연속이면 f(x), f(x+k)도 각각 연속이어야 한다”고 생각하는 것 — 오히려 이 문제의 핵심은 <b>둘 다 불연속이어도 곱은 연속</b>일 수 있다는 점입니다.</li>
+      <li><span class="x">2</span>조건 (가)만 확인하고 답을 정하는 것 — 연속 조건을 만족하는 (a, b, k)가 두 가지 나오는데, <b>조건 (나) f(k)&lt;0</b>까지 반드시 확인해야 진짜 답이 걸러집니다.</li>
+      <li><span class="x">3</span><span class="mono">a &lt; b &lt; 8</span>인 자연수라는 정의역 제한을 잊는 것 — 아래 탐구에서 슬라이더 범위도 이 조건 안에서만 움직입니다.</li>
+    </ul>
+  </section>
+
+  <section class="console card">
+    <h2><span class="num">4</span>직접 탐구하기 — a, b, k를 움직여 보세요</h2>
+
+    <div class="presets">
+      <button class="btn ghost" id="btnReset" type="button">초기화</button>
+      <button class="btn" id="btnCand1" type="button">후보 1 : a=2, b=4, k=6</button>
+      <button class="btn primary" id="btnCand2" type="button">후보 2 (정답 후보) : a=2, b=6, k=4</button>
+    </div>
+
+    <div class="sliders">
+      <div class="slider-cell">
+        <div class="lbl"><span>a (자연수)</span><b id="valA">1</b></div>
+        <input type="range" id="sliderA" min="1" max="6" step="1" value="1">
+      </div>
+      <div class="slider-cell">
+        <div class="lbl"><span>b (자연수, a&lt;b&lt;8)</span><b id="valB">3</b></div>
+        <input type="range" id="sliderB" min="2" max="7" step="1" value="3">
+      </div>
+      <div class="slider-cell">
+        <div class="lbl"><span>k (양수)</span><b id="valK">2</b></div>
+        <input type="range" id="sliderK" min="1" max="8" step="1" value="2">
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i style="background:var(--curve-f)"></i> f(x)</span>
+      <span><i style="background:var(--curve-fk)"></i> f(x+k)</span>
+      <span><i style="background:var(--curve-h)"></i> h(x) = f(x) × f(x+k)</span>
+    </div>
+
+    <div class="readout" id="hoverReadout">그래프를 마우스로 가리키면 그 점의 값이 여기에 표시됩니다.</div>
+
+    <div class="graph-panel">
+      <svg id="topSvg" viewBox="0 0 760 300"></svg>
+    </div>
+    <div class="graph-caption">위: f(x)와 f(x+k) — 빈 원은 “다가가지만 닿지 않는 값”, 채운 원은 “실제 함숫값”</div>
+
+    <div class="graph-panel">
+      <svg id="bottomSvg" viewBox="0 0 760 210"></svg>
+    </div>
+    <div class="graph-caption">아래: 곱함수 h(x) = f(x) × f(x+k) — 이 그래프가 끊김 없이 이어지는지가 조건 (가)입니다</div>
+
+    <div class="chips" id="chipRow"></div>
+
+    <div class="status-row">
+      <div class="status-pill">f(k) = <b id="fkVal">-</b></div>
+      <div class="status-pill">조건 (나) f(k) &lt; 0 ? <b id="condNa">-</b></div>
+    </div>
+
+    <div class="banner neutral" id="banner"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="num">5</span>정리 — 두 후보 중 진짜 답은?</h2>
+    <p style="font-size:.94rem;margin-top:0;">
+      조건 (가)를 분석하면 연속을 만족시키는 (a, b, k)의 조합이 두 가지로 좁혀집니다. 위 탐구실의
+      <b>후보 1</b>, <b>후보 2</b> 버튼을 눌러 두 조합 모두 실제로 연속이 되는 것을 직접 확인해 보세요.
+      그런 다음 조건 (나)로 최종 선택합니다.
+    </p>
+    <div class="tbl-wrap">
+      <table class="recap">
+        <thead>
+          <tr><th>후보</th><th class="mono">(a, b, k)</th><th class="mono">조건 (가)</th><th class="mono">f(k)</th><th>조건 (나)</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>후보 1</td><td class="mono">(2, 4, 6)</td><td class="mono">연속 ✓</td>
+            <td class="mono">f(6) = 2</td><td>2 &lt; 0 ? ✗</td><td class="verdict">기각</td>
+          </tr>
+          <tr class="pass">
+            <td>후보 2</td><td class="mono">(2, 6, 4)</td><td class="mono">연속 ✓</td>
+            <td class="mono">f(4) = −6</td><td>−6 &lt; 0 ✓</td><td class="verdict">채택</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="final-answer">
+      <div class="eq">f(2) × f(6) × f(4) &nbsp;=&nbsp; (−8) × 2 × (−6)</div>
+      <div class="val">= 96</div>
+    </div>
+  </section>
+
+  <footer>미적분 학습지 Ⅰ-9 · 6번 문제 풀이 보조 자료</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const DOMAIN_MIN = -9, DOMAIN_MAX = 13;
+  const EPS = 0.02, TOL = 0.05;
+
+  function fBase(x,a,b){
+    if(x < a) return Math.abs(x+3)-1;
+    if(x < b) return x-10;
+    return Math.abs(x-9)-1;
+  }
+  function fShift(x,a,b,k){ return fBase(x+k,a,b); }
+  function hFn(x,a,b,k){ return fBase(x,a,b)*fShift(x,a,b,k); }
+
+  function critPoints(a,b,k){
+    const raw=[{v:a-k,l:'a−k'},{v:a,l:'a'},{v:b-k,l:'b−k'},{v:b,l:'b'}];
+    raw.sort((p,q)=>p.v-q.v);
+    const groups=[];
+    raw.forEach(p=>{
+      const last=groups[groups.length-1];
+      if(last && Math.abs(last.v-p.v)<1e-9){ last.labels.push(p.l); }
+      else groups.push({v:p.v, labels:[p.l]});
+    });
+    return groups.filter(g=>g.v>DOMAIN_MIN+0.05 && g.v<DOMAIN_MAX-0.05);
+  }
+
+  function buildSegments(fn, breakpoints){
+    const inner = breakpoints.filter(v=>v>DOMAIN_MIN && v<DOMAIN_MAX).sort((p,q)=>p-q);
+    const edges=[DOMAIN_MIN];
+    inner.forEach(v=>{ if(Math.abs(edges[edges.length-1]-v)>1e-9) edges.push(v); });
+    edges.push(DOMAIN_MAX);
+    const segments=[];
+    for(let i=0;i<edges.length-1;i++){
+      const lo=edges[i], hi=edges[i+1];
+      const isRightEdge = (i===edges.length-2);
+      const hiSample = isRightEdge ? hi : hi-EPS;
+      const n=48;
+      const pts=[];
+      for(let j=0;j<=n;j++){
+        const x=lo+(hiSample-lo)*j/n;
+        pts.push([x, fn(x)]);
+      }
+      segments.push(pts);
+    }
+    return segments;
+  }
+
+  function buildMarkers(fn, breakpoints){
+    const markers=[];
+    breakpoints.forEach(p=>{
+      if(p<=DOMAIN_MIN || p>=DOMAIN_MAX) return;
+      const leftVal = fn(p-EPS);
+      const rightVal = fn(p);
+      markers.push({x:p, y:leftVal, filled:false});
+      markers.push({x:p, y:rightVal, filled:true});
+    });
+    return markers;
+  }
+
+  function sampleRange(fns){
+    let lo=Infinity, hi=-Infinity;
+    const N=400;
+    for(let i=0;i<=N;i++){
+      const x=DOMAIN_MIN+(DOMAIN_MAX-DOMAIN_MIN)*i/N;
+      fns.forEach(fn=>{
+        const y=fn(x);
+        if(y<lo) lo=y;
+        if(y>hi) hi=y;
+      });
+    }
+    if(!isFinite(lo)||!isFinite(hi)){ lo=-1; hi=1; }
+    const pad=(hi-lo)*0.18 || 1;
+    return [lo-pad, hi+pad];
+  }
+
+  function niceStep(range, targetCount){
+    const raw = range/targetCount;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw||1)));
+    const norm = raw/mag;
+    let step;
+    if(norm<1.5) step=1; else if(norm<3) step=2; else if(norm<7) step=5; else step=10;
+    return step*mag;
+  }
+
+  const SVGNS='http://www.w3.org/2000/svg';
+  function el(tag,attrs){
+    const e=document.createElementNS(SVGNS,tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function panelGeom(vbW, vbH){
+    return { m:{l:34,r:14,t:14,b:26}, w:vbW, h:vbH,
+      pw:vbW-34-14, ph:vbH-14-26 };
+  }
+
+  function makeScales(geom, yMin, yMax){
+    const xScale = x => geom.m.l + (x-DOMAIN_MIN)/(DOMAIN_MAX-DOMAIN_MIN)*geom.pw;
+    const yScale = y => geom.m.t + (yMax-y)/(yMax-yMin)*geom.ph;
+    const xInv = px => DOMAIN_MIN + (px-geom.m.l)/geom.pw*(DOMAIN_MAX-DOMAIN_MIN);
+    return {xScale, yScale, xInv};
+  }
+
+  function drawAxes(g, geom, yMin, yMax, xStep){
+    // grid + axes
+    const {xScale,yScale} = makeScales(geom,yMin,yMax);
+    const yStep = niceStep(yMax-yMin, 5);
+    // vertical grid
+    for(let x=Math.ceil(DOMAIN_MIN/xStep)*xStep; x<=DOMAIN_MAX; x+=xStep){
+      const px = xScale(x);
+      g.appendChild(el('line',{x1:px,y1:geom.m.t,x2:px,y2:geom.m.t+geom.ph,
+        stroke:'var(--grid)','stroke-width':1}));
+      if(Math.round(x)%(xStep*2)===0 || xStep>=2){
+        const t=el('text',{x:px,y:geom.m.t+geom.ph+16,'text-anchor':'middle',
+          'font-size':11,fill:'var(--console-muted)','font-family':'IBM Plex Mono, monospace'});
+        t.textContent = Math.round(x);
+        g.appendChild(t);
+      }
+    }
+    // horizontal grid
+    for(let y=Math.ceil(yMin/yStep)*yStep; y<=yMax; y+=yStep){
+      const py=yScale(y);
+      g.appendChild(el('line',{x1:geom.m.l,y1:py,x2:geom.m.l+geom.pw,y2:py,
+        stroke:'var(--grid)','stroke-width':1}));
+      const t=el('text',{x:geom.m.l-6,y:py+3,'text-anchor':'end',
+        'font-size':11,fill:'var(--console-muted)','font-family':'IBM Plex Mono, monospace'});
+      t.textContent = (Math.abs(y)<0.001?0:Math.round(y*10)/10);
+      g.appendChild(t);
+    }
+    // axes (bold)
+    if(0>=yMin && 0<=yMax){
+      const py=yScale(0);
+      g.appendChild(el('line',{x1:geom.m.l,y1:py,x2:geom.m.l+geom.pw,y2:py,
+        stroke:'var(--axis)','stroke-width':1.4}));
+    }
+    if(0>=DOMAIN_MIN && 0<=DOMAIN_MAX){
+      const px=xScale(0);
+      g.appendChild(el('line',{x1:px,y1:geom.m.t,x2:px,y2:geom.m.t+geom.ph,
+        stroke:'var(--axis)','stroke-width':1.4}));
+    }
+  }
+
+  function pathD(pts, xScale, yScale, yMin, yMax){
+    return pts.map((p,i)=>{
+      const cy = Math.max(yMin-1e6, Math.min(yMax+1e6, p[1]));
+      return (i===0?'M':'L') + xScale(p[0]).toFixed(2) + ' ' + yScale(cy).toFixed(2);
+    }).join(' ');
+  }
+
+  // ---- state ----
+  const state = { a:1, b:3, k:2 };
+
+  const sliderA=document.getElementById('sliderA');
+  const sliderB=document.getElementById('sliderB');
+  const sliderK=document.getElementById('sliderK');
+  const valA=document.getElementById('valA');
+  const valB=document.getElementById('valB');
+  const valK=document.getElementById('valK');
+
+  function syncSliderLabels(){
+    valA.textContent=state.a; valB.textContent=state.b; valK.textContent=state.k;
+    sliderA.value=state.a; sliderB.value=state.b; sliderK.value=state.k;
+    sliderB.min = state.a+1; if(Number(sliderB.min) > 7) sliderB.min = 7;
+  }
+
+  function setState(a,b,k){
+    state.a=a; state.b=b; state.k=k;
+    syncSliderLabels();
+    redraw();
+  }
+
+  sliderA.addEventListener('input', ()=>{
+    let a=Number(sliderA.value);
+    let b=state.b;
+    if(b<=a){ b=Math.min(7,a+1); }
+    setState(a,b,state.k);
+  });
+  sliderB.addEventListener('input', ()=>{
+    let b=Number(sliderB.value);
+    let a=state.a;
+    if(a>=b){ a=Math.max(1,b-1); }
+    setState(a,b,state.k);
+  });
+  sliderK.addEventListener('input', ()=>{
+    setState(state.a,state.b,Number(sliderK.value));
+  });
+
+  document.getElementById('btnReset').addEventListener('click', ()=> setState(1,3,2));
+  document.getElementById('btnCand1').addEventListener('click', ()=> setState(2,4,6));
+  document.getElementById('btnCand2').addEventListener('click', ()=> setState(2,6,4));
+
+  const topSvg=document.getElementById('topSvg');
+  const bottomSvg=document.getElementById('bottomSvg');
+  const chipRow=document.getElementById('chipRow');
+  const fkValEl=document.getElementById('fkVal');
+  const condNaEl=document.getElementById('condNa');
+  const banner=document.getElementById('banner');
+  const hoverReadout=document.getElementById('hoverReadout');
+
+  function fmt(n){
+    if(Math.abs(n)<1e-9) return '0';
+    return (Math.round(n*100)/100).toString();
+  }
+
+  // y축 범위는 a, b가 바뀔 때만 다시 계산합니다 (k를 1~8 전 구간으로 미리 훑어
+  // 그 안에서 나올 수 있는 최댓값/최솟값을 잡아두므로, k 슬라이더만 움직이는 동안은
+  // 눈금 간격이 고정된 채로 그래프만 움직입니다).
+  let fixedRangeCache = { a:null, b:null, top:null, bot:null };
+  function getFixedRanges(a,b){
+    if(fixedRangeCache.a===a && fixedRangeCache.b===b){
+      return { top: fixedRangeCache.top, bot: fixedRangeCache.bot };
+    }
+    const topFns=[ x=>fBase(x,a,b) ];
+    const botFns=[];
+    for(let kk=1; kk<=8; kk++){
+      topFns.push(x=>fShift(x,a,b,kk));
+      botFns.push(x=>hFn(x,a,b,kk));
+    }
+    const top = sampleRange(topFns);
+    const bot = sampleRange(botFns);
+    fixedRangeCache = {a,b,top,bot};
+    return {top,bot};
+  }
+
+  function redraw(){
+    const {a,b,k} = state;
+    while(topSvg.firstChild) topSvg.removeChild(topSvg.firstChild);
+    while(bottomSvg.firstChild) bottomSvg.removeChild(bottomSvg.firstChild);
+
+    const fixed = getFixedRanges(a,b);
+
+    // ---- top panel: f(x), f(x+k) ----
+    const geomTop = panelGeom(760,300);
+    const [ty0,ty1] = fixed.top;
+    const gTop = el('g',{});
+    topSvg.appendChild(gTop);
+    drawAxes(gTop, geomTop, ty0, ty1, 4);
+    const scTop = makeScales(geomTop, ty0, ty1);
+
+    const fSegs = buildSegments(x=>fBase(x,a,b), [a,b]);
+    fSegs.forEach(seg=>{
+      gTop.appendChild(el('path',{d:pathD(seg,scTop.xScale,scTop.yScale,ty0,ty1),
+        fill:'none',stroke:'var(--curve-f)','stroke-width':3,'stroke-linecap':'round'}));
+    });
+    buildMarkers(x=>fBase(x,a,b), [a,b]).forEach(m=>{
+      gTop.appendChild(el('circle',{cx:scTop.xScale(m.x), cy:scTop.yScale(m.y), r:4.2,
+        fill: m.filled ? 'var(--curve-f)' : 'var(--console-bg)',
+        stroke:'var(--curve-f)','stroke-width':2}));
+    });
+
+    const fkSegs = buildSegments(x=>fShift(x,a,b,k), [a-k,b-k]);
+    fkSegs.forEach(seg=>{
+      gTop.appendChild(el('path',{d:pathD(seg,scTop.xScale,scTop.yScale,ty0,ty1),
+        fill:'none',stroke:'var(--curve-fk)','stroke-width':3,'stroke-dasharray':'7 5','stroke-linecap':'round'}));
+    });
+    buildMarkers(x=>fShift(x,a,b,k), [a-k,b-k]).forEach(m=>{
+      gTop.appendChild(el('circle',{cx:scTop.xScale(m.x), cy:scTop.yScale(m.y), r:4.2,
+        fill: m.filled ? 'var(--curve-fk)' : 'var(--console-bg)',
+        stroke:'var(--curve-fk)','stroke-width':2}));
+    });
+
+    // ---- bottom panel: h(x) ----
+    const cps = critPoints(a,b,k);
+    const cpVals = cps.map(g=>g.v);
+    const geomBot = panelGeom(760,210);
+    const [hy0,hy1] = fixed.bot;
+    const gBot = el('g',{});
+    bottomSvg.appendChild(gBot);
+    drawAxes(gBot, geomBot, hy0, hy1, 4);
+    const scBot = makeScales(geomBot, hy0, hy1);
+
+    const hSegs = buildSegments(x=>hFn(x,a,b,k), cpVals);
+    hSegs.forEach(seg=>{
+      gBot.appendChild(el('path',{d:pathD(seg,scBot.xScale,scBot.yScale,hy0,hy1),
+        fill:'none',stroke:'var(--curve-h)','stroke-width':3,'stroke-linecap':'round'}));
+    });
+    buildMarkers(x=>hFn(x,a,b,k), cpVals).forEach(m=>{
+      gBot.appendChild(el('circle',{cx:scBot.xScale(m.x), cy:scBot.yScale(m.y), r:4.2,
+        fill: m.filled ? 'var(--curve-h)' : 'var(--console-bg)',
+        stroke:'var(--curve-h)','stroke-width':2}));
+    });
+
+    // ---- continuity chips ----
+    chipRow.innerHTML='';
+    let allOk=true;
+    cps.forEach(g=>{
+      const left=hFn(g.v-EPS,a,b,k);
+      const right=hFn(g.v,a,b,k);
+      const ok = Math.abs(left-right) < TOL;
+      if(!ok) allOk=false;
+      const chip=document.createElement('span');
+      chip.className='chip '+(ok?'ok':'bad');
+      chip.textContent = (ok?'✓ ':'✕ ') + 'x='+fmt(g.v)+' ('+g.labels.join('=')+')';
+      chipRow.appendChild(chip);
+    });
+
+    const fk = fBase(k,a,b);
+    const fa = fBase(a,a,b);
+    const fb = fBase(b,a,b);
+    fkValEl.textContent = 'f('+k+') = '+fmt(fk);
+    const condNa = fk<0;
+    condNaEl.textContent = condNa? '만족 ✓' : '불만족 ✕';
+    condNaEl.style.color = condNa? 'var(--good)' : 'var(--bad)';
+
+    if(allOk && condNa){
+      banner.className='banner win';
+      banner.innerHTML = '조건 (가), (나)를 모두 만족합니다!'+
+        '<span class="big">f('+a+') × f('+b+') × f('+k+') = ('+fmt(fa)+') × ('+fmt(fb)+') × ('+fmt(fk)+') = '+fmt(fa*fb*fk)+'</span>';
+    } else if(allOk && !condNa){
+      banner.className='banner warn';
+      banner.innerHTML = '조건 (가) 연속은 만족하지만, 조건 (나) f(k) &lt; 0 을 만족하지 않습니다. (f(k) = '+fmt(fk)+') 이 조합은 기각됩니다.';
+    } else {
+      banner.className='banner neutral';
+      banner.innerHTML = '아래 붉은 지점에서 f(x)f(x+k)가 끊어져 있습니다 — 조건 (가)를 만족하지 못합니다. 슬라이더를 움직여 모든 점을 초록으로 만들어 보세요.';
+    }
+
+    // store scales for hover
+    redraw._scTop = scTop; redraw._scBot = scBot;
+    redraw._geomTop = geomTop; redraw._geomBot = geomBot;
+    redraw._ty=[ty0,ty1]; redraw._hy=[hy0,hy1];
+  }
+
+  function handleHover(clientX, svgEl){
+    const rect = svgEl.getBoundingClientRect();
+    const vb = svgEl.viewBox.baseVal;
+    const relX = (clientX - rect.left) / rect.width * vb.width;
+    const x = redraw._scTop.xInv(relX);
+    if(x < DOMAIN_MIN || x > DOMAIN_MAX) return;
+    const {a,b,k} = state;
+    const fv = fBase(x,a,b), fkv = fShift(x,a,b,k), hv = hFn(x,a,b,k);
+    hoverReadout.innerHTML = 'x = <b>'+fmt(x)+'</b> &nbsp;|&nbsp; f(x) = <b>'+fmt(fv)+'</b> &nbsp;|&nbsp; f(x+k) = <b>'+fmt(fkv)+'</b> &nbsp;|&nbsp; f(x)·f(x+k) = <b>'+fmt(hv)+'</b>';
+  }
+
+  [topSvg,bottomSvg].forEach(svgEl=>{
+    svgEl.addEventListener('pointermove', e=> handleHover(e.clientX, svgEl));
+    svgEl.addEventListener('pointerleave', ()=>{
+      hoverReadout.textContent='그래프를 마우스로 가리키면 그 점의 값이 여기에 표시됩니다.';
+    });
+  });
+
+  syncSliderLabels();
+  redraw();
+})();
+</script>
