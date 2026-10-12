@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>마을 안전 지킴이! CCTV 최적 설치 시뮬레이터</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,19 +13,21 @@
     body {
       font-family: 'Pretendard', sans-serif;
       user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
     }
     .grid-dots {
-      background-size: 26px 26px;
-      background-image: radial-gradient(circle, #334155 1.4px, transparent 1.4px);
+      background-size: 22px 22px;
+      background-image: radial-gradient(circle, #334155 1.3px, transparent 1.3px);
     }
     @keyframes radar-pulse-standard {
-      0% { r: 18px; opacity: 0.9; }
-      100% { r: 42px; opacity: 0; }
+      0% { r: 16px; opacity: 0.9; }
+      100% { r: 38px; opacity: 0; }
     }
     @keyframes radar-pulse-high {
-      0% { r: 20px; opacity: 1; }
-      60% { r: 56px; opacity: 0.45; }
-      100% { r: 76px; opacity: 0; }
+      0% { r: 18px; opacity: 1; }
+      60% { r: 48px; opacity: 0.45; }
+      100% { r: 68px; opacity: 0; }
     }
     .radar-std {
       animation: radar-pulse-standard 1.9s cubic-bezier(0.16, 0.8, 0.38, 1) infinite;
@@ -34,321 +36,210 @@
       animation: radar-pulse-high 2.2s cubic-bezier(0.12, 0.75, 0.35, 1) infinite;
     }
     .badge-pop {
-      animation: badgePop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: badgePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes badgePop {
-      0% { transform: scale(0.6) translateY(5px); opacity: 0; }
+      0% { transform: scale(0.6) translateY(4px); opacity: 0; }
       100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    /* 모바일 가로 스크롤바 숨기기 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col pb-6">
 
-  <!-- Main Top Bar -->
-  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-          <i class="fa-solid fa-shield-cat text-lg"></i>
+  <!-- Mobile-Optimized Sticky Top Header -->
+  <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 px-3 py-2 sm:px-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white text-sm shadow shrink-0">
+          <i class="fa-solid fa-shield-cat"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base sm:text-lg font-black text-white tracking-tight">우리 마을 CCTV 안전 지킴이</h1>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">중학 수학 & 그래프 탐구</span>
-          </div>
-          <p class="text-xs text-slate-400 font-medium">최소 CCTV 개수와 고성능(거리 2) CCTV 최적 비용을 시각적으로 탐구해보세요!</p>
+          <h1 class="text-sm sm:text-base font-extrabold text-white leading-tight">마을 CCTV 최적 설치</h1>
+          <p class="text-[10px] sm:text-xs text-slate-400">일반(거리 1, 1원) & 고성능(거리 2, 2원)</p>
         </div>
       </div>
 
-      <!-- Village Map Presets -->
-      <div class="flex items-center gap-1.5 flex-wrap text-xs">
-        <span class="text-slate-400 font-bold mr-1 flex items-center gap-1">
-          <i class="fa-solid fa-map-location-dot text-emerald-400"></i> 마을 예시:
-        </span>
-        <button onclick="loadPreset('wheel')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold transition">🎡 바퀴 마을</button>
-        <button onclick="loadPreset('petersen')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold transition">🧩 피터슨 마을</button>
-        <button onclick="loadPreset('cycle7')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold transition">⭕ 7거리 순환로</button>
-        <button onclick="loadPreset('k33')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold transition">🌉 다리 건너 마을</button>
-        <button onclick="loadPreset('tree')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold transition">🌳 나뭇가지 마을</button>
+      <!-- Compact Action Controls -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="resetResultHighlights()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center gap-1">
+          <i class="fa-solid fa-eraser"></i>
+          <span class="hidden sm:inline">표시</span>지우기
+        </button>
+        <button onclick="clearGraph()" class="px-2.5 py-1.5 rounded-lg bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/60 text-xs font-semibold flex items-center gap-1">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span class="hidden sm:inline">새로</span>초기화
+        </button>
       </div>
+    </div>
+
+    <!-- Mobile Preset Village Horizontal Scroller -->
+    <div class="max-w-4xl mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 text-xs">
+      <span class="text-slate-400 font-bold shrink-0 text-[11px] mr-0.5">
+        <i class="fa-solid fa-map-location-dot text-emerald-400"></i> 마을 예시:
+      </span>
+      <button onclick="loadPreset('wheel')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 whitespace-nowrap text-[11px] font-medium">🎡 바퀴</button>
+      <button onclick="loadPreset('petersen')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 whitespace-nowrap text-[11px] font-medium">🧩 피터슨</button>
+      <button onclick="loadPreset('cycle7')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 whitespace-nowrap text-[11px] font-medium">⭕ 순환 7거리</button>
+      <button onclick="loadPreset('k33')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 whitespace-nowrap text-[11px] font-medium">🌉 이분 마을</button>
+      <button onclick="loadPreset('tree')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 whitespace-nowrap text-[11px] font-medium">🌳 나뭇가지</button>
     </div>
   </header>
 
-  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+  <main class="flex-1 max-w-4xl w-full mx-auto p-2.5 sm:p-4 flex flex-col gap-2.5">
     
-    <!-- Left Workspace (Canvas and Toolbar, 8 Cols) -->
-    <div class="lg:col-span-8 flex flex-col gap-3">
-      
-      <!-- Top Action Ribbon (3 Solving Buttons) -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-        <!-- Button 1: Dominating Number -->
-        <button id="btn-calc-dom" onclick="calculateDominatingSet()" class="group relative overflow-hidden p-3 rounded-2xl bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 text-left shadow-lg hover:shadow-emerald-500/20 transition-all active:scale-[0.98]">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-sm border border-emerald-500/30">1</span>
-            <div>
-              <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">지배수 (거리 1)</div>
-              <div class="text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 transition">최소한의 CCTV 개수</div>
-            </div>
-          </div>
-          <div class="mt-2 text-[10px] text-slate-400 line-clamp-1">모든 지점을 비추는 가장 적은 CCTV 대수</div>
-        </button>
-
-        <!-- Button 2: Independent Dominating Number -->
-        <button id="btn-calc-indep" onclick="calculateIndependentDominatingSet()" class="group relative overflow-hidden p-3 rounded-2xl bg-gradient-to-r from-purple-950/80 to-slate-900 border border-purple-500/40 hover:border-purple-400 text-left shadow-lg hover:shadow-purple-500/20 transition-all active:scale-[0.98]">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-sm border border-purple-500/30">2</span>
-            <div>
-              <div class="text-[10px] text-purple-400 font-bold uppercase tracking-wider">독립 지배수 (이웃 금지)</div>
-              <div class="text-xs sm:text-sm font-black text-white group-hover:text-purple-300 transition">서로 안 붙은 최소 CCTV</div>
-            </div>
-          </div>
-          <div class="mt-2 text-[10px] text-slate-400 line-clamp-1">CCTV끼리 직접 길로 이어지지 않는 최소 대수</div>
-        </button>
-
-        <!-- Button 3: High-Performance Optimization -->
-        <button id="btn-calc-high" onclick="calculateHighPerfCost()" class="group relative overflow-hidden p-3 rounded-2xl bg-gradient-to-r from-amber-950/90 to-slate-900 border border-amber-500/50 hover:border-amber-400 text-left shadow-lg hover:shadow-amber-500/20 transition-all active:scale-[0.98]">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-sm border border-amber-500/30">3</span>
-            <div>
-              <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">고성능 2원(거리2) / 일반 1원(거리1)</div>
-              <div class="text-xs sm:text-sm font-black text-amber-200 group-hover:text-amber-100 transition">고성능 고려 최소 설치 비용</div>
-            </div>
-          </div>
-          <div class="mt-2 text-[10px] text-slate-400 line-clamp-1">비용(0원/1원/2원)을 가장 아끼는 최적 배치</div>
-        </button>
-      </div>
-
-      <!-- Editing Modes Toolbar -->
-      <div class="bg-slate-900/90 border border-slate-800 p-2.5 rounded-2xl flex flex-wrap items-center justify-between gap-2 shadow-sm">
-        <div class="flex items-center bg-slate-950 p-1 rounded-xl gap-1 text-xs font-bold">
-          <button id="mode-select" onclick="setMode('select')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition bg-slate-800 text-emerald-400 shadow-sm">
-            <i class="fa-solid fa-arrows-up-down-left-right"></i>
-            <span>지점 이동</span>
-          </button>
-          <button id="mode-vertex" onclick="setMode('vertex')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition">
-            <i class="fa-solid fa-circle-plus"></i>
-            <span>지점 추가</span>
-          </button>
-          <button id="mode-edge" onclick="setMode('edge')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition">
-            <i class="fa-solid fa-bezier-curve"></i>
-            <span>길 연결</span>
-          </button>
-          <button id="mode-manual" onclick="setMode('manual')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-amber-400 hover:text-amber-300 transition">
-            <i class="fa-solid fa-gamepad"></i>
-            <span>직접 설치 테스트</span>
-          </button>
-          <button id="mode-delete" onclick="setMode('delete')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 transition">
-            <i class="fa-solid fa-trash-can"></i>
-            <span>삭제</span>
-          </button>
+    <!-- 3 Core Calculation Buttons (Grid) -->
+    <div class="grid grid-cols-3 gap-1.5 sm:gap-2.5">
+      <!-- Button 1 -->
+      <button id="btn-calc-dom" onclick="calculateDominatingSet()" class="p-2 sm:p-3 rounded-xl bg-gradient-to-b from-emerald-950/80 to-slate-900 border border-emerald-500/40 hover:border-emerald-400 text-left active:scale-95 transition">
+        <div class="flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-[11px] shrink-0">1</span>
+          <span class="text-[10px] text-emerald-400 font-bold uppercase truncate">지배수</span>
         </div>
+        <div class="text-[11px] sm:text-xs font-black text-white mt-1 leading-snug">최소 CCTV 개수</div>
+      </button>
 
-        <div class="flex items-center gap-2 text-xs">
-          <button onclick="resetResultHighlights()" class="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5 font-semibold">
-            <i class="fa-solid fa-eraser"></i>
-            <span>표시 지우기</span>
-          </button>
-          <button onclick="clearGraph()" class="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/50 transition flex items-center gap-1.5 font-semibold">
-            <i class="fa-solid fa-rotate-left"></i>
-            <span>초기화</span>
-          </button>
+      <!-- Button 2 -->
+      <button id="btn-calc-indep" onclick="calculateIndependentDominatingSet()" class="p-2 sm:p-3 rounded-xl bg-gradient-to-b from-purple-950/80 to-slate-900 border border-purple-500/40 hover:border-purple-400 text-left active:scale-95 transition">
+        <div class="flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-md bg-purple-500/20 text-purple-400 flex items-center justify-center font-black text-tx-[11px] shrink-0">2</span>
+          <span class="text-[10px] text-purple-400 font-bold uppercase truncate">독립 지배수</span>
         </div>
-      </div>
+        <div class="text-[11px] sm:text-xs font-black text-white mt-1 leading-snug">안 붙은 최소 CCTV</div>
+      </button>
 
-      <!-- SVG Graph Canvas Box -->
-      <div class="relative flex-1 min-h-[530px] bg-slate-900/90 rounded-3xl border border-slate-800 shadow-xl overflow-hidden flex flex-col">
-        
-        <!-- Big Prominent Answer HUD Banner on Canvas -->
-        <div id="canvas-answer-banner" class="hidden absolute top-3 inset-x-3 z-30 transition-all duration-300">
-          <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-950/95 backdrop-blur-md border shadow-2xl flex flex-wrap items-center justify-between gap-3" id="banner-border-box">
-            <div class="flex items-center gap-3">
-              <div id="banner-icon-badge" class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-inner font-black shrink-0">
-                🎯
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span id="banner-sub-tag" class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">계산 완료</span>
-                  <span class="text-xs text-slate-400 font-bold" id="banner-calc-title">마을 전체 감시 결과</span>
-                </div>
-                <div class="text-base sm:text-lg font-black text-white mt-0.5 flex items-baseline gap-1.5">
-                  <span id="banner-main-answer" class="text-xl sm:text-2xl font-black">정답: -</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Installed Node Chips Inside Answer HUD -->
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-xs text-slate-400 font-bold">설치된 지점:</span>
-              <div id="banner-node-chips" class="flex flex-wrap gap-1.5 max-w-xs sm:max-w-md"></div>
-            </div>
-          </div>
+      <!-- Button 3 -->
+      <button id="btn-calc-high" onclick="calculateHighPerfCost()" class="p-2 sm:p-3 rounded-xl bg-gradient-to-b from-amber-950/80 to-slate-900 border border-amber-500/40 hover:border-amber-400 text-left active:scale-95 transition">
+        <div class="flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-[11px] shrink-0">3</span>
+          <span class="text-[10px] text-amber-400 font-bold uppercase truncate">고성능(2원)</span>
         </div>
-
-        <!-- Manual Play Realtime HUD -->
-        <div id="manual-play-hud" class="hidden absolute top-3 inset-x-3 z-30 bg-amber-950/90 backdrop-blur-md border border-amber-500/50 p-3 rounded-2xl shadow-2xl flex flex-wrap items-center justify-between gap-2">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold text-base">🎮</span>
-            <div>
-              <span class="text-xs font-extrabold text-amber-300">직접 설치 모드:</span>
-              <span class="text-xs text-slate-200 ml-1">지점을 클릭하여 <span class="text-white font-bold">[없음(0원) → 일반(1원) → 고성능(2원) → 없음]</span> 상태를 변경하세요.</span>
-            </div>
-          </div>
-          <div id="manual-stats-badge" class="px-3 py-1 rounded-xl text-xs font-black bg-amber-500/20 border border-amber-500/40 text-amber-300">
-            총비용 0원 | 감시 0/0곳
-          </div>
-        </div>
-
-        <!-- Canvas Sub Guide (Bottom Left Tip) -->
-        <div class="absolute bottom-3 left-3 z-20 bg-slate-950/80 backdrop-blur-sm border border-slate-800 px-3 py-1.5 rounded-xl text-[11px] text-slate-300 flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="canvas-guide-text">지점을 마우스로 끌어 마을의 배치를 알맞게 정돈해보세요.</span>
-        </div>
-
-        <!-- Canvas Legend Overlay (Bottom Right) -->
-        <div class="absolute bottom-3 right-3 z-20 bg-slate-950/90 backdrop-blur-sm border border-slate-800 p-2 sm:p-2.5 rounded-xl text-[10px] text-slate-300 space-y-1 hidden sm:block">
-          <div class="font-bold text-slate-400 border-b border-slate-800 pb-1 mb-1">그래프 범례</div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-emerald-500 border border-white"></span>
-            <span>일반 CCTV (비용 1, 거리 1 감시)</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-amber-500 border border-white"></span>
-            <span>고성능 CCTV (비용 2, 거리 2 감시)</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-slate-700 border border-emerald-400"></span>
-            <span>CCTV의 감시를 받는 안전 지점</span>
-          </div>
-        </div>
-
-        <svg id="graph-svg" class="w-full h-full flex-1 grid-dots cursor-default select-none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <filter id="glow-green" x="-40%" y="-40%" width="180%" height="180%">
-              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10b981" flood-opacity="0.9"/>
-            </filter>
-            <filter id="glow-purple" x="-40%" y="-40%" width="180%" height="180%">
-              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#a855f7" flood-opacity="0.9"/>
-            </filter>
-            <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#f59e0b" flood-opacity="0.95"/>
-            </filter>
-          </defs>
-          <g id="edges-layer"></g>
-          <g id="coverage-dist2-layer"></g>
-          <g id="coverage-beams-layer"></g>
-          <g id="temp-edge-layer"></g>
-          <g id="nodes-layer"></g>
-          <g id="badges-layer"></g>
-        </svg>
-
-        <!-- Canvas Footer Statistics -->
-        <div class="bg-slate-950 border-t border-slate-800 px-4 py-2 text-xs text-slate-400 flex flex-wrap justify-between items-center gap-2">
-          <div class="flex items-center gap-3 font-semibold">
-            <span>마을 지점(노드): <strong id="stat-vertex-count" class="text-white font-bold">0</strong>곳</span>
-            <span>연결된 길(간선): <strong id="stat-edge-count" class="text-white font-bold">0</strong>개</span>
-          </div>
-          <div class="text-[11px] text-emerald-400 font-medium">
-            💡 버튼을 누르면 정답이 화면 중앙 상단과 지점 위에 즉시 표시됩니다!
-          </div>
-        </div>
-
-      </div>
-
+        <div class="text-[11px] sm:text-xs font-black text-amber-300 mt-1 leading-snug">고성능 최소 비용</div>
+      </button>
     </div>
 
-    <!-- Right Panel: Detailed Answer Insights & Explanation (4 Cols) -->
-    <div class="lg:col-span-4 flex flex-col gap-3">
+    <!-- Edit Modes Toolbar (Horizontal Scrolling for Mobile) -->
+    <div class="bg-slate-900/90 border border-slate-800 p-1.5 rounded-xl flex items-center gap-1 overflow-x-auto no-scrollbar text-xs font-bold">
+      <button id="mode-select" onclick="setMode('select')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 text-emerald-400 shrink-0 whitespace-nowrap">
+        <i class="fa-solid fa-arrows-up-down-left-right text-xs"></i>
+        <span>이동</span>
+      </button>
+      <button id="mode-vertex" onclick="setMode('vertex')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 shrink-0 whitespace-nowrap">
+        <i class="fa-solid fa-circle-plus text-xs"></i>
+        <span>지점 추가</span>
+      </button>
+      <button id="mode-edge" onclick="setMode('edge')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 shrink-0 whitespace-nowrap">
+        <i class="fa-solid fa-bezier-curve text-xs"></i>
+        <span>길 연결</span>
+      </button>
+      <button id="mode-manual" onclick="setMode('manual')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-amber-400 hover:text-amber-300 shrink-0 whitespace-nowrap">
+        <i class="fa-solid fa-hand-pointer text-xs"></i>
+        <span>직접 설치</span>
+      </button>
+      <button id="mode-delete" onclick="setMode('delete')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 shrink-0 whitespace-nowrap">
+        <i class="fa-solid fa-trash-can text-xs"></i>
+        <span>삭제</span>
+      </button>
+    </div>
+
+    <!-- SVG Graph Canvas Box (Unobscured by Floating Overlays) -->
+    <div class="relative w-full h-[380px] sm:h-[460px] bg-slate-900/90 rounded-2xl border border-slate-800 shadow-lg overflow-hidden flex flex-col">
       
-      <!-- Detailed Answer Explanation Card -->
-      <div class="bg-slate-900/90 rounded-3xl border border-slate-800 p-5 shadow-xl space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 class="text-sm font-black text-white flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
-              <i class="fa-solid fa-square-poll-vertical"></i>
-            </span>
-            정답 및 수학적 풀이
-          </h2>
-          <span id="detail-status-pill" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">대기 중</span>
-        </div>
-
-        <!-- Big Score Highlight Box -->
-        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-center relative overflow-hidden">
-          <div class="text-[11px] font-bold text-slate-400" id="detail-result-title">계산 버튼을 눌러주세요</div>
-          <div class="text-4xl font-black my-1 text-white tracking-tight" id="detail-result-score">-</div>
-          <div class="text-xs font-semibold text-slate-400" id="detail-result-subtitle">1, 2, 3번 계산 버튼 중 하나를 클릭하세요</div>
-        </div>
-
-        <!-- Breakdown Details -->
-        <div id="detail-breakdown-box" class="space-y-2 text-xs">
-          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1.5">
-            <div class="text-[11px] font-extrabold text-slate-300 flex items-center justify-between">
-              <span>설치 지점 목록</span>
-              <span id="detail-node-count-badge" class="text-[10px] text-emerald-400 font-bold">0곳 선택</span>
-            </div>
-            <div id="detail-node-list" class="flex flex-wrap gap-1 text-[11px] text-slate-400 italic">
-              선택된 지점이 여기에 표시됩니다.
-            </div>
-          </div>
-
-          <div id="cost-formula-card" class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1 hidden">
-            <div class="text-[11px] font-extrabold text-amber-300">비용 계산 내역</div>
-            <div id="cost-formula-content" class="text-slate-300 text-[11px] leading-relaxed">
-              <!-- e.g. 1원 x 2대 + 2원 x 1대 = 총 4원 -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Student Explanation Text -->
-        <div id="student-friendly-explanation" class="text-xs text-slate-300 leading-relaxed p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5 hidden">
-        </div>
+      <!-- Manual Play Mode Realtime Status Mini Strip (Top) -->
+      <div id="manual-play-hud" class="hidden absolute top-2 inset-x-2 z-20 bg-amber-950/90 backdrop-blur-md border border-amber-500/40 px-2.5 py-1.5 rounded-lg shadow flex items-center justify-between text-xs">
+        <span class="text-[11px] text-amber-300 font-bold truncate">👆 지점 클릭: [0원 → 1원 → 2원] 순환</span>
+        <span id="manual-stats-badge" class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-300 shrink-0">
+          비용 0원 | 감시 0/0
+        </span>
       </div>
 
-      <!-- Educational Concepts Guide Card -->
-      <div class="bg-slate-900/90 rounded-3xl border border-slate-800 p-5 shadow-xl space-y-3.5 text-xs text-slate-300">
-        <h3 class="text-sm font-black text-white flex items-center gap-2">
-          <i class="fa-solid fa-book-open-reader text-amber-400"></i>
-          중학생을 위한 그래프 이론 돋보기
-        </h3>
-
-        <div class="space-y-2">
-          <div class="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-500/20">
-            <div class="font-extrabold text-emerald-400 flex items-center gap-1.5">
-              <span>📹 1. 지배 집합과 최소 CCTV</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1 leading-normal">
-              마을의 모든 지점이 CCTV가 있는 곳이거나, CCTV 바로 옆 지점이 되도록 만드는 집합을 수학에서 <strong>지배 집합(Dominating Set)</strong>이라고 합니다. 이때 가장 적은 CCTV 개수를 <strong>지배수 $\gamma(G)$</strong>라고 불러요!
-            </p>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-purple-950/20 border border-purple-500/20">
-            <div class="font-extrabold text-purple-400 flex items-center gap-1.5">
-              <span>🚫 2. 서로 붙어 있지 않은 CCTV</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1 leading-normal">
-              CCTV끼리 직접 길로 이어지지 않게 설치하면서 마을 전체를 감시하는 규칙을 <strong>독립 지배수 $i(G)$</strong>라고 합니다. 붙어 있으면 안 된다는 까다로운 조건 때문에 보통 지배수보다 개수가 같거나 많아집니다 ($\gamma(G) \le i(G)$).
-            </p>
-          </div>
-
-          <div class="p-2.5 rounded-xl bg-amber-950/20 border border-amber-500/20">
-            <div class="font-extrabold text-amber-400 flex items-center gap-1.5">
-              <span>🚀 3. 고성능 CCTV의 비용 절약 마법</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1 leading-normal">
-              고성능 CCTV(비용 2)는 <strong>거리 2(이웃의 이웃)</strong>까지 한 번에 비춥니다! 하지만 무작정 고성능을 쓰면 2원씩 들어 오히려 손해일 수 있으므로, 일반(1원)과 고성능(2원)을 똑똑하게 조합하여 총비용을 최소화하는 것이 핵심입니다.
-            </p>
-          </div>
-        </div>
+      <!-- Graph Canvas Guide Tip (Top Left Small) -->
+      <div class="absolute top-2 left-2 z-10 bg-slate-950/70 backdrop-blur-sm border border-slate-800/80 px-2 py-1 rounded-md text-[10px] text-slate-400 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span id="canvas-guide-text">지점을 드래그하여 이동할 수 있습니다.</span>
       </div>
 
+      <!-- Canvas SVG -->
+      <svg id="graph-svg" class="w-full h-full flex-1 grid-dots cursor-default select-none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow-green" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#10b981" flood-opacity="0.9"/>
+          </filter>
+          <filter id="glow-purple" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#a855f7" flood-opacity="0.9"/>
+          </filter>
+          <filter id="glow-gold" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#f59e0b" flood-opacity="0.95"/>
+          </filter>
+        </defs>
+        <g id="edges-layer"></g>
+        <g id="coverage-beams-layer"></g>
+        <g id="temp-edge-layer"></g>
+        <g id="nodes-layer"></g>
+        <g id="badges-layer"></g>
+      </svg>
+
+      <!-- Bottom Status Bar -->
+      <div class="bg-slate-950/90 border-t border-slate-800/80 px-3 py-1.5 text-[11px] text-slate-400 flex justify-between items-center">
+        <div>지점: <strong id="stat-vertex-count" class="text-white">0</strong>곳 / 길: <strong id="stat-edge-count" class="text-white">0</strong>개</div>
+        <div class="text-[10px] text-slate-500">💡 1, 2, 3번 버튼을 누르면 아래에 답이 나옵니다</div>
+      </div>
+    </div>
+
+    <!-- Bottom Result Notification Area (Placed BELOW Canvas to Avoid Covering Graph) -->
+    <div id="bottom-answer-panel" class="hidden transition-all duration-300">
+      <div id="result-card-box" class="p-4 rounded-2xl bg-slate-900 border shadow-lg space-y-3">
+        <!-- Result Header -->
+        <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span id="result-icon-badge" class="w-8 h-8 rounded-xl flex items-center justify-center text-lg font-black shrink-0">🎯</span>
+            <div>
+              <div id="result-type-tag" class="text-[10px] font-black uppercase tracking-wider text-emerald-400">최소 CCTV 계산 결과</div>
+              <h2 id="result-main-title" class="text-xs sm:text-sm font-black text-white">마을 전체 감시 최소 CCTV</h2>
+            </div>
+          </div>
+          <div class="text-right">
+            <div id="result-score-highlight" class="text-xl sm:text-2xl font-black text-emerald-400">-</div>
+            <div id="result-cost-subtext" class="text-[10px] text-slate-400 font-semibold">비용 0원</div>
+          </div>
+        </div>
+
+        <!-- Installed Nodes List -->
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 mb-1 flex items-center justify-between">
+            <span>설치된 CCTV 위치:</span>
+            <span id="result-installed-count" class="text-[10px] text-slate-300 font-semibold">0곳</span>
+          </div>
+          <div id="result-node-chips" class="flex flex-wrap gap-1.5">
+            <!-- Node chips injected here -->
+          </div>
+        </div>
+
+        <!-- Cost Breakdown / Math Explanation Text -->
+        <div id="result-formula-box" class="hidden p-2.5 rounded-xl bg-slate-950 border border-slate-800/80 text-[11px] text-slate-300 leading-relaxed">
+          <!-- Formula content -->
+        </div>
+
+        <div id="result-explanation-text" class="text-xs text-slate-300 bg-slate-950/70 p-3 rounded-xl border border-slate-800/70 leading-relaxed">
+          <!-- Explanation content -->
+        </div>
+      </div>
     </div>
 
   </main>
 
   <script>
-    // Application State
+    // State Model
     const state = {
-      nodes: [], // { id, x, y, label }
-      edges: [], // { u, v }
+      nodes: [],
+      edges: [],
       mode: 'select', // 'select' | 'vertex' | 'edge' | 'manual' | 'delete'
       selectedNodeId: null,
       edgeStartNodeId: null,
@@ -356,8 +247,8 @@
       draggedNodeId: null,
       dragOffset: { x: 0, y: 0 },
       nextId: 0,
-      currentResult: null, // { type, answerText, cost, count, assignments: Map(id => 0|1|2), labels: [] }
-      manualAssignments: new Map() // id => 0 | 1 | 2
+      currentResult: null,
+      manualAssignments: new Map() // id => 0 (None) | 1 (Std) | 2 (High)
     };
 
     const svg = document.getElementById('graph-svg');
@@ -365,21 +256,25 @@
     const badgesLayer = document.getElementById('badges-layer');
     const edgesLayer = document.getElementById('edges-layer');
     const coverageBeamsLayer = document.getElementById('coverage-beams-layer');
-    const coverageDist2Layer = document.getElementById('coverage-dist2-layer');
     const tempEdgeLayer = document.getElementById('temp-edge-layer');
 
     const canvasGuideText = document.getElementById('canvas-guide-text');
-    const canvasAnswerBanner = document.getElementById('canvas-answer-banner');
-    const bannerBorderBox = document.getElementById('banner-border-box');
-    const bannerIconBadge = document.getElementById('banner-icon-badge');
-    const bannerSubTag = document.getElementById('banner-sub-tag');
-    const bannerCalcTitle = document.getElementById('banner-calc-title');
-    const bannerMainAnswer = document.getElementById('banner-main-answer');
-    const bannerNodeChips = document.getElementById('banner-node-chips');
     const manualPlayHud = document.getElementById('manual-play-hud');
     const manualStatsBadge = document.getElementById('manual-stats-badge');
 
-    // Mode Selector Handler
+    // Bottom Result Elements
+    const bottomAnswerPanel = document.getElementById('bottom-answer-panel');
+    const resultCardBox = document.getElementById('result-card-box');
+    const resultIconBadge = document.getElementById('result-icon-badge');
+    const resultTypeTag = document.getElementById('result-type-tag');
+    const resultMainTitle = document.getElementById('result-main-title');
+    const resultScoreHighlight = document.getElementById('result-score-highlight');
+    const resultCostSubtext = document.getElementById('result-cost-subtext');
+    const resultInstalledCount = document.getElementById('result-installed-count');
+    const resultNodeChips = document.getElementById('result-node-chips');
+    const resultFormulaBox = document.getElementById('result-formula-box');
+    const resultExplanationText = document.getElementById('result-explanation-text');
+
     function setMode(newMode) {
       state.mode = newMode;
       state.edgeStartNodeId = null;
@@ -389,51 +284,38 @@
         const btn = document.getElementById(`mode-${m}`);
         if (!btn) return;
         if (m === newMode) {
-          btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition bg-slate-800 text-emerald-400 font-black shadow-sm';
+          btn.className = 'flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 text-emerald-400 shrink-0 whitespace-nowrap font-black';
         } else {
-          btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition font-bold';
+          btn.className = 'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 shrink-0 whitespace-nowrap font-semibold';
         }
       });
 
       if (newMode === 'manual') {
         manualPlayHud.classList.remove('hidden');
-        canvasAnswerBanner.classList.add('hidden');
-        canvasGuideText.innerText = "지점을 클릭할 때마다 [없음(0원) → 일반(1원) → 고성능(2원) → 없음]으로 바뀝니다.";
-        svg.style.cursor = 'pointer';
+        canvasGuideText.innerText = "지점을 탭하여 [0원 → 1원 → 2원]을 변경해보세요.";
         updateManualStatsDisplay();
       } else {
         manualPlayHud.classList.add('hidden');
-        if (state.currentResult) {
-          canvasAnswerBanner.classList.remove('hidden');
-        }
       }
 
       switch(newMode) {
         case 'select':
-          canvasGuideText.innerText = "지점 이동 모드: 원하는 지점을 마우스로 끌어서 마을 지도를 정돈하세요.";
-          svg.style.cursor = 'default';
+          canvasGuideText.innerText = "지점을 드래그하여 이동할 수 있습니다.";
           break;
         case 'vertex':
-          canvasGuideText.innerText = "지점 추가 모드: 캔버스의 빈 공간을 클릭하여 새 지점을 만드세요.";
-          svg.style.cursor = 'crosshair';
+          canvasGuideText.innerText = "빈 곳을 터치하면 새 지점이 생깁니다.";
           break;
         case 'edge':
-          canvasGuideText.innerText = "길 연결 모드: 연결할 첫 번째 지점을 누르고, 두 번째 지점을 누르세요.";
-          svg.style.cursor = 'pointer';
+          canvasGuideText.innerText = "이어줄 두 지점을 차례로 터치하세요.";
           break;
         case 'delete':
-          canvasGuideText.innerText = "삭제 모드: 지우고 싶은 지점이나 길을 클릭하면 즉시 삭제됩니다.";
-          svg.style.cursor = 'not-allowed';
+          canvasGuideText.innerText = "지우고 싶은 지점이나 길을 터치하세요.";
           break;
       }
       render();
     }
 
-    // Node & Edge Mutators
     function addNode(x, y) {
-      if (state.nodes.length >= 24) {
-        canvasGuideText.innerText = "계산 속도를 유지하기 위해 지점은 최대 24개까지 추천합니다.";
-      }
       const id = state.nextId++;
       state.nodes.push({
         id: id,
@@ -443,7 +325,7 @@
       });
       state.manualAssignments.set(id, 0);
       state.currentResult = null;
-      hideCanvasBanner();
+      bottomAnswerPanel.classList.add('hidden');
       render();
       updateStats();
       if (state.mode === 'manual') updateManualStatsDisplay();
@@ -456,7 +338,7 @@
       if (state.selectedNodeId === id) state.selectedNodeId = null;
       if (state.edgeStartNodeId === id) state.edgeStartNodeId = null;
       state.currentResult = null;
-      hideCanvasBanner();
+      bottomAnswerPanel.classList.add('hidden');
       render();
       updateStats();
       if (state.mode === 'manual') updateManualStatsDisplay();
@@ -470,7 +352,7 @@
       if (!exists) {
         state.edges.push({ u: min, v: max });
         state.currentResult = null;
-        hideCanvasBanner();
+        bottomAnswerPanel.classList.add('hidden');
         render();
         updateStats();
         if (state.mode === 'manual') updateManualStatsDisplay();
@@ -482,7 +364,7 @@
       const max = Math.max(u, v);
       state.edges = state.edges.filter(e => !(e.u === min && e.v === max));
       state.currentResult = null;
-      hideCanvasBanner();
+      bottomAnswerPanel.classList.add('hidden');
       render();
       updateStats();
       if (state.mode === 'manual') updateManualStatsDisplay();
@@ -496,8 +378,7 @@
       state.edgeStartNodeId = null;
       state.currentResult = null;
       state.manualAssignments.clear();
-      hideCanvasBanner();
-      resetRightPanelUI();
+      bottomAnswerPanel.classList.add('hidden');
       render();
       updateStats();
       if (state.mode === 'manual') updateManualStatsDisplay();
@@ -507,14 +388,9 @@
       state.currentResult = null;
       state.manualAssignments.clear();
       state.nodes.forEach(n => state.manualAssignments.set(n.id, 0));
-      hideCanvasBanner();
-      resetRightPanelUI();
+      bottomAnswerPanel.classList.add('hidden');
       render();
       if (state.mode === 'manual') updateManualStatsDisplay();
-    }
-
-    function hideCanvasBanner() {
-      canvasAnswerBanner.classList.add('hidden');
     }
 
     function updateStats() {
@@ -524,20 +400,6 @@
 
     function clearTempEdge() {
       tempEdgeLayer.innerHTML = '';
-    }
-
-    function resetRightPanelUI() {
-      document.getElementById('detail-status-pill').className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-800 text-slate-400';
-      document.getElementById('detail-status-pill').textContent = '대기 중';
-      document.getElementById('detail-result-title').textContent = '계산 버튼을 눌러주세요';
-      document.getElementById('detail-result-score').textContent = '-';
-      document.getElementById('detail-result-subtitle').textContent = '1, 2, 3번 계산 버튼 중 하나를 클릭하세요';
-      document.getElementById('detail-node-count-badge').textContent = '0곳 선택';
-      document.getElementById('detail-node-list').innerHTML = '<span class="text-slate-500 italic">선택된 지점이 여기에 표시됩니다.</span>';
-      document.getElementById('cost-formula-card').classList.add('hidden');
-      const expl = document.getElementById('student-friendly-explanation');
-      expl.classList.add('hidden');
-      expl.innerHTML = '';
     }
 
     function computeDistanceMatrix() {
@@ -630,26 +492,17 @@
         line.setAttribute('x2', v.x);
         line.setAttribute('y2', v.y);
         line.setAttribute('stroke', '#334155');
-        line.setAttribute('stroke-width', '4');
+        line.setAttribute('stroke-width', '3.5');
         line.setAttribute('stroke-linecap', 'round');
-        line.classList.add('cursor-pointer', 'transition-all');
 
         line.addEventListener('click', (e) => {
           e.stopPropagation();
           if (state.mode === 'delete') removeEdge(edge.u, edge.v);
         });
 
-        line.addEventListener('mouseenter', () => {
-          if (state.mode === 'delete') line.setAttribute('stroke', '#f43f5e');
-        });
-        line.addEventListener('mouseleave', () => {
-          line.setAttribute('stroke', '#334155');
-        });
-
         edgesLayer.appendChild(line);
       });
 
-      // Active assignment resolution
       let currentAssignments = new Map();
       let activeResultType = null;
 
@@ -663,7 +516,7 @@
 
       const coveredSet = getCoverageStatus(currentAssignments);
 
-      // 2. Coverage Beam Lines (Active Roads)
+      // 2. Beams (Active Surveillance Lines)
       coverageBeamsLayer.innerHTML = '';
       state.edges.forEach(edge => {
         const uLvl = currentAssignments.get(edge.u) || 0;
@@ -682,28 +535,27 @@
 
           if (isHigh) {
             beam.setAttribute('stroke', '#f59e0b');
-            beam.setAttribute('stroke-width', '5.5');
+            beam.setAttribute('stroke-width', '4.5');
             beam.setAttribute('stroke-opacity', '0.85');
-            beam.setAttribute('stroke-dasharray', '8 4');
+            beam.setAttribute('stroke-dasharray', '6 3');
           } else {
             const beamCol = activeResultType === 'indep' ? '#c084fc' : '#34d399';
             beam.setAttribute('stroke', beamCol);
-            beam.setAttribute('stroke-width', '5');
+            beam.setAttribute('stroke-width', '4');
             beam.setAttribute('stroke-opacity', '0.8');
-            beam.setAttribute('stroke-dasharray', '6 3');
+            beam.setAttribute('stroke-dasharray', '5 2.5');
           }
           coverageBeamsLayer.appendChild(beam);
         }
       });
 
-      // 3. Draw Nodes and Badges
+      // 3. Draw Nodes and Floating Badges
       nodesLayer.innerHTML = '';
       badgesLayer.innerHTML = '';
 
       state.nodes.forEach(node => {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
-        g.classList.add('cursor-pointer');
 
         const level = currentAssignments.get(node.id) || 0;
         const isSelected = state.selectedNodeId === node.id || state.edgeStartNodeId === node.id;
@@ -712,58 +564,58 @@
         // Animated Radar Rings
         if (level === 2) {
           const rHigh = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          rHigh.setAttribute('r', '22');
+          rHigh.setAttribute('r', '20');
           rHigh.setAttribute('fill', 'none');
           rHigh.setAttribute('stroke', '#f59e0b');
-          rHigh.setAttribute('stroke-width', '3.5');
+          rHigh.setAttribute('stroke-width', '3');
           rHigh.classList.add('radar-high');
           g.appendChild(rHigh);
         } else if (level === 1) {
           const rStd = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          rStd.setAttribute('r', '20');
+          rStd.setAttribute('r', '18');
           rStd.setAttribute('fill', 'none');
           rStd.setAttribute('stroke', activeResultType === 'indep' ? '#a855f7' : '#10b981');
-          rStd.setAttribute('stroke-width', '3');
+          rStd.setAttribute('stroke-width', '2.5');
           rStd.classList.add('radar-std');
           g.appendChild(rStd);
         }
 
-        // Surrounding Protected Safe Halo
+        // Surrounding Protected Halo
         if (isCovered && level === 0) {
           const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          halo.setAttribute('r', '25');
+          halo.setAttribute('r', '22');
           halo.setAttribute('fill', '#052e16');
-          halo.setAttribute('fill-opacity', '0.6');
+          halo.setAttribute('fill-opacity', '0.5');
           halo.setAttribute('stroke', '#10b981');
-          halo.setAttribute('stroke-width', '2');
-          halo.setAttribute('stroke-dasharray', '4 3');
+          halo.setAttribute('stroke-width', '1.5');
+          halo.setAttribute('stroke-dasharray', '3 2');
           g.appendChild(halo);
         }
 
-        // Node Body
+        // Node Circle
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('r', level === 2 ? '23' : '20');
+        circle.setAttribute('r', level === 2 ? '20' : '18');
 
         if (level === 2) {
           circle.setAttribute('fill', '#d97706');
           circle.setAttribute('stroke', '#fef3c7');
-          circle.setAttribute('stroke-width', '3.5');
+          circle.setAttribute('stroke-width', '3');
           circle.setAttribute('filter', 'url(#glow-gold)');
         } else if (level === 1) {
           const fillC = activeResultType === 'indep' ? '#7e22ce' : '#059669';
           const strokeC = activeResultType === 'indep' ? '#f3e8ff' : '#d1fae5';
           circle.setAttribute('fill', fillC);
           circle.setAttribute('stroke', strokeC);
-          circle.setAttribute('stroke-width', '3.5');
+          circle.setAttribute('stroke-width', '3');
           circle.setAttribute('filter', activeResultType === 'indep' ? 'url(#glow-purple)' : 'url(#glow-green)');
         } else if (isSelected) {
           circle.setAttribute('fill', '#4338ca');
           circle.setAttribute('stroke', '#a5b4fc');
-          circle.setAttribute('stroke-width', '3.5');
+          circle.setAttribute('stroke-width', '3');
         } else if (isCovered) {
           circle.setAttribute('fill', '#1e293b');
           circle.setAttribute('stroke', '#10b981');
-          circle.setAttribute('stroke-width', '2.5');
+          circle.setAttribute('stroke-width', '2');
         } else {
           circle.setAttribute('fill', '#0f172a');
           circle.setAttribute('stroke', '#64748b');
@@ -771,12 +623,12 @@
         }
         g.appendChild(circle);
 
-        // Center Icon or Node Label
+        // Center Icon/Text
         if (level === 2) {
           const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           icon.setAttribute('text-anchor', 'middle');
           icon.setAttribute('dominant-baseline', 'central');
-          icon.setAttribute('font-size', '15');
+          icon.setAttribute('font-size', '13');
           icon.setAttribute('pointer-events', 'none');
           icon.textContent = '🚀';
           g.appendChild(icon);
@@ -784,7 +636,7 @@
           const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           icon.setAttribute('text-anchor', 'middle');
           icon.setAttribute('dominant-baseline', 'central');
-          icon.setAttribute('font-size', '14');
+          icon.setAttribute('font-size', '12');
           icon.setAttribute('pointer-events', 'none');
           icon.textContent = '📹';
           g.appendChild(icon);
@@ -792,7 +644,7 @@
           const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           label.setAttribute('text-anchor', 'middle');
           label.setAttribute('dominant-baseline', 'central');
-          label.setAttribute('font-size', '11');
+          label.setAttribute('font-size', '10');
           label.setAttribute('font-weight', '900');
           label.setAttribute('fill', isCovered ? '#6ee7b7' : '#94a3b8');
           label.setAttribute('pointer-events', 'none');
@@ -800,21 +652,27 @@
           g.appendChild(label);
         }
 
-        // Mouse listeners
-        g.addEventListener('mousedown', (e) => onNodeMouseDown(e, node.id));
+        // Touch & Mouse Handlers for Mobile
+        g.addEventListener('mousedown', (e) => onNodeDragStart(e.clientX, e.clientY, node.id));
+        g.addEventListener('touchstart', (e) => {
+          if (e.touches.length > 0) {
+            onNodeDragStart(e.touches[0].clientX, e.touches[0].clientY, node.id);
+          }
+        }, { passive: false });
+
         g.addEventListener('click', (e) => onNodeClick(e, node.id));
 
         nodesLayer.appendChild(g);
 
-        // Render Floating Badge Over the Node indicating the Answer State
+        // Floating Badge Over Node
         if (level > 0 || (state.currentResult && isCovered)) {
           const bg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          bg.setAttribute('transform', `translate(${node.x}, ${node.y - 32})`);
+          bg.setAttribute('transform', `translate(${node.x}, ${node.y - 28})`);
           bg.classList.add('badge-pop', 'pointer-events-none');
 
           let badgeColor = '#10b981';
           let badgeBorder = '#d1fae5';
-          let badgeText = `${node.label}: 일반(1원)`;
+          let badgeText = `${node.label}: CCTV`;
 
           if (level === 2) {
             badgeColor = '#f59e0b';
@@ -824,34 +682,32 @@
             if (activeResultType === 'indep') {
               badgeColor = '#a855f7';
               badgeBorder = '#f3e8ff';
-              badgeText = `${node.label}: CCTV`;
+              badgeText = `${node.label}: 독립CCTV`;
             } else {
-              badgeText = `${node.label}: CCTV`;
+              badgeText = `${node.label}: CCTV(1원)`;
             }
           } else if (level === 0 && isCovered) {
             badgeColor = '#065f46';
             badgeBorder = '#34d399';
-            badgeText = `안전(감시됨)`;
+            badgeText = `안전`;
           }
 
-          // Badge pill background
           const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          const width = badgeText.length * 9.5 + 14;
+          const width = badgeText.length * 9 + 10;
           rect.setAttribute('x', -width / 2);
-          rect.setAttribute('y', -10);
+          rect.setAttribute('y', -8);
           rect.setAttribute('width', width);
-          rect.setAttribute('height', '20');
-          rect.setAttribute('rx', '10');
+          rect.setAttribute('height', '17');
+          rect.setAttribute('rx', '8.5');
           rect.setAttribute('fill', badgeColor);
           rect.setAttribute('stroke', badgeBorder);
-          rect.setAttribute('stroke-width', '1.5');
+          rect.setAttribute('stroke-width', '1.2');
           bg.appendChild(rect);
 
-          // Badge label text
           const bLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           bLabel.setAttribute('text-anchor', 'middle');
           bLabel.setAttribute('dominant-baseline', 'central');
-          bLabel.setAttribute('font-size', '10');
+          bLabel.setAttribute('font-size', '9');
           bLabel.setAttribute('font-weight', '900');
           bLabel.setAttribute('fill', '#ffffff');
           bLabel.textContent = badgeText;
@@ -862,17 +718,17 @@
       });
     }
 
-    function getSvgCoordinates(e) {
+    function getSvgCoordinates(clientX, clientY) {
       const rect = svg.getBoundingClientRect();
       return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+        x: clientX - rect.left,
+        y: clientY - rect.top
       };
     }
 
     svg.addEventListener('click', (e) => {
       if (e.target !== svg) return;
-      const coords = getSvgCoordinates(e);
+      const coords = getSvgCoordinates(e.clientX, e.clientY);
 
       if (state.mode === 'vertex') {
         addNode(coords.x, coords.y);
@@ -896,7 +752,7 @@
         const nxt = (cur + 1) % 3;
         state.manualAssignments.set(nodeId, nxt);
         state.currentResult = null;
-        hideCanvasBanner();
+        bottomAnswerPanel.classList.add('hidden');
         updateManualStatsDisplay();
         render();
         return;
@@ -906,13 +762,13 @@
         if (state.edgeStartNodeId === null) {
           state.edgeStartNodeId = nodeId;
           const nodeName = state.nodes.find(n => n.id === nodeId)?.label;
-          canvasGuideText.innerText = `[${nodeName}] 선택됨: 연결할 다른 지점을 클릭하세요.`;
+          canvasGuideText.innerText = `[${nodeName}] 선택됨: 연결할 다른 지점을 터치하세요.`;
           render();
         } else {
           addEdge(state.edgeStartNodeId, nodeId);
           state.edgeStartNodeId = null;
           clearTempEdge();
-          canvasGuideText.innerText = "길 연결 모드: 연결할 첫 번째 지점을 누르고, 두 번째 지점을 누르세요.";
+          canvasGuideText.innerText = "길 연결 모드: 이어줄 두 지점을 차례로 터치하세요.";
           render();
         }
         return;
@@ -931,11 +787,11 @@
       }
     }
 
-    function onNodeMouseDown(e, nodeId) {
+    function onNodeDragStart(clientX, clientY, nodeId) {
       if (state.mode !== 'select') return;
       state.isDragging = true;
       state.draggedNodeId = nodeId;
-      const coords = getSvgCoordinates(e);
+      const coords = getSvgCoordinates(clientX, clientY);
       const node = state.nodes.find(n => n.id === nodeId);
       state.dragOffset = {
         x: coords.x - node.x,
@@ -943,18 +799,18 @@
       };
     }
 
-    window.addEventListener('mousemove', (e) => {
+    function handlePointerMove(clientX, clientY) {
       if (state.isDragging && state.draggedNodeId !== null) {
-        const coords = getSvgCoordinates(e);
+        const coords = getSvgCoordinates(clientX, clientY);
         const node = state.nodes.find(n => n.id === state.draggedNodeId);
         if (node) {
           const rect = svg.getBoundingClientRect();
-          node.x = Math.max(30, Math.min(rect.width - 30, coords.x - state.dragOffset.x));
-          node.y = Math.max(35, Math.min(rect.height - 35, coords.y - state.dragOffset.y));
+          node.x = Math.max(25, Math.min(rect.width - 25, coords.x - state.dragOffset.x));
+          node.y = Math.max(25, Math.min(rect.height - 25, coords.y - state.dragOffset.y));
           render();
         }
       } else if (state.mode === 'edge' && state.edgeStartNodeId !== null) {
-        const coords = getSvgCoordinates(e);
+        const coords = getSvgCoordinates(clientX, clientY);
         const startNode = state.nodes.find(n => n.id === state.edgeStartNodeId);
         if (startNode) {
           tempEdgeLayer.innerHTML = '';
@@ -964,14 +820,26 @@
           tempLine.setAttribute('x2', coords.x);
           tempLine.setAttribute('y2', coords.y);
           tempLine.setAttribute('stroke', '#34d399');
-          tempLine.setAttribute('stroke-width', '3');
-          tempLine.setAttribute('stroke-dasharray', '6 4');
+          tempLine.setAttribute('stroke-width', '2.5');
+          tempLine.setAttribute('stroke-dasharray', '5 3');
           tempEdgeLayer.appendChild(tempLine);
         }
       }
-    });
+    }
+
+    window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => {
+      if (state.isDragging && e.touches.length > 0) {
+        e.preventDefault();
+        handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: false });
 
     window.addEventListener('mouseup', () => {
+      state.isDragging = false;
+      state.draggedNodeId = null;
+    });
+    window.addEventListener('touchend', () => {
       state.isDragging = false;
       state.draggedNodeId = null;
     });
@@ -979,7 +847,7 @@
     function updateManualStatsDisplay() {
       const total = state.nodes.length;
       if (total === 0) {
-        manualStatsBadge.innerText = '마을 지점을 먼저 추가해주세요';
+        manualStatsBadge.innerText = '지점 없음';
         return;
       }
 
@@ -994,16 +862,16 @@
       const covSet = getCoverageStatus(state.manualAssignments);
       const isFull = (covSet.size === total);
 
-      manualStatsBadge.innerHTML = `총비용 <strong>${cost}원</strong> (일반 ${countStd}대, 고성능 ${countHigh}대) | 감시 <strong>${covSet.size}/${total}곳</strong> ${isFull ? '🎉 전체 감시 완벽!' : ''}`;
+      manualStatsBadge.innerHTML = `총비용 <strong>${cost}원</strong> | 감시 <strong>${covSet.size}/${total}</strong> ${isFull ? '🎉 성공!' : ''}`;
       manualStatsBadge.className = isFull 
-        ? 'px-3 py-1 rounded-xl text-xs font-black bg-emerald-500/30 border border-emerald-400 text-emerald-300 animate-pulse'
-        : 'px-3 py-1 rounded-xl text-xs font-black bg-amber-500/20 border border-amber-500/40 text-amber-300';
+        ? 'px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/30 border border-emerald-400 text-emerald-300'
+        : 'px-2 py-0.5 rounded text-[10px] font-black bg-amber-500/20 text-amber-300';
     }
 
     // Solver 1: Minimum Standard Dominating Set
     function calculateDominatingSet() {
       if (state.nodes.length === 0) {
-        alertNotification("마을에 지점이 없습니다. 먼저 지점을 추가해주세요!");
+        alert("마을에 지점이 없습니다. 먼저 지점을 추가해주세요!");
         return;
       }
 
@@ -1059,14 +927,14 @@
         labels: selectedLabels
       };
 
-      showResultOnCanvasAndPanel('dom', domIds.length, selectedLabels, domIds.length);
+      showResultInBottomPanel('dom', domIds.length, selectedLabels, domIds.length);
       render();
     }
 
     // Solver 2: Minimum Independent Dominating Set
     function calculateIndependentDominatingSet() {
       if (state.nodes.length === 0) {
-        alertNotification("마을에 지점이 없습니다. 먼저 지점을 추가해주세요!");
+        alert("마을에 지점이 없습니다. 먼저 지점을 추가해주세요!");
         return;
       }
 
@@ -1124,14 +992,14 @@
         labels: selectedLabels
       };
 
-      showResultOnCanvasAndPanel('indep', indepIds.length, selectedLabels, indepIds.length);
+      showResultInBottomPanel('indep', indepIds.length, selectedLabels, indepIds.length);
       render();
     }
 
-    // Solver 3: High-Performance CCTV Optimal Cost (Branch and Bound)
+    // Solver 3: High-Performance Optimal Cost
     function calculateHighPerfCost() {
       if (state.nodes.length === 0) {
-        alertNotification("마을에 지점이 없습니다. 먼저 지점을 추가해주세요!");
+        alert("마을에 지점이 없습니다. 먼저 지점을 추가해주세요!");
         return;
       }
 
@@ -1148,7 +1016,6 @@
         }
       }
 
-      // Base upper bound: Standard domination
       let upperCost = n;
       for (let k = 1; k <= n; k++) {
         let f = false;
@@ -1235,176 +1102,122 @@
         highLabels: highLabels
       };
 
-      showHighPerfOnCanvasAndPanel(stdLabels, highLabels, minTotalCost, upperCost);
+      showHighPerfInBottomPanel(stdLabels, highLabels, minTotalCost, upperCost);
       render();
     }
 
-    function showResultOnCanvasAndPanel(type, count, labels, cost) {
-      canvasAnswerBanner.classList.remove('hidden');
-
+    // Display in Bottom Result Panel (Leaves Graph 100% Visible)
+    function showResultInBottomPanel(type, count, labels, cost) {
+      bottomAnswerPanel.classList.remove('hidden');
       const isDom = (type === 'dom');
-      const themeColor = isDom ? 'emerald' : 'purple';
 
-      // 1. Canvas Top HUD Banner
-      bannerBorderBox.className = isDom
-        ? 'p-3.5 sm:p-4 rounded-2xl bg-slate-950/95 backdrop-blur-md border border-emerald-500/70 shadow-2xl shadow-emerald-500/20 flex flex-wrap items-center justify-between gap-3'
-        : 'p-3.5 sm:p-4 rounded-2xl bg-slate-950/95 backdrop-blur-md border border-purple-500/70 shadow-2xl shadow-purple-500/20 flex flex-wrap items-center justify-between gap-3';
+      resultCardBox.className = isDom
+        ? 'p-3.5 sm:p-4 rounded-2xl bg-slate-900 border border-emerald-500/50 shadow-lg space-y-2.5'
+        : 'p-3.5 sm:p-4 rounded-2xl bg-slate-900 border border-purple-500/50 shadow-lg space-y-2.5';
 
-      bannerIconBadge.className = isDom
-        ? 'w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-2xl font-black shrink-0'
-        : 'w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/40 flex items-center justify-center text-2xl font-black shrink-0';
-      bannerIconBadge.textContent = isDom ? '📹' : '🚫';
+      resultIconBadge.className = isDom
+        ? 'w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm font-black shrink-0'
+        : 'w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center text-sm font-black shrink-0';
+      resultIconBadge.textContent = isDom ? '📹' : '🚫';
 
-      bannerSubTag.className = isDom
-        ? 'text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-        : 'text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30';
-      bannerSubTag.textContent = isDom ? '기본 지배수 계산 완료' : '독립 지배수 계산 완료';
+      resultTypeTag.className = isDom ? 'text-[10px] font-black uppercase text-emerald-400' : 'text-[10px] font-black uppercase text-purple-400';
+      resultTypeTag.textContent = isDom ? '최소 CCTV 정답' : '서로 안 붙은 최소 CCTV 정답';
 
-      bannerCalcTitle.textContent = isDom ? '마을 감시 최소 CCTV 개수' : '서로 붙어 있지 않은 최소 CCTV 개수';
-      
-      bannerMainAnswer.innerHTML = `정답: <span class="${isDom ? 'text-emerald-400' : 'text-purple-400'} text-2xl sm:text-3xl font-black">${count}대</span> <span class="text-xs text-slate-400 font-bold ml-1">(비용 ${cost}원)</span>`;
+      resultMainTitle.textContent = isDom ? '마을 감시 최소 CCTV 개수' : '서로 붙어 있지 않은 최소 CCTV';
 
-      // Installed node chips in banner
-      bannerNodeChips.innerHTML = labels.map(l => 
-        `<span class="px-2 py-0.5 rounded-lg text-xs font-black ${isDom ? 'bg-emerald-500 text-slate-950' : 'bg-purple-500 text-white'} shadow-sm">${l}</span>`
+      resultScoreHighlight.className = isDom ? 'text-2xl font-black text-emerald-400' : 'text-2xl font-black text-purple-400';
+      resultScoreHighlight.textContent = `${count}대`;
+
+      resultCostSubtext.textContent = `설치 비용: 총 ${cost}원`;
+      resultInstalledCount.textContent = `총 ${count}곳 선택`;
+
+      resultNodeChips.innerHTML = labels.map(l => 
+        `<span class="px-2 py-0.5 rounded-md text-xs font-black ${isDom ? 'bg-emerald-500 text-slate-950' : 'bg-purple-500 text-white'}">${l}</span>`
       ).join('');
 
-      // 2. Right Details Panel
-      const pill = document.getElementById('detail-status-pill');
-      pill.className = isDom 
-        ? 'text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-        : 'text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40';
-      pill.textContent = isDom ? '최소 CCTV 정답' : '독립 CCTV 정답';
+      resultFormulaBox.classList.add('hidden');
 
-      document.getElementById('detail-result-title').textContent = isDom ? '최소한의 CCTV 개수' : '서로 붙어 있지 않은 최소 CCTV 개수';
-      const score = document.getElementById('detail-result-score');
-      score.className = isDom ? 'text-4xl font-black my-1 text-emerald-400 tracking-tight' : 'text-4xl font-black my-1 text-purple-400 tracking-tight';
-      score.textContent = `${count}대`;
-
-      document.getElementById('detail-result-subtitle').textContent = `설치 비용: 총 ${cost}원 (마을 100% 감시 완료)`;
-      document.getElementById('detail-node-count-badge').textContent = `총 ${count}곳에 설치`;
-
-      document.getElementById('detail-node-list').innerHTML = labels.map(l => 
-        `<span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold ${isDom ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40' : 'bg-purple-950 text-purple-300 border border-purple-500/40'}">${l}</span>`
-      ).join('');
-
-      document.getElementById('cost-formula-card').classList.add('hidden');
-
-      const expl = document.getElementById('student-friendly-explanation');
-      expl.classList.remove('hidden');
       if (isDom) {
-        expl.innerHTML = `
-          <div class="font-black text-emerald-400">💡 수학적 정답 해설:</div>
-          <p class="mt-1 leading-normal">
-            마을의 모든 지점을 안전하게 비추기 위해 필요한 <strong>최소 개수는 ${count}대</strong>입니다.
-            초록색 배지가 달린 <strong>[${labels.join(', ')}]</strong> 지점에 CCTV를 설치하면, 연결된 모든 이웃 골목길까지 사각지대 없이 100% 감시할 수 있습니다.
-          </p>
+        resultExplanationText.innerHTML = `
+          마을의 모든 지점을 안전하게 비추는 <strong>최소 CCTV는 ${count}대</strong>입니다.
+          그래프에서 초록색으로 표시된 <strong>[${labels.join(', ')}]</strong> 지점에 설치하면 마을 전체가 100% 감시됩니다.
         `;
       } else {
-        expl.innerHTML = `
-          <div class="font-black text-purple-400">💡 수학적 정답 해설:</div>
-          <p class="mt-1 leading-normal">
-            CCTV끼리 직접 길로 이어지지 않게(서로 이웃하지 않게) 설치하면서 마을 전체를 감시하는 <strong>최소 개수는 ${count}대</strong>입니다.
-            보라색 배지의 <strong>[${labels.join(', ')}]</strong> 지점들은 서로 완전히 떨어져 있으면서도 마을을 빈틈없이 지켜냅니다.
-          </p>
+        resultExplanationText.innerHTML = `
+          CCTV끼리 직접 길로 이어지지 않게 설치하는 <strong>최소 CCTV는 ${count}대</strong>입니다.
+          보라색으로 표시된 <strong>[${labels.join(', ')}]</strong> 지점들은 서로 완전히 떨어져 있으면서도 마을을 안전하게 지킵니다.
         `;
       }
+
+      // Smooth scroll to answer
+      bottomAnswerPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function showHighPerfOnCanvasAndPanel(stdLabels, highLabels, minCost, baseCost) {
-      canvasAnswerBanner.classList.remove('hidden');
+    function showHighPerfInBottomPanel(stdLabels, highLabels, minCost, baseCost) {
+      bottomAnswerPanel.classList.remove('hidden');
 
-      // 1. Canvas Top HUD Banner
-      bannerBorderBox.className = 'p-3.5 sm:p-4 rounded-2xl bg-slate-950/95 backdrop-blur-md border border-amber-500/70 shadow-2xl shadow-amber-500/25 flex flex-wrap items-center justify-between gap-3';
-      bannerIconBadge.className = 'w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-2xl font-black shrink-0';
-      bannerIconBadge.textContent = '🚀';
+      resultCardBox.className = 'p-3.5 sm:p-4 rounded-2xl bg-slate-900 border border-amber-500/50 shadow-lg space-y-2.5';
+      resultIconBadge.className = 'w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-sm font-black shrink-0';
+      resultIconBadge.textContent = '🚀';
 
-      bannerSubTag.className = 'text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30';
-      bannerSubTag.textContent = '고성능 고려 최적 비용 계산 완료';
+      resultTypeTag.className = 'text-[10px] font-black uppercase text-amber-400';
+      resultTypeTag.textContent = '고성능 고려 최적 비용 정답';
 
-      bannerCalcTitle.textContent = '고성능(거리 2) 고려 총 설치 최소 비용';
-      bannerMainAnswer.innerHTML = `정답: <span class="text-amber-300 text-2xl sm:text-3xl font-black">${minCost}원</span> <span class="text-xs text-slate-400 font-bold ml-1">(고성능 ${highLabels.length}대 + 일반 ${stdLabels.length}대)</span>`;
+      resultMainTitle.textContent = '고성능(거리 2) 고려 최소 설치 비용';
+
+      resultScoreHighlight.className = 'text-2xl font-black text-amber-300';
+      resultScoreHighlight.textContent = `${minCost}원`;
+
+      resultCostSubtext.textContent = `고성능 ${highLabels.length}대 + 일반 ${stdLabels.length}대`;
+      resultInstalledCount.textContent = `총 ${highLabels.length + stdLabels.length}곳 선택`;
 
       let chips = '';
       if (highLabels.length > 0) {
-        chips += highLabels.map(l => `<span class="px-2 py-0.5 rounded-lg text-xs font-black bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1">🚀 ${l}(2원)</span>`).join('');
+        chips += highLabels.map(l => `<span class="px-2 py-0.5 rounded-md text-xs font-black bg-amber-500 text-slate-950 flex items-center gap-1">🚀 ${l}(2원)</span>`).join('');
       }
       if (stdLabels.length > 0) {
-        chips += stdLabels.map(l => `<span class="px-2 py-0.5 rounded-lg text-xs font-black bg-emerald-500 text-slate-950 shadow-sm flex items-center gap-1">📹 ${l}(1원)</span>`).join('');
+        chips += stdLabels.map(l => `<span class="px-2 py-0.5 rounded-md text-xs font-black bg-emerald-500 text-slate-950 flex items-center gap-1">📹 ${l}(1원)</span>`).join('');
       }
-      bannerNodeChips.innerHTML = chips || '<span class="text-slate-500 text-xs">설치 지점 없음</span>';
+      resultNodeChips.innerHTML = chips || '<span class="text-slate-500 text-xs">설치 없음</span>';
 
-      // 2. Right Details Panel
-      const pill = document.getElementById('detail-status-pill');
-      pill.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40';
-      pill.textContent = '고성능 최적 비용 정답';
-
-      document.getElementById('detail-result-title').textContent = '고성능 고려 설치 비용 최솟값';
-      const score = document.getElementById('detail-result-score');
-      score.className = 'text-4xl font-black my-1 text-amber-300 tracking-tight';
-      score.textContent = `${minCost}원`;
-
-      document.getElementById('detail-result-subtitle').textContent = `일반 CCTV만 쓸 때(비용 ${baseCost}원)와의 최적 비교`;
-      document.getElementById('detail-node-count-badge').textContent = `총 ${stdLabels.length + highLabels.length}곳 설치`;
-
-      let nodeHtml = '';
-      if (highLabels.length > 0) {
-        nodeHtml += highLabels.map(l => `<span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-amber-950 text-amber-300 border border-amber-500/40">🚀 ${l} (고성능)</span>`).join('');
-      }
-      if (stdLabels.length > 0) {
-        nodeHtml += stdLabels.map(l => `<span class="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-emerald-950 text-emerald-300 border border-emerald-500/40">📹 ${l} (일반)</span>`).join('');
-      }
-      document.getElementById('detail-node-list').innerHTML = nodeHtml;
-
-      // Cost Formula Breakdown
-      const formulaCard = document.getElementById('cost-formula-card');
-      formulaCard.classList.remove('hidden');
-      document.getElementById('cost-formula-content').innerHTML = `
+      resultFormulaBox.classList.remove('hidden');
+      resultFormulaBox.innerHTML = `
         • 고성능 CCTV: ${highLabels.length}대 × 2원 = <strong>${highLabels.length * 2}원</strong><br>
         • 일반 CCTV: ${stdLabels.length}대 × 1원 = <strong>${stdLabels.length * 1}원</strong><br>
         • <strong>합계 최솟값: ${minCost}원</strong>
       `;
 
       const saved = baseCost - minCost;
-      let costEvaluation = '';
+      let costEval = '';
       if (saved > 0) {
-        costEvaluation = `일반 CCTV만 설치할 때(${baseCost}원)보다 고성능 CCTV를 똑똑하게 배치하여 <strong>무려 ${saved}원의 예산을 절약</strong>했습니다!`;
+        costEval = `일반 CCTV만 쓸 때(${baseCost}원)보다 고성능 CCTV를 조합해 <strong>${saved}원의 비용을 절약</strong>했습니다!`;
       } else {
-        costEvaluation = `이 마을 형태에서는 고성능(2원)을 쓰는 것보다 <strong>일반 CCTV(1원)로 나누어 설치하는 것이 가장 경제적</strong>이었습니다!`;
+        costEval = `이 마을 구조는 고성능을 쓰는 것보다 <strong>일반 CCTV(1원)로 나누어 설치하는 것이 가장 경제적</strong>입니다!`;
       }
 
-      const expl = document.getElementById('student-friendly-explanation');
-      expl.classList.remove('hidden');
-      expl.innerHTML = `
-        <div class="font-black text-amber-300">💡 고성능 CCTV 최적화 탐구 분석:</div>
-        <p class="mt-1 leading-normal">
-          고성능 CCTV(비용 2)는 거리 2까지 광범위하게 비추므로 설치 대수를 크게 줄일 수 있습니다.
-          ${costEvaluation}
-        </p>
+      resultExplanationText.innerHTML = `
+        고성능 CCTV(비용 2)는 거리 2까지 넓게 감시합니다. ${costEval}
       `;
-    }
 
-    function alertNotification(msg) {
-      canvasGuideText.innerText = `⚠️ ${msg}`;
+      bottomAnswerPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function loadPreset(name) {
       clearGraph();
       const rect = svg.getBoundingClientRect();
-      const cx = (rect.width || 600) / 2;
-      const cy = (rect.height || 500) / 2;
+      const cx = (rect.width || 360) / 2;
+      const cy = (rect.height || 380) / 2;
 
       if (name === 'wheel') {
-        // Wheel W6 (1 Hub + 6 Rim nodes)
-        state.nodes.push({ id: 0, x: Math.round(cx), y: Math.round(cy), label: `중앙광장` });
-        const r = 135;
+        state.nodes.push({ id: 0, x: Math.round(cx), y: Math.round(cy), label: `광장` });
+        const r = Math.min(cx, cy) * 0.72;
         for (let i = 0; i < 6; i++) {
           const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 6;
           state.nodes.push({
             id: i + 1,
             x: Math.round(cx + r * Math.cos(angle)),
             y: Math.round(cy + r * Math.sin(angle)),
-            label: `${i + 1}번가`
+            label: `${i + 1}번`
           });
         }
         state.nextId = 7;
@@ -1414,16 +1227,15 @@
         }
       }
       else if (name === 'petersen') {
-        // Petersen Village (10 vertices)
-        const rOut = 145;
-        const rIn = 75;
+        const rOut = Math.min(cx, cy) * 0.76;
+        const rIn = Math.min(cx, cy) * 0.40;
         for (let i = 0; i < 5; i++) {
           const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-          state.nodes.push({ id: i, x: Math.round(cx + rOut * Math.cos(angle)), y: Math.round(cy + rOut * Math.sin(angle)), label: `외곽${i+1}` });
+          state.nodes.push({ id: i, x: Math.round(cx + rOut * Math.cos(angle)), y: Math.round(cy + rOut * Math.sin(angle)), label: `외${i+1}` });
         }
         for (let i = 0; i < 5; i++) {
           const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-          state.nodes.push({ id: i + 5, x: Math.round(cx + rIn * Math.cos(angle)), y: Math.round(cy + rIn * Math.sin(angle)), label: `골목${i+1}` });
+          state.nodes.push({ id: i + 5, x: Math.round(cx + rIn * Math.cos(angle)), y: Math.round(cy + rIn * Math.sin(angle)), label: `안${i+1}` });
         }
         state.nextId = 10;
         for (let i = 0; i < 5; i++) addEdge(i, (i + 1) % 5);
@@ -1431,25 +1243,24 @@
         addEdge(5, 7); addEdge(7, 9); addEdge(9, 6); addEdge(6, 8); addEdge(8, 5);
       }
       else if (name === 'cycle7') {
-        // C7 Cycle
-        const r = 135;
+        const r = Math.min(cx, cy) * 0.74;
         for (let i = 0; i < 7; i++) {
           const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 7;
           state.nodes.push({
             id: i,
             x: Math.round(cx + r * Math.cos(angle)),
             y: Math.round(cy + r * Math.sin(angle)),
-            label: `${i + 1}거리`
+            label: `${i + 1}`
           });
         }
         state.nextId = 7;
         for (let i = 0; i < 7; i++) addEdge(i, (i + 1) % 7);
       }
       else if (name === 'k33') {
-        // Complete Bipartite K3,3
+        const spanY = Math.min(cy * 0.65, 80);
         for (let i = 0; i < 3; i++) {
-          state.nodes.push({ id: i, x: Math.round(cx - 130), y: Math.round(cy - 90 + i * 90), label: `동마을${i+1}` });
-          state.nodes.push({ id: i + 3, x: Math.round(cx + 130), y: Math.round(cy - 90 + i * 90), label: `서마을${i+1}` });
+          state.nodes.push({ id: i, x: Math.round(cx - 95), y: Math.round(cy - spanY + i * spanY), label: `A${i+1}` });
+          state.nodes.push({ id: i + 3, x: Math.round(cx + 95), y: Math.round(cy - spanY + i * spanY), label: `B${i+1}` });
         }
         state.nextId = 6;
         for (let i = 0; i < 3; i++) {
@@ -1457,14 +1268,14 @@
         }
       }
       else if (name === 'tree') {
-        // Tree Structure
-        state.nodes.push({ id: 0, x: Math.round(cx), y: Math.round(cy - 120), label: `뿌리` });
-        state.nodes.push({ id: 1, x: Math.round(cx - 110), y: Math.round(cy - 20), label: `가지1` });
-        state.nodes.push({ id: 2, x: Math.round(cx + 110), y: Math.round(cy - 20), label: `가지2` });
-        state.nodes.push({ id: 3, x: Math.round(cx - 150), y: Math.round(cy + 90), label: `잎새1` });
-        state.nodes.push({ id: 4, x: Math.round(cx - 70), y: Math.round(cy + 90), label: `잎새2` });
-        state.nodes.push({ id: 5, x: Math.round(cx + 70), y: Math.round(cy + 90), label: `잎새3` });
-        state.nodes.push({ id: 6, x: Math.round(cx + 150), y: Math.round(cy + 90), label: `잎새4` });
+        const dY = Math.min(cy * 0.45, 60);
+        state.nodes.push({ id: 0, x: Math.round(cx), y: Math.round(cy - dY * 1.6), label: `뿌리` });
+        state.nodes.push({ id: 1, x: Math.round(cx - 75), y: Math.round(cy - dY * 0.3), label: `가지1` });
+        state.nodes.push({ id: 2, x: Math.round(cx + 75), y: Math.round(cy - dY * 0.3), label: `가지2` });
+        state.nodes.push({ id: 3, x: Math.round(cx - 110), y: Math.round(cy + dY * 1.1), label: `잎1` });
+        state.nodes.push({ id: 4, x: Math.round(cx - 45), y: Math.round(cy + dY * 1.1), label: `잎2` });
+        state.nodes.push({ id: 5, x: Math.round(cx + 45), y: Math.round(cy + dY * 1.1), label: `잎3` });
+        state.nodes.push({ id: 6, x: Math.round(cx + 110), y: Math.round(cy + dY * 1.1), label: `잎4` });
         state.nextId = 7;
         addEdge(0, 1); addEdge(0, 2);
         addEdge(1, 3); addEdge(1, 4);
@@ -1478,9 +1289,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        loadPreset('wheel');
-      }, 50);
+      setTimeout(() => loadPreset('wheel'), 50);
     });
 
     window.addEventListener('resize', () => {
